@@ -208,19 +208,19 @@ The real value may vary depending on the variations in voltage and temperature.*
   */
 
 #ifdef HAL_RCC_MODULE_ENABLED
-#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_rcc.h"
+#include "stm32g4xx_hal_rcc.h"
 #endif /* HAL_RCC_MODULE_ENABLED */
 
 #ifdef HAL_GPIO_MODULE_ENABLED
-#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h"
+#include "stm32g4xx_hal_gpio.h"
 #endif /* HAL_GPIO_MODULE_ENABLED */
 
 #ifdef HAL_DMA_MODULE_ENABLED
-#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_dma.h"
+#include "stm32g4xx_hal_dma.h"
 #endif /* HAL_DMA_MODULE_ENABLED */
 
 #ifdef HAL_CORTEX_MODULE_ENABLED
-#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_cortex.h"
+#include "stm32g4xx_hal_cortex.h"
 #endif /* HAL_CORTEX_MODULE_ENABLED */
 
 #ifdef HAL_ADC_MODULE_ENABLED
@@ -248,7 +248,7 @@ The real value may vary depending on the variations in voltage and temperature.*
 #endif /* HAL_DAC_MODULE_ENABLED */
 
 #ifdef HAL_EXTI_MODULE_ENABLED
-#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_exti.h"
+#include "stm32g4xx_hal_exti.h"
 #endif /* HAL_EXTI_MODULE_ENABLED */
 
 #ifdef HAL_FDCAN_MODULE_ENABLED
@@ -256,7 +256,7 @@ The real value may vary depending on the variations in voltage and temperature.*
 #endif /* HAL_FDCAN_MODULE_ENABLED */
 
 #ifdef HAL_FLASH_MODULE_ENABLED
-#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_flash.h"
+#include "stm32g4xx_hal_flash.h"
 #endif /* HAL_FLASH_MODULE_ENABLED */
 
 #ifdef HAL_FMAC_MODULE_ENABLED
@@ -304,7 +304,7 @@ The real value may vary depending on the variations in voltage and temperature.*
 #endif /* HAL_PCD_MODULE_ENABLED */
 
 #ifdef HAL_PWR_MODULE_ENABLED
-#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_pwr.h"
+#include "stm32g4xx_hal_pwr.h"
 #endif /* HAL_PWR_MODULE_ENABLED */
 
 #ifdef HAL_QSPI_MODULE_ENABLED
@@ -340,11 +340,11 @@ The real value may vary depending on the variations in voltage and temperature.*
 #endif /* HAL_SRAM_MODULE_ENABLED */
 
 #ifdef HAL_TIM_MODULE_ENABLED
-#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h"
+#include "stm32g4xx_hal_tim.h"
 #endif /* HAL_TIM_MODULE_ENABLED */
 
 #ifdef HAL_UART_MODULE_ENABLED
-#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h"
+#include "stm32g4xx_hal_uart.h"
 #endif /* HAL_UART_MODULE_ENABLED */
 
 #ifdef HAL_USART_MODULE_ENABLED

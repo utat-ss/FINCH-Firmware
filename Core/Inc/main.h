@@ -28,8 +28,8 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
-#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_pwr.h"
+#include "stm32g4xx_hal.h"
+#include "stm32g4xx_ll_pwr.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */

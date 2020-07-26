@@ -53,4 +53,5 @@ dkms.conf
 
 # Build/Generated Files
 Debug/**
-Custom/**
+.mxproject
+.settings/**
