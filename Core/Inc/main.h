@@ -30,6 +30,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
 #include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_pwr.h"
+#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -37,6 +38,7 @@ extern "C" {
 #include <stdint.h>
 // Driver Wrapper Includes
 #include "../../src/drivers/STM32G4_gpio/gpio.h"
+#include "../../src/drivers/STM32G4_tim/tim.h"
 
 //Testing Includes
 #include "../../manual_tests/STM32G4_gpio/gpio_test.h"
