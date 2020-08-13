@@ -10,6 +10,14 @@
 #include "../../src/drivers/STM32G4_tim/tim.h"
 #include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h"
 
+static TIM_HandleTypeDef timer;
+
+void TIM2_IRQHandler(){
+	HAL_TIM_IRQHandler(&timer);
+}
+
+
+
 // Setup the GPIO pins needed
 void setup_gpio(){
 	__HAL_RCC_GPIOA_CLK_ENABLE();
@@ -22,13 +30,20 @@ void setup_gpio(){
 	HAL_GPIO_Init(GPIOA, &handle);
 }
 
+// Setup the timer and interrupt functions
+void setup_tim(){
+	tim_populate_handle(&timer, TIM2, 62499, TIM_COUNTERMODE_UP, 815, TIM_CLOCKDIVISION_DIV1, 0, TIM_AUTORELOAD_PRELOAD_ENABLE); // Update event = clock frequency / ((prescaler+1) * (period+1))
+	__HAL_RCC_TIM2_CLK_ENABLE();
+	tim_init(&timer, TIM_Base, 0, NULL);
+	HAL_NVIC_EnableIRQ(TIM2_IRQn);
+}
+
 /* Flashes 'FINCH' on the evaluation kit LD2 LED.
  *
  * In this context, a time unit is 150 ms (20/6 Hz), so the entire message (54 time units) is transmitted in 8.1 seconds.
  * Update events occur at each other time unit (300 ms or 20/3 Hz).
  */
 void tim_test_morse(){
-	TIM_HandleTypeDef timer;
 	uint8_t time_unit = 0;
 	uint8_t old_counter = 0, new_counter;
 	uint8_t led_toggle[] = {1,1,1,1,1,0,0,1,1,1,0,0,
@@ -37,10 +52,9 @@ void tim_test_morse(){
 						  1,0,0,1,1,1,1,0,0,1,1,1,0,0,
 						  1,1,1,1,1,1,1,1,0,0,0,0,0,0}; // Each line is a letter and the trailing space or end of word.
 
-	tim_populate_handle(&timer, TIM2, 62499, TIM_COUNTERMODE_UP, 815, TIM_CLOCKDIVISION_DIV1, 0, TIM_AUTORELOAD_PRELOAD_ENABLE); // Update event = clock frequency / ((prescaler+1) * (period+1))
-	__HAL_RCC_TIM2_CLK_ENABLE();
+
+	setup_tim();
 	setup_gpio();
-	tim_init(&timer, TIM_Base, 0, NULL);
 	tim_start(&timer, TIM_Base, 0);
 
 	// Flash the message
