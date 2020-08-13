@@ -4,19 +4,47 @@
  *  Created on: Jul 22, 2020
  *      Author: Cameron Rodriguez
  *
- * Overview: A timer that uses LD2 to flash 'FINCH' in Morse code on the NUCLEO-G474RE.
+ * Overview: A timer that uses LD2 to flash 'FINCH' in Morse code on the NUCLEO-G474RE. Based on https://visualgdb.com/tutorials/arm/stm32/timers/hal/
  */
 
 #include "../../src/drivers/STM32G4_tim/tim.h"
 #include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h"
 
 static TIM_HandleTypeDef timer;
-
+volatile uint8_t time_unit = 0;
+volatile uint8_t led_toggle[] = {1,1,1,1,1,0,0,1,1,1,0,0,
+						  1,1,1,1,0,0,
+						  1,0,0,1,1,1,0,0,
+						  1,0,0,1,1,1,1,0,0,1,1,1,0,0,
+						  1,1,1,1,1,1,1,1,0,0,0,0,0,0}; // Each line is a letter and the trailing space or end of word.
+// Interrupt handler
 void TIM2_IRQHandler(){
 	HAL_TIM_IRQHandler(&timer);
 }
 
+// Advance to the next signal on every second time unit
+void HAL_TIM_PeriodElapsedHalfCpltCallback(TIM_HandleTypeDef *htim){
+	if(led_toggle[time_unit]){
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	}
 
+	time_unit++;
+	if(time_unit==54){ //Reset the cycle
+		time_unit=0;
+	}
+}
+
+// Advance to the next signal on every first time unit
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	if(led_toggle[time_unit]){
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	}
+
+	time_unit++;
+	if(time_unit==54){ //Reset the cycle
+		time_unit=0;
+	}
+}
 
 // Setup the GPIO pins needed
 void setup_gpio(){
@@ -44,37 +72,7 @@ void setup_tim(){
  * Update events occur at each other time unit (300 ms or 20/3 Hz).
  */
 void tim_test_morse(){
-	uint8_t time_unit = 0;
-	uint8_t old_counter = 0, new_counter;
-	uint8_t led_toggle[] = {1,1,1,1,1,0,0,1,1,1,0,0,
-						  1,1,1,1,0,0,
-						  1,0,0,1,1,1,0,0,
-						  1,0,0,1,1,1,1,0,0,1,1,1,0,0,
-						  1,1,1,1,1,1,1,1,0,0,0,0,0,0}; // Each line is a letter and the trailing space or end of word.
-
-
 	setup_tim();
 	setup_gpio();
-	tim_start(&timer, TIM_Base, 0);
-
-	// Flash the message
-	for(;;){
-			if(time_unit==54){
-				time_unit=0;
-			}
-
-			if(__HAL_TIM_GET_COUNTER(&timer)<408){ // First time unit
-				new_counter=0;
-			}else{ // Second time unit
-				new_counter=1;
-			}
-
-			if(new_counter!=old_counter){ // Toggle light as needed
-				old_counter=new_counter;
-				if(led_toggle[time_unit]){
-					HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-				}
-				time_unit++;
-			}
-		}
+	tim_start_IT(&timer, TIM_Base, 0);
 }
