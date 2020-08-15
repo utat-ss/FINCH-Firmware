@@ -9,7 +9,11 @@
  *  the yellow light will blink. Otherwise, the red light will blink.
  */
 
-#include "../STM32_gpio/gpio_test.h"
+#include <STM32_gpio/gpio.h>
+
+#if STM32H743xx
+	#include <STM32H7_clock/clock.h>
+#endif
 
 int main() {
 	// Initialization

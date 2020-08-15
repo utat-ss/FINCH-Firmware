@@ -8,7 +8,7 @@
 #ifndef CLOCK_H_
 #define CLOCK_H_
 
-#include "../../../Startup/STM32H7/stm32h7_startup.h"
+#include <stm32h7xx_hal.h>
 
 void clock_init(void);
 void SystemClock_Config(void);
