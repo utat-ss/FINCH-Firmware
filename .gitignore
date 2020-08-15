@@ -53,5 +53,9 @@ dkms.conf
 
 # Build/Generated Files
 Debug/**
+Core/**
 .mxproject
 .settings/**
+
+#Program files
+*.ld
