@@ -56,9 +56,11 @@ Debug/**
 Core/**
 .mxproject
 .settings/**
+mx.scratch
 
 # Program files
 *.ld
+Firmware.ioc
 
 # Other
 .DS_Store
