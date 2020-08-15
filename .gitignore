@@ -57,5 +57,8 @@ Core/**
 .mxproject
 .settings/**
 
-#Program files
+# Program files
 *.ld
+
+# Other
+.DS_Store
