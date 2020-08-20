@@ -7,7 +7,8 @@
  * Overview: A timer that uses LD2 to flash 'FINCH' in Morse code on the NUCLEO-G474RE. Based on https://visualgdb.com/tutorials/arm/stm32/timers/hal/
  */
 
-#include "../../src/drivers/STM32G4_tim/tim.h"
+#include "../../src/drivers/STM32_tim/tim.h"
+
 #include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h"
 
 static TIM_HandleTypeDef timer;
