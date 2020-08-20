@@ -39,7 +39,7 @@ extern "C" {
 #include <stdint.h>
 // Driver Wrapper Includes
 #include "../../src/drivers/STM32G4_gpio/gpio.h"
-#include "../../src/drivers/STM32G4_tim/tim.h"
+#include "../../src/drivers/STM32_tim/tim.h"
 
 //Testing Includes
 #include "../../manual_tests/STM32G4_gpio/gpio_test.h"
