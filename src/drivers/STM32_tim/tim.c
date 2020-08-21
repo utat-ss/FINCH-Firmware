@@ -80,11 +80,11 @@ uint8_t tim_clear_IT_flag(TIM_HandleTypeDef *handle, uint32_t flag){
 	return status;
 }
 
-// Initialization, start, and stop functions
+// Config functions
 
 /* Populate the handle for a timer
- * @param TIM_HandleTypeDef handle - the handle to be populated
- * @param TIM_TypeDef* instance - the register where the specific timer is location
+ * @param TIM_HandleTypeDef *handle - the handle to be populated
+ * @param TIM_TypeDef *instance - the register where the specific timer is location
  * @param uint32_t prescaler - used in the prescaler calculation to divide the clock
  * @param uint32_t time_counter_mode - counting mode (TIM_COUNTERMODE[_UP/_DOWN/_CENTERALIGNED1/_CENTERALIGNED2/_CENTERALIGNED3])
  * @param uint32_t period - value to reset to or at; part of the prescaler calculation
@@ -105,6 +105,83 @@ TIM_HandleTypeDef *tim_populate_handle(TIM_HandleTypeDef *handle, TIM_TypeDef *i
 
 	return handle;
 }
+
+/* Configures the Input Capture channels
+ * @param TIM_HandleTypeDef *handle - the timer handle
+ * @param TIM_IC_InitTypeDef *ic_cfg - the input capture configuration
+ * @param uint32_t channel - the timer channel to use
+ * @return HAL_StatusTypeDef - status of the HAL operation
+ */
+HAL_StatusTypeDef tim_config_ic (TIM_HandleTypeDef *handle, TIM_IC_InitTypeDef *ic_cfg, uint32_t channel){
+	HAL_StatusTypeDef status = HAL_TIM_IC_ConfigChannel(handle, ic_cfg, channel);
+	return status;
+}
+
+/* Configures the Output Capture channels
+ * @param TIM_HandleTypeDef *handle - the timer handle
+ * @param TIM_OC_InitTypeDef *oc_cfg - the output capture configuration
+ * @param uint32_t channel - the timer channel to use
+ * @return HAL_StatusTypeDef - status of the HAL operation
+ */
+HAL_StatusTypeDef tim_config_oc (TIM_HandleTypeDef *handle, TIM_OC_InitTypeDef *oc_cfg, uint32_t channel){
+	HAL_StatusTypeDef status = HAL_TIM_OC_ConfigChannel(handle, oc_cfg, channel);
+	return status;
+}
+
+/* Configures the PWM channels
+ * @param TIM_HandleTypeDef *handle - the timer handle
+ * @param TIM_OC_InitTypeDef *oc_cfg - the output capture (PWM) configuration
+ * @param uint32_t channel - the timer channel to use
+ * @return HAL_StatusTypeDef - status of the HAL operation
+ */
+HAL_StatusTypeDef tim_config_pwm (TIM_HandleTypeDef *handle, TIM_OC_InitTypeDef *oc_cfg, uint32_t channel){
+	HAL_StatusTypeDef status = HAL_TIM_PWM_ConfigChannel(handle, oc_cfg, channel);
+	return status;
+}
+
+/* Configures the OnePulse channels
+ * @param TIM_HandleTypeDef *handle - the timer handle
+ * @param TIM_OnePulse_InitTypeDef *onepulse_cfg - the OnePulse configuration
+ * @param uint32_t output_channel - the timer output channel to use
+ * @param uint32_t input_channel - the timer input channel to use
+ * @return HAL_StatusTypeDef - status of the HAL operation
+ */
+HAL_StatusTypeDef tim_config_onepulse (TIM_HandleTypeDef *handle, TIM_OnePulse_InitTypeDef *onepulse_cfg, uint32_t output_channel, uint32_t input_channel){
+	HAL_StatusTypeDef status = HAL_TIM_OnePulse_ConfigChannel(handle, onepulse_cfg, output_channel, input_channel);
+	return status;
+}
+
+/* Configures the clock source to be used
+ * @param TIM_HandleTypeDef *handle - the timer handle
+ * @param TIM_OC_InitTypeDef *clk_cfg - the clock configuration
+ * @return HAL_StatusTypeDef - status of the HAL operation
+ */
+HAL_StatusTypeDef tim_config_clock (TIM_HandleTypeDef *handle, TIM_ClockConfigTypeDef *clk_cfg){
+	HAL_StatusTypeDef status = HAL_TIM_ConfigClockSource(handle, clk_cfg);
+	return status;
+}
+
+/* Configures into slave mode
+ * @param TIM_HandleTypeDef *handle - the timer handle
+ * @param TIM_OC_InitTypeDef *slave_cfg - the slave configuration
+ * @return HAL_StatusTypeDef - status of the HAL operation
+ */
+HAL_StatusTypeDef tim_config_slave (TIM_HandleTypeDef *handle, TIM_SlaveConfigTypeDef *slave_cfg){
+	HAL_StatusTypeDef status = HAL_TIM_SlaveConfigSynchro(handle, slave_cfg);
+	return status;
+}
+
+/* Configures into slave mode with interrupts
+ * @param TIM_HandleTypeDef *handle - the timer handle
+ * @param TIM_OC_InitTypeDef *slave_cfg - the slave configuration
+ * @return HAL_StatusTypeDef - status of the HAL operation
+ */
+HAL_StatusTypeDef tim_config_slave_IT (TIM_HandleTypeDef *handle, TIM_SlaveConfigTypeDef *slave_cfg){
+	HAL_StatusTypeDef status = HAL_TIM_SlaveConfigSynchro(handle, slave_cfg);
+	return status;
+}
+
+// Initialization, start, and stop functions
 
 /* Initialize a specific timer function
  * @param TIM_HandleTypeDef* handle - the handle for the timer
