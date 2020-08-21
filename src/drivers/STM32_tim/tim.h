@@ -21,6 +21,7 @@ typedef struct {
 	TIM_SlaveConfigTypeDef *slave_cfg;
 	uint16_t function;
 	uint32_t channel;
+	uint32_t input_channel;
 	uint32_t onepulse_mode;
 } TimFunc;
 
@@ -41,6 +42,13 @@ uint8_t tim_clear_IT_flag(TIM_HandleTypeDef *handle, uint32_t flag);
 // Timer config functions
 TIM_HandleTypeDef *tim_populate_handle(TIM_HandleTypeDef *handle, TIM_TypeDef *instance, uint32_t prescaler, uint32_t time_counter_mode, uint32_t period,
 		uint32_t clock_division, uint32_t repitition_counter, uint32_t autoreload_preload);
+HAL_StatusTypeDef tim_config_ic (TIM_HandleTypeDef *handle, TIM_IC_InitTypeDef *ic_cfg, uint32_t channel);
+HAL_StatusTypeDef tim_config_oc (TIM_HandleTypeDef *handle, TIM_OC_InitTypeDef *oc_cfg, uint32_t channel);
+HAL_StatusTypeDef tim_config_pwm (TIM_HandleTypeDef *handle, TIM_OC_InitTypeDef *oc_cfg, uint32_t channel);
+HAL_StatusTypeDef tim_config_onepulse (TIM_HandleTypeDef *handle, TIM_OnePulse_InitTypeDef *onepulse_cfg, uint32_t output_channel, uint32_t input_channel);
+HAL_StatusTypeDef tim_config_clock (TIM_HandleTypeDef *handle, TIM_ClockConfigTypeDef *clk_cfg);
+HAL_StatusTypeDef tim_config_slave (TIM_HandleTypeDef *handle, TIM_SlaveConfigTypeDef *slave_cfg);
+HAL_StatusTypeDef tim_config_slave_IT (TIM_HandleTypeDef *handle, TIM_SlaveConfigTypeDef *slave_cfg);
 
 // Timer init/start/stop functions
 uint8_t tim_init(TIM_HandleTypeDef *handle, uint8_t function, uint32_t onepulse_mode, TIM_Encoder_InitTypeDef *encoder_cfg);
