@@ -28,16 +28,16 @@ typedef struct {
 // Constants for timer functions
 enum tim_func_constants {TIM_Base, TIM_IC, TIM_OC, TIM_PWM, TIM_OnePulse, TIM_Encoder};
 
-// Helper calculator functions
-uint16_t tim_calc_prescaler(uint32_t tim_clk, uint16_t count_clk);
-uint16_t tim_calc_period(uint32_t tim_clk, uint16_t prescaler, uint16_t frequency);
+// Helper calculator macros
+#define tim_calc_prescaler(tim_clk, count_clk) 				__HAL_TIM_CALC_PSC(tim_clk, count_clk)
+#define tim_calc_period(tim_clk, prescaler, frequency) 		__HAL_TIM_CALC_PERIOD(tim_clk, prescaler, frequency)
 
-// User-friendly functions for macros, including interrupt flags
-uint32_t tim_get_counter(TIM_HandleTypeDef *handle);
-void tim_enable_IT_flag(TIM_HandleTypeDef *handle, uint32_t flag);
-void tim_disable_IT_flag(TIM_HandleTypeDef *handle, uint32_t flag);
-uint8_t tim_get_IT_flag(TIM_HandleTypeDef *handle, uint32_t flag);
-uint8_t tim_clear_IT_flag(TIM_HandleTypeDef *handle, uint32_t flag);
+// User-friendly macros for counter and interrupt flags
+#define tim_get_counter(handle) 							__HAL_TIM_GET_COUNTER(handle)
+#define tim_enable_IT_flag(handle, flag)					__HAL_TIM_ENABLE_IT(handle, flag)
+#define tim_disable_IT_flag(handle, flag)					__HAL_TIM_DISABLE_IT(handle, flag)
+#define tim_get_IT_flag(handle, flag)						__HAL_TIM_GET_FLAG(handle, flag)
+#define tim_clear_IT_flag(handle, flag)						__HAL_TIM_CLEAR_FLAG(handle, flag)
 
 // Timer config functions
 TIM_HandleTypeDef *tim_populate_handle(TIM_HandleTypeDef *handle, TIM_TypeDef *instance, uint32_t prescaler, uint32_t time_counter_mode, uint32_t period,
