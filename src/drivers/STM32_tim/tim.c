@@ -9,7 +9,13 @@
 
 #include "../STM32_tim/tim.h"
 
-// Config functions
+/* Config functions
+ * - These function generate basic TimFunc struct for each timer. Further changes can be made by manually adjusting values within the struct, or
+ * using macros to enable interrupt flags and build other configuration initialization definitions (tim_config_xxx();).
+ * - Functions using DMA will automatically be generated
+ * - The prescaler equation is final_frequency = clock_frequency / (prescaler + 1) / (period + 1). These values can be calculated with the
+ * macros tim_calc_prescaler() and tim_calc_period().
+ */
 
 /* Populate the handle for a timer
  * @param TIM_HandleTypeDef *handle - the handle to be populated
@@ -33,6 +39,42 @@ TIM_HandleTypeDef *tim_populate_handle(TIM_HandleTypeDef *handle, TIM_TypeDef *i
 	handle->Init.AutoReloadPreload = autoreload_preload;
 
 	return handle;
+}
+
+
+/* Initializes a TimFunc timer struct with zeroed values.
+ * @return TimFunc* - address of an initialized TimFunc struct
+ */
+TimFunc *tim_init_struct(){
+	TimFunc timer = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL};
+	TimFunc* timer_addr = &timer;
+	return timer_addr;
+}
+
+TIM_HandleTypeDef *tim_init_handle(TIM_TypeDef *instance, uint32_t prescaler, uint32_t period){
+	TIM_HandleTypeDef handle = {.Instance = instance};
+	handle.Init.Prescaler = prescaler;
+	handle.Init.Period = period;
+	TIM_HandleTypeDef *handle_addr = &handle;
+	return handle_addr;
+}
+
+/* Configure a basic handle for a timer with Base feature.
+ * @param TIM_TypeDef *instance - the register where the specific timer is location (ex. TIM2)
+ * @param TimMode *mode - the mode the timer runs in (normal, interrupt, or DMA) and associated values
+ * @param uint32_t prescaler - used in the prescaler calculation to divide the clock
+ * @param uint32_t period - value to reset to or at; part of the prescaler calculation
+ * @return TimFunc* - the address of the TimFunc timer struct
+ */
+TimFunc *tim_config_base(TIM_TypeDef *instance, TimMode *mode, uint32_t prescaler, uint32_t period){
+	TimFunc *base_timer = tim_init_struct();
+	TIM_HandleTypeDef *handle = tim_init_handle(instance, prescaler, period);
+
+	base_timer->function = TIM_Base;
+	base_timer->mode = mode;
+	base_timer->handle = handle;
+
+	return base_timer;
 }
 
 /* Configures the Input Capture channels
@@ -77,36 +119,6 @@ HAL_StatusTypeDef tim_config_pwm (TIM_HandleTypeDef *handle, TIM_OC_InitTypeDef 
  */
 HAL_StatusTypeDef tim_config_onepulse (TIM_HandleTypeDef *handle, TIM_OnePulse_InitTypeDef *onepulse_cfg, uint32_t output_channel, uint32_t input_channel){
 	HAL_StatusTypeDef status = HAL_TIM_OnePulse_ConfigChannel(handle, onepulse_cfg, output_channel, input_channel);
-	return status;
-}
-
-/* Configures the clock source to be used
- * @param TIM_HandleTypeDef *handle - the timer handle
- * @param TIM_OC_InitTypeDef *clk_cfg - the clock configuration
- * @return HAL_StatusTypeDef - status of the HAL operation
- */
-HAL_StatusTypeDef tim_config_clock (TIM_HandleTypeDef *handle, TIM_ClockConfigTypeDef *clk_cfg){
-	HAL_StatusTypeDef status = HAL_TIM_ConfigClockSource(handle, clk_cfg);
-	return status;
-}
-
-/* Configures into slave mode
- * @param TIM_HandleTypeDef *handle - the timer handle
- * @param TIM_OC_InitTypeDef *slave_cfg - the slave configuration
- * @return HAL_StatusTypeDef - status of the HAL operation
- */
-HAL_StatusTypeDef tim_config_slave (TIM_HandleTypeDef *handle, TIM_SlaveConfigTypeDef *slave_cfg){
-	HAL_StatusTypeDef status = HAL_TIM_SlaveConfigSynchro(handle, slave_cfg);
-	return status;
-}
-
-/* Configures into slave mode with interrupts
- * @param TIM_HandleTypeDef *handle - the timer handle
- * @param TIM_OC_InitTypeDef *slave_cfg - the slave configuration
- * @return HAL_StatusTypeDef - status of the HAL operation
- */
-HAL_StatusTypeDef tim_config_slave_IT (TIM_HandleTypeDef *handle, TIM_SlaveConfigTypeDef *slave_cfg){
-	HAL_StatusTypeDef status = HAL_TIM_SlaveConfigSynchro(handle, slave_cfg);
 	return status;
 }
 
@@ -224,7 +236,7 @@ uint8_t tim_start_IT(TIM_HandleTypeDef *handle, uint8_t function, uint32_t chann
  * @param uint16_t function - the function of the timer
  * @param channel - the timer channel to use
  * @param uint32_t src_addr - the source buffer address
- * @param uint32_t src_addr - second source buffer address (for Encoder)
+ * @param uint32_t src_addr2 - second source buffer address (for Encoder)
  * @param uint16_t length - length of the data to transfer from memory to the peripheral
  * @return uint8_t - successful/failed start
  */
