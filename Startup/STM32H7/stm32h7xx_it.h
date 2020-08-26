@@ -30,6 +30,7 @@
 #include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h"
 #include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_ll_pwr.h"
 #include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim.h"
+#include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h"
 #include "../../Generated_Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_gpio.h"
 
 /* Private includes ----------------------------------------------------------*/

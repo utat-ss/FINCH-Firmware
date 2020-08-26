@@ -40,12 +40,14 @@ typedef struct {
 } TimFunc;
 
 // Constants for timer functions and modes
-enum tim_func_constants {TIM_Base, TIM_IC, TIM_OC, TIM_PWM, TIM_OnePulse, TIM_Encoder};
 enum tim_mode_constants {TIM_Mode_None, TIM_Mode_IT, TIM_Mode_DMA};
+enum tim_func_constants {TIM_Base, TIM_IC, TIM_OC, TIM_PWM, TIM_OnePulse, TIM_Encoder};
 
 // Helper calculator macros
 #define tim_calc_prescaler(tim_clk, count_clk) 				__HAL_TIM_CALC_PSC(tim_clk, count_clk)
 #define tim_calc_period(tim_clk, prescaler, frequency) 		__HAL_TIM_CALC_PERIOD(tim_clk, prescaler, frequency)
+#define tim_calc_pulse(tim_clk, prescaler, us_delay)		__HAL_TIM_CALC_PULSE(tim_clk, prescaler, us_delay)
+#define tim_calc_pulse_dither(tim_clk, prescaler, us_delay)	__HAL_TIM_CALC_PULSE_DITHER(tim_clk, prescaler, us_delay)
 
 // User-friendly macros for counter, interrupt flags, clock, and slave
 #define tim_get_counter(handle) 							__HAL_TIM_GET_COUNTER(handle)
@@ -62,11 +64,16 @@ TIM_HandleTypeDef *tim_populate_handle(TIM_HandleTypeDef *handle, TIM_TypeDef *i
 		uint32_t clock_division, uint32_t repitition_counter, uint32_t autoreload_preload);
 TimFunc *tim_init_struct();
 TIM_HandleTypeDef *tim_init_handle(TIM_TypeDef *instance, uint32_t prescaler, uint32_t period);
-TimFunc *tim_config_base(TIM_TypeDef *instance, TimMode* mode, uint32_t prescaler, uint32_t period);
-HAL_StatusTypeDef tim_config_ic (TIM_HandleTypeDef *handle, TIM_IC_InitTypeDef *ic_cfg, uint32_t channel);
-HAL_StatusTypeDef tim_config_oc (TIM_HandleTypeDef *handle, TIM_OC_InitTypeDef *oc_cfg, uint32_t channel);
-HAL_StatusTypeDef tim_config_pwm (TIM_HandleTypeDef *handle, TIM_OC_InitTypeDef *oc_cfg, uint32_t channel);
-HAL_StatusTypeDef tim_config_onepulse (TIM_HandleTypeDef *handle, TIM_OnePulse_InitTypeDef *onepulse_cfg, uint32_t output_channel, uint32_t input_channel);
+TimFunc *tim_config_base(TIM_TypeDef *instance, TimMode *mode, uint32_t prescaler, uint32_t period);
+TimFunc *tim_config_ic(TIM_TypeDef *instance, TimMode *mode, uint32_t prescaler, uint32_t period, uint32_t ic_polarity,
+		uint32_t ic_selection, uint32_t ic_prescaler, uint32_t ic_filter);
+TimFunc *tim_config_oc(TIM_TypeDef *instance, TimMode *mode, uint32_t prescaler, uint32_t period, uint32_t oc_mode, uint32_t oc_pulse,
+		uint32_t oc_polarity);
+TimFunc *tim_config_pwm(TIM_TypeDef *instance, TimMode *mode, uint32_t prescaler, uint32_t period, uint32_t pwm_mode, uint32_t pwm_pulse,
+		uint32_t pwm_polarity);
+TimFunc *tim_config_onepulse(TIM_TypeDef *instance, TimMode *mode, uint32_t prescaler, uint32_t period, uint32_t oc_mode, uint32_t oc_pulse,
+		uint32_t oc_polarity, uint32_t ic_polarity, uint32_t ic_selection, uint32_t ic_filter);
+
 
 // Timer init/start/stop functions
 uint8_t tim_init(TIM_HandleTypeDef *handle, uint8_t function, uint32_t onepulse_mode, TIM_Encoder_InitTypeDef *encoder_cfg);
