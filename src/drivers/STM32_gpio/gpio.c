@@ -83,14 +83,14 @@ GPIO_ALT gpio_init_alt(GPIO_TypeDef *port, uint16_t pin, uint8_t alt) {
 	GPIO_ALT alternate_pin;
 	alternate_pin.port = port;
 	alternate_pin.pin = pin;
-	alternate_pin.mode = GPIO_MODE_OUTPUT_PP;
+	alternate_pin.mode = GPIO_MODE_AF_PP;
 	alternate_pin.alternate = alt;
 
 	// Initialize pin with HAL library
 	GPIO_InitTypeDef hal_gpio_handler;
 	hal_gpio_handler.Pin = pin;
 	hal_gpio_handler.Pull = GPIO_NOPULL;
-	hal_gpio_handler.Mode = GPIO_MODE_OUTPUT_PP;
+	hal_gpio_handler.Mode = GPIO_MODE_AF_PP;
 	hal_gpio_handler.Speed = GPIO_SPEED_FREQ_LOW;
 	hal_gpio_handler.Alternate = alt;
 	HAL_GPIO_Init(port, &hal_gpio_handler);
@@ -112,14 +112,14 @@ GPIO_ALT gpio_init_alt_od(GPIO_TypeDef *port, uint16_t pin, uint32_t pull, uint8
 	GPIO_ALT alternate_pin;
 	alternate_pin.port = port;
 	alternate_pin.pin = pin;
-	alternate_pin.mode = GPIO_MODE_OUTPUT_OD;
+	alternate_pin.mode = GPIO_MODE_AF_OD;
 	alternate_pin.alternate = alt;
 
 	// Initialize pin with HAL library
 	GPIO_InitTypeDef hal_gpio_handler;
 	hal_gpio_handler.Pin = pin;
 	hal_gpio_handler.Pull = pull;
-	hal_gpio_handler.Mode = GPIO_MODE_OUTPUT_OD;
+	hal_gpio_handler.Mode = GPIO_MODE_AF_OD;
 	hal_gpio_handler.Speed = GPIO_SPEED_FREQ_LOW;
 	hal_gpio_handler.Alternate = alt;
 	HAL_GPIO_Init(port, &hal_gpio_handler);
