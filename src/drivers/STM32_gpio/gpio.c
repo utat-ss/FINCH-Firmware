@@ -9,6 +9,10 @@
  *
  *  By default, the output pins speed is set to GPIO_SPEED_FREQ_LOW (reduces noise and
  *  power consumption); The max frequency is 8MHz
+ * 
+ *  Alternate function values can be seen in the following datasheets for the following MCUs:
+ *  STM32H7 - Table 10 pg 89: https://www.mouser.ca/datasheet/2/389/dm00387108-1799185.pdf
+ *  STM32G4 - Table 13 pg 74: https://www.st.com/resource/en/datasheet/stm32g474ve.pdf
  */
 
 #include "gpio.h"
@@ -65,6 +69,62 @@ GPIO_OUTPUT gpio_init_output_od(GPIO_TypeDef *port, uint16_t pin, uint32_t pull)
 	HAL_GPIO_Init(port, &hal_gpio_handler);
 
 	return output_pin;
+}
+
+/*
+Initialize a GPIO pin to alternate function push-pull state
+@param GPIO_TypeDef *port - the gpio port the pin is on
+@param uint16_t pin - the pin number
+@param uint8_t alt - the alternate function value
+@return GPIO_ALT alternate_pin - a struct of the initialized alternate pin
+*/
+GPIO_ALT gpio_init_alt(GPIO_TypeDef *port, uint16_t pin, uint8_t alt) {
+	// Create GPIO struct
+	GPIO_ALT alternate_pin;
+	alternate_pin.port = port;
+	alternate_pin.pin = pin;
+	alternate_pin.mode = GPIO_MODE_AF_PP;
+	alternate_pin.alternate = alt;
+
+	// Initialize pin with HAL library
+	GPIO_InitTypeDef hal_gpio_handler;
+	hal_gpio_handler.Pin = pin;
+	hal_gpio_handler.Pull = GPIO_NOPULL;
+	hal_gpio_handler.Mode = GPIO_MODE_AF_PP;
+	hal_gpio_handler.Speed = GPIO_SPEED_FREQ_LOW;
+	hal_gpio_handler.Alternate = alt;
+	HAL_GPIO_Init(port, &hal_gpio_handler);
+
+	return alternate_pin;
+}
+
+/*
+Initialize a GPIO pin to alternate function open drain state
+@param GPIO_TypeDef *port - the gpio port the pin is on
+@param uint16_t pin - the pin number
+@param uint32_t pull - the internal pull-up/down gpio resistor state;
+					   possible values are GPIO_NOPULL, GPIO_PULLUP, GPIO_PULLDOWN
+@param uint8_t alt - the alternate function value
+@return GPIO_ALT alternate_pin - a struct of the initialized alternate pin
+*/
+GPIO_ALT gpio_init_alt_od(GPIO_TypeDef *port, uint16_t pin, uint32_t pull, uint8_t alt) {
+	// Create GPIO struct
+	GPIO_ALT alternate_pin;
+	alternate_pin.port = port;
+	alternate_pin.pin = pin;
+	alternate_pin.mode = GPIO_MODE_AF_OD;
+	alternate_pin.alternate = alt;
+
+	// Initialize pin with HAL library
+	GPIO_InitTypeDef hal_gpio_handler;
+	hal_gpio_handler.Pin = pin;
+	hal_gpio_handler.Pull = pull;
+	hal_gpio_handler.Mode = GPIO_MODE_AF_OD;
+	hal_gpio_handler.Speed = GPIO_SPEED_FREQ_LOW;
+	hal_gpio_handler.Alternate = alt;
+	HAL_GPIO_Init(port, &hal_gpio_handler);
+
+	return alternate_pin;
 }
 
 /*
