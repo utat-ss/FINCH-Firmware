@@ -73,6 +73,7 @@ TimFunc *tim_config_pwm(TIM_TypeDef *instance, TimMode *mode, uint32_t prescaler
 		uint32_t pwm_polarity);
 TimFunc *tim_config_onepulse(TIM_TypeDef *instance, TimMode *mode, uint32_t prescaler, uint32_t period, uint32_t oc_mode, uint32_t oc_pulse,
 		uint32_t oc_polarity, uint32_t ic_polarity, uint32_t ic_selection, uint32_t ic_filter);
+void tim_config_repetition(TimFunc *timer, uint16_t repititions);
 
 
 // Timer init/start/stop functions

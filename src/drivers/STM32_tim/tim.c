@@ -191,7 +191,22 @@ TimFunc *tim_config_onepulse(TIM_TypeDef *instance, TimMode *mode, uint32_t pres
 	return op_timer;
 }
 
+/* Configure the timer to detect update events
+ *
+ * NOTE: If this option is selected, the timer MUST be run in interrupt mode
+ * @param TimFunc *timer - the timer struct
+ * @param uint16_t period_repetitions - number of periods to count before an update event is triggered (uses flag TIM_FLAG_UPDATE)
+ * @return uint8_t - whether the repetitions were successfully implemented
+ */
+void tim_config_repetition(TimFunc *timer, uint16_t period_repetitions){
+	// Configure struct
+	timer->mode->mode = TIM_Mode_IT;
+	timer->handle->Init.RepetitionCounter = period_repetitions - 1;
+	timer->handle->Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
 
+	// Enable flag
+	tim_enable_IT_flag(timer->handle, TIM_FLAG_UPDATE);
+}
 
 // Initialization, start, and stop functions
 
