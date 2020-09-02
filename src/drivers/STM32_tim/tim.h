@@ -77,12 +77,14 @@ void tim_config_repetition(TimFunc *timer, uint16_t repititions);
 
 
 // Timer init/start/stop functions
+uint8_t tim_start(TimFunc *timer);
+void tim_init_clock(TimFunc *timer);
 uint8_t tim_init(TIM_HandleTypeDef *handle, uint8_t function, uint32_t onepulse_mode, TIM_Encoder_InitTypeDef *encoder_cfg);
 uint8_t tim_deinit(TIM_HandleTypeDef *handle, uint8_t function);
-uint8_t tim_start(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel);
+uint8_t tim_start_Base(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel);
 uint8_t tim_start_IT(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel);
 uint8_t tim_start_DMA(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel, uint32_t *src_addr, uint32_t *src_addr2, uint16_t length);
-uint8_t tim_stop(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel);
+uint8_t tim_stop_Base(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel);
 uint8_t tim_stop_IT(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel);
 uint8_t tim_stop_DMA(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel);
 

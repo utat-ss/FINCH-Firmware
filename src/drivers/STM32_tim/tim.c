@@ -59,6 +59,7 @@ TIM_HandleTypeDef *tim_init_handle(TIM_TypeDef *instance, uint32_t prescaler, ui
 	TIM_HandleTypeDef handle = {.Instance = instance};
 	handle.Init.Prescaler = prescaler;
 	handle.Init.Period = period;
+	handle.Init.RepetitionCounter = 0;
 	TIM_HandleTypeDef *handle_addr = &handle;
 	return handle_addr;
 }
@@ -208,7 +209,98 @@ void tim_config_repetition(TimFunc *timer, uint16_t period_repetitions){
 	tim_enable_IT_flag(timer->handle, TIM_FLAG_UPDATE);
 }
 
-// Initialization, start, and stop functions
+// Timer start and stop functions
+
+/* Start the timer with the given mode and options
+ *
+ * @param TimFunc *timer - the timer struct
+ * @return uint8_t - confirmation of successful timer start
+ */
+uint8_t tim_start(TimFunc *timer){
+	// Split by function
+	if(timer->function==TIM_Base) {
+		HAL_TIM_Base_MspInit(timer->handle);
+		tim_init_clock(timer);
+		HAL_TIM_Base_Init(timer->handle);
+	}
+
+	else if(timer->function==TIM_IC) {
+		HAL_TIM_IC_MspInit(timer->handle);
+		tim_init_clock(timer);
+		HAL_TIM_IC_ConfigChannel(timer->handle, timer->ic_cfg, timer->mode->channel);
+		HAL_TIM_IC_Init(timer->handle);
+	}
+
+	else if(timer->function==TIM_OC) {
+		HAL_TIM_OC_MspInit(timer->handle);
+		tim_init_clock(timer);
+		HAL_TIM_OC_ConfigChannel(timer->handle, timer->oc_cfg, timer->mode->channel);
+		HAL_TIM_OC_Init(timer->handle);
+	}
+
+	else if(timer->function==TIM_PWM) {
+		HAL_TIM_PWM_MspInit(timer->handle);
+		tim_init_clock(timer);
+		HAL_TIM_PWM_ConfigChannel(timer->handle, timer->oc_cfg, timer->mode->channel);
+		HAL_TIM_PWM_Init(timer->handle);
+	}
+
+	else if(timer->function==TIM_OnePulse) {
+		HAL_TIM_OnePulse_MspInit(timer->handle);
+		tim_init_clock(timer);
+		HAL_TIM_OnePulse_ConfigChannel(timer->handle, timer->onepulse_cfg, timer->mode->output_channel, timer->mode->input_channel);
+		HAL_TIM_OnePulse_Init(timer->handle, timer->mode->onepulse_mode);
+	}
+
+	else if(timer->function==TIM_Encoder) {
+		HAL_TIM_Encoder_MspInit(timer->handle);
+		tim_init_clock(timer);
+		HAL_TIM_Encoder_Init(timer->handle, timer->encoder_cfg);
+	}
+
+	else{
+		return 0;
+	}
+
+	return 1;
+
+
+}
+
+/* Starts the appropriate timer clock, and runs clock config if present.
+ * NOTE: the timers listed are exist only on STM32G474RE series, and does not implement low-power/high-res timers. Other chips will require edits to this list.
+ *
+ * @param TimFunc *timer - the timer struct
+ */
+void tim_init_clock(TimFunc *timer){
+	if(timer->handle->Instance==TIM1){
+		 __HAL_RCC_TIM1_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM2){
+		 __HAL_RCC_TIM2_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM3){
+		 __HAL_RCC_TIM3_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM4){
+		 __HAL_RCC_TIM4_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM5){
+		 __HAL_RCC_TIM5_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM6){
+		 __HAL_RCC_TIM6_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM7){
+		 __HAL_RCC_TIM7_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM15){
+		 __HAL_RCC_TIM15_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM16){
+		 __HAL_RCC_TIM16_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM17){
+		 __HAL_RCC_TIM17_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM20){
+		 __HAL_RCC_TIM20_CLK_ENABLE();
+	}
+
+	if(timer->clk_cfg != NULL){
+		tim_config_clock(timer->handle, timer->clk_cfg);
+	}
+}
 
 /* Initialize a specific timer function
  * @param TIM_HandleTypeDef* handle - the handle for the timer
@@ -269,7 +361,7 @@ uint8_t tim_deinit(TIM_HandleTypeDef *handle, uint8_t function){
  * @return uint8_t - successful/failed start
  */
 
-uint8_t tim_start(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel){
+uint8_t tim_start_Base(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel){
 	if(function==TIM_Base){
 		HAL_TIM_Base_Start(handle);
 	}else if(function==TIM_IC){
@@ -352,7 +444,7 @@ uint8_t tim_start_DMA(TIM_HandleTypeDef *handle, uint8_t function, uint32_t chan
  * @return uint8_t - successful/failed stop
  */
 
-uint8_t tim_stop(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel){
+uint8_t tim_stop_Base(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel){
 	if(function==TIM_Base){
 		HAL_TIM_Base_Stop(handle);
 	}else if(function==TIM_IC){
