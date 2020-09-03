@@ -217,54 +217,100 @@ void tim_config_repetition(TimFunc *timer, uint16_t period_repetitions){
  * @return uint8_t - confirmation of successful timer start
  */
 uint8_t tim_start(TimFunc *timer){
+	uint8_t successful = 1;
+
 	// Split by function
 	if(timer->function==TIM_Base) {
 		HAL_TIM_Base_MspInit(timer->handle);
 		tim_init_clock(timer);
 		HAL_TIM_Base_Init(timer->handle);
-	}
 
-	else if(timer->function==TIM_IC) {
+		if(timer->mode->mode==TIM_Mode_None){
+			HAL_TIM_Base_Start(timer->handle);
+		} else if (timer->mode->mode==TIM_Mode_IT){
+			HAL_TIM_Base_Start_IT(timer->handle);
+		} else if (timer->mode->mode==TIM_Mode_DMA){
+			HAL_TIM_Base_Start_DMA(timer->handle, timer->mode->src_addr, timer->mode->length);
+		} else {
+			successful = 0;
+		}
+	}else if(timer->function==TIM_IC) {
 		HAL_TIM_IC_MspInit(timer->handle);
 		tim_init_clock(timer);
 		HAL_TIM_IC_ConfigChannel(timer->handle, timer->ic_cfg, timer->mode->channel);
 		HAL_TIM_IC_Init(timer->handle);
-	}
 
-	else if(timer->function==TIM_OC) {
+		if(timer->mode->mode==TIM_Mode_None){
+			HAL_TIM_IC_Start(timer->handle, timer->mode->channel);
+		} else if (timer->mode->mode==TIM_Mode_IT){
+			HAL_TIM_IC_Start_IT(timer->handle, timer->mode->channel);
+		} else if (timer->mode->mode==TIM_Mode_DMA){
+			HAL_TIM_IC_Start_DMA(timer->handle, timer->mode->channel, timer->mode->src_addr, timer->mode->length);
+		} else {
+			successful = 0;
+		}
+	}else if(timer->function==TIM_OC) {
 		HAL_TIM_OC_MspInit(timer->handle);
 		tim_init_clock(timer);
 		HAL_TIM_OC_ConfigChannel(timer->handle, timer->oc_cfg, timer->mode->channel);
 		HAL_TIM_OC_Init(timer->handle);
-	}
 
-	else if(timer->function==TIM_PWM) {
+		if(timer->mode->mode==TIM_Mode_None){
+			HAL_TIM_OC_Start(timer->handle, timer->mode->channel);
+		} else if (timer->mode->mode==TIM_Mode_IT){
+			HAL_TIM_OC_Start_IT(timer->handle, timer->mode->channel);
+		} else if (timer->mode->mode==TIM_Mode_DMA){
+			HAL_TIM_OC_Start_DMA(timer->handle, timer->mode->channel, timer->mode->src_addr, timer->mode->length);
+		} else {
+			successful = 0;
+		}
+	}else if(timer->function==TIM_PWM) {
 		HAL_TIM_PWM_MspInit(timer->handle);
 		tim_init_clock(timer);
 		HAL_TIM_PWM_ConfigChannel(timer->handle, timer->oc_cfg, timer->mode->channel);
 		HAL_TIM_PWM_Init(timer->handle);
-	}
 
-	else if(timer->function==TIM_OnePulse) {
+		if(timer->mode->mode==TIM_Mode_None){
+			HAL_TIM_PWM_Start(timer->handle, timer->mode->channel);
+		} else if (timer->mode->mode==TIM_Mode_IT){
+			HAL_TIM_PWM_Start_IT(timer->handle, timer->mode->channel);
+		} else if (timer->mode->mode==TIM_Mode_DMA){
+			HAL_TIM_PWM_Start_DMA(timer->handle, timer->mode->channel, timer->mode->src_addr, timer->mode->length);
+		} else {
+			successful = 0;
+		}
+	}else if(timer->function==TIM_OnePulse) {
 		HAL_TIM_OnePulse_MspInit(timer->handle);
 		tim_init_clock(timer);
 		HAL_TIM_OnePulse_ConfigChannel(timer->handle, timer->onepulse_cfg, timer->mode->output_channel, timer->mode->input_channel);
 		HAL_TIM_OnePulse_Init(timer->handle, timer->mode->onepulse_mode);
-	}
 
-	else if(timer->function==TIM_Encoder) {
+		if(timer->mode->mode==TIM_Mode_None){
+			HAL_TIM_OnePulse_Start(timer->handle, timer->mode->channel);
+		} else if (timer->mode->mode==TIM_Mode_IT){
+			HAL_TIM_OnePulse_Start_IT(timer->handle, timer->mode->channel);
+		} else {
+			successful = 0;
+		}
+	}else if(timer->function==TIM_Encoder) {
 		HAL_TIM_Encoder_MspInit(timer->handle);
 		tim_init_clock(timer);
 		HAL_TIM_Encoder_Init(timer->handle, timer->encoder_cfg);
+
+		if(timer->mode->mode==TIM_Mode_None){
+			HAL_TIM_Encoder_Start(timer->handle, timer->mode->channel);
+		} else if (timer->mode->mode==TIM_Mode_IT){
+			HAL_TIM_Encoder_Start_IT(timer->handle, timer->mode->channel);
+		} else if (timer->mode->mode==TIM_Mode_DMA){
+			HAL_TIM_Encoder_Start_DMA(timer->handle, timer->mode->channel, timer->mode->src_addr, timer->mode->src_addr2, timer->mode->length);
+		} else {
+			successful = 0;
+		}
+	}else{
+		successful = 0;
 	}
 
-	else{
-		return 0;
-	}
-
-	return 1;
-
-
+	return successful;
 }
 
 /* Starts the appropriate timer clock, and runs clock config if present.
@@ -302,213 +348,97 @@ void tim_init_clock(TimFunc *timer){
 	}
 }
 
-/* Initialize a specific timer function
- * @param TIM_HandleTypeDef* handle - the handle for the timer
- * @param uint16_t function - the timer function to be enabled (see tim.h for potential values)
- * @param uint32_t onepulse_mode - select OnePulse mode (USE: TIM_OPMODE[_SINGLE/_REPETITIVE])\
- * @param TIM_Encoder_InitTypeDef *encoder_cfg - Encoder interface config handle
- * @return uint8_t - successful/failed initialization
+/* Stops a given timer
+ *
+ * @param TimFunc *timer - the timer struct
+ * @return uint8_t - if the operation inputs were valid
  */
-uint8_t tim_init(TIM_HandleTypeDef *handle, uint8_t function, uint32_t onepulse_mode, TIM_Encoder_InitTypeDef *encoder_cfg){
-	if(function==TIM_Base){
-		HAL_TIM_Base_Init(handle);
-	}else if(function==TIM_IC){
-		HAL_TIM_IC_Init(handle);
-	}else if(function==TIM_OC){
-		HAL_TIM_OC_Init(handle);
-	}else if(function==TIM_PWM){
-		HAL_TIM_PWM_Init(handle);
-	}else if(function==TIM_OnePulse){
-		HAL_TIM_OnePulse_Init(handle, onepulse_mode);
-	}else if(function==TIM_Encoder){
-		HAL_TIM_Encoder_Init(handle, encoder_cfg);
-	}else{
-		return 0;
-	}
+uint8_t tim_stop(TimFunc *timer){
+	uint8_t successful = 1;
 
-	return 1;
-}
-
-/* DEinitialize a specific timer function
- * @param TIM_HandleTypeDef* handle - the handle for the timer
- * @param uint16_t function - the timer function to be disabled (see tim.h for potential values)
- * @return uint8_t - successful/failed deinitialization
- */
-uint8_t tim_deinit(TIM_HandleTypeDef *handle, uint8_t function){
-	if(function==TIM_Base){
-			HAL_TIM_Base_DeInit(handle);
-		}else if(function==TIM_IC){
-			HAL_TIM_IC_DeInit(handle);
-		}else if(function==TIM_OC){
-			HAL_TIM_OC_DeInit(handle);
-		}else if(function==TIM_PWM){
-			HAL_TIM_PWM_DeInit(handle);
-		}else if(function==TIM_OnePulse){
-			HAL_TIM_OnePulse_DeInit(handle);
-		}else if(function==TIM_Encoder){
-			HAL_TIM_Encoder_DeInit(handle);
+	if(timer->function==TIM_Base){
+		if(timer->mode->mode==TIM_Mode_None){
+			HAL_TIM_Base_Stop(timer->handle);
+		}else if(timer->mode->mode==TIM_Mode_IT){
+			HAL_TIM_Base_Stop_IT(timer->handle);
+		}else if(timer->mode->mode==TIM_Mode_DMA){
+			HAL_TIM_Base_Stop_DMA(timer->handle);
 		}else{
-			return 0;
+			successful = 0;
 		}
-
-		return 1;
-}
-
-/* Starts a timer peripheral, without DMA or interrupts
- * @param TIM_HandleTypeDef* handle - the handle for the timer
- * @param uint16_t function - the function of the timer
- * @param channel - the timer channel to use
- * @return uint8_t - successful/failed start
- */
-
-uint8_t tim_start_Base(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel){
-	if(function==TIM_Base){
-		HAL_TIM_Base_Start(handle);
-	}else if(function==TIM_IC){
-		HAL_TIM_IC_Start(handle, channel);
-	}else if(function==TIM_OC){
-		HAL_TIM_OC_Start(handle, channel);
-	}else if(function==TIM_PWM){
-		HAL_TIM_PWM_Start(handle, channel);
-	}else if(function==TIM_OnePulse){
-		HAL_TIM_OnePulse_Start(handle, channel);
-	}else if(function==TIM_Encoder){
-		HAL_TIM_Encoder_Start(handle, channel);
+	}else if(timer->function==TIM_IC){
+		if(timer->mode->mode==TIM_Mode_None){
+			HAL_TIM_IC_Stop(timer->handle, timer->mode->channel);
+		}else if(timer->mode->mode==TIM_Mode_IT){
+			HAL_TIM_IC_Stop_IT(timer->handle, timer->mode->channel);
+		}else if(timer->mode->mode==TIM_Mode_DMA){
+			HAL_TIM_IC_Stop_DMA(timer->handle, timer->mode->channel);
+		}else{
+			successful = 0;
+		}
+	}else if(timer->function==TIM_OC){
+		if(timer->mode->mode==TIM_Mode_None){
+			HAL_TIM_OC_Stop(timer->handle, timer->mode->channel);
+		}else if(timer->mode->mode==TIM_Mode_IT){
+			HAL_TIM_OC_Stop_IT(timer->handle, timer->mode->channel);
+		}else if(timer->mode->mode==TIM_Mode_DMA){
+			HAL_TIM_OC_Stop_DMA(timer->handle, timer->mode->channel);
+		}else{
+			successful = 0;
+		}
+	}else if(timer->function==TIM_PWM){
+		if(timer->mode->mode==TIM_Mode_None){
+			HAL_TIM_PWM_Stop(timer->handle, timer->mode->channel);
+		}else if(timer->mode->mode==TIM_Mode_IT){
+			HAL_TIM_PWM_Stop_IT(timer->handle, timer->mode->channel);
+		}else if(timer->mode->mode==TIM_Mode_DMA){
+			HAL_TIM_PWM_Stop_DMA(timer->handle, timer->mode->channel);
+		}else{
+			successful = 0;
+		}
+	}else if(timer->function==TIM_OnePulse){
+		if(timer->mode->mode==TIM_Mode_None){
+			HAL_TIM_OnePulse_Stop(timer->handle, timer->mode->channel);
+		}else if(timer->mode->mode==TIM_Mode_IT){
+			HAL_TIM_OnePulse_Stop_IT(timer->handle, timer->mode->channel);
+		}else{
+			successful = 0;
+		}
+	}else if(timer->function==TIM_Encoder){
+		if(timer->mode->mode==TIM_Mode_None){
+			HAL_TIM_Encoder_Stop(timer->handle, timer->mode->channel);
+		}else if(timer->mode->mode==TIM_Mode_IT){
+			HAL_TIM_Encoder_Stop_IT(timer->handle, timer->mode->channel);
+		}else if(timer->mode->mode==TIM_Mode_DMA){
+			HAL_TIM_Encoder_Stop_DMA(timer->handle, timer->mode->channel);
+		}else{
+			successful = 0;
+		}
 	}else{
-		return 0;
+		successful = 0;
 	}
 
-	return 1;
+	return successful;
 }
 
-/* Starts a timer peripheral with interrupts
- * @param TIM_HandleTypeDef* handle - the handle for the timer
- * @param uint16_t function - the function of the timer
- * @param channel - the timer channel to use
- * @return uint8_t - successful/failed start
+/* Deinitializes a given timer
+ *
+ * @param TimFunc *timer - the timer struct
+ * @return uint8_t - if the operation inputs were valid
  */
-
-uint8_t tim_start_IT(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel){
-
-	if(function==TIM_Base){
-		HAL_TIM_Base_Start_IT(handle);
-	}else if(function==TIM_IC){
-		HAL_TIM_IC_Start_IT(handle, channel);
-	}else if(function==TIM_OC){
-		HAL_TIM_OC_Start_IT(handle, channel);
-	}else if(function==TIM_PWM){
-		HAL_TIM_PWM_Start_IT(handle, channel);
-	}else if(function==TIM_OnePulse){
-		HAL_TIM_OnePulse_Start_IT(handle, channel);
-	}else if(function==TIM_Encoder){
-		HAL_TIM_Encoder_Start_IT(handle, channel);
-	}else{
-		return 0;
-	}
-
-	return 1;
-}
-
-/* Starts a timer peripheral with direct memory access
- * @param TIM_HandleTypeDef* handle - the handle for the timer
- * @param uint16_t function - the function of the timer
- * @param channel - the timer channel to use
- * @param uint32_t src_addr - the source buffer address
- * @param uint32_t src_addr2 - second source buffer address (for Encoder)
- * @param uint16_t length - length of the data to transfer from memory to the peripheral
- * @return uint8_t - successful/failed start
- */
-
-uint8_t tim_start_DMA(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel, uint32_t *src_addr, uint32_t *src_addr2, uint16_t length){
-	if(function==TIM_Base){
-		HAL_TIM_Base_Start_DMA(handle, src_addr, length);
-	}else if(function==TIM_IC){
-		HAL_TIM_IC_Start_DMA(handle, channel, src_addr, length);
-	}else if(function==TIM_OC){
-		HAL_TIM_OC_Start_DMA(handle, channel, src_addr, length);
-	}else if(function==TIM_PWM){
-		HAL_TIM_PWM_Start_DMA(handle, channel, src_addr, length);
-	}else if(function==TIM_Encoder){
-		HAL_TIM_Encoder_Start_DMA(handle, channel, src_addr, src_addr2, length);
-	}else{
-		return 0;
-	}
-
-	return 1;
-}
-
-/* Stops a timer peripheral, without DMA or interrupts
- * @param TIM_HandleTypeDef* handle - the handle for the timer
- * @param uint16_t function - the function of the timer
- * @param channel - the timer channel to use
- * @return uint8_t - successful/failed stop
- */
-
-uint8_t tim_stop_Base(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel){
-	if(function==TIM_Base){
-		HAL_TIM_Base_Stop(handle);
-	}else if(function==TIM_IC){
-		HAL_TIM_IC_Stop(handle, channel);
-	}else if(function==TIM_OC){
-		HAL_TIM_OC_Stop(handle, channel);
-	}else if(function==TIM_PWM){
-		HAL_TIM_PWM_Stop(handle, channel);
-	}else if(function==TIM_OnePulse){
-		HAL_TIM_OnePulse_Stop(handle, channel);
-	}else if(function==TIM_Encoder){
-		HAL_TIM_Encoder_Stop(handle, channel);
-	}else{
-		return 0;
-	}
-
-	return 1;
-}
-
-/* Stops a timer peripheral with interrupts
- * @param TIM_HandleTypeDef* handle - the handle for the timer
- * @param uint16_t function - the function of the timer
- * @param channel - the timer channel to use
- * @return uint8_t - successful/failed stop
- */
-
-uint8_t tim_stop_IT(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel){
-	if(function==TIM_Base){
-		HAL_TIM_Base_Stop_IT(handle);
-	}else if(function==TIM_IC){
-		HAL_TIM_IC_Stop_IT(handle, channel);
-	}else if(function==TIM_OC){
-		HAL_TIM_OC_Stop_IT(handle, channel);
-	}else if(function==TIM_PWM){
-		HAL_TIM_PWM_Stop_IT(handle, channel);
-	}else if(function==TIM_OnePulse){
-		HAL_TIM_OnePulse_Stop_IT(handle, channel);
-	}else if(function==TIM_Encoder){
-		HAL_TIM_Encoder_Stop_IT(handle, channel);
-	}else{
-		return 0;
-	}
-
-	return 1;
-}
-
-/* Stops a timer peripheral with direct memory access
- * @param TIM_HandleTypeDef* handle - the handle for the timer
- * @param uint16_t function - the function of the timer
- * @param channel - the timer channel to use
- * @return uint8_t - successful/failed stop
- */
-
-uint8_t tim_stop_DMA(TIM_HandleTypeDef *handle, uint8_t function, uint32_t channel){
-	if(function==TIM_Base){
-		HAL_TIM_Base_Stop_DMA(handle);
-	}else if(function==TIM_IC){
-		HAL_TIM_IC_Stop_DMA(handle, channel);
-	}else if(function==TIM_OC){
-		HAL_TIM_OC_Stop_DMA(handle, channel);
-	}else if(function==TIM_PWM){
-		HAL_TIM_PWM_Stop_DMA(handle, channel);
-	}else if(function==TIM_Encoder){
-		HAL_TIM_Encoder_Stop_DMA(handle, channel);
+uint8_t tim_deinit(TimFunc *timer){
+	if(timer->function==TIM_Base){
+		HAL_TIM_Base_DeInit(timer->handle);
+	}else if(timer->function==TIM_IC){
+		HAL_TIM_IC_DeInit(timer->handle);
+	}else if(timer->function==TIM_OC){
+		HAL_TIM_OC_DeInit(timer->handle);
+	}else if(timer->function==TIM_PWM){
+		HAL_TIM_PWM_DeInit(timer->handle);
+	}else if(timer->function==TIM_OnePulse){
+		HAL_TIM_OnePulse_DeInit(timer->handle);
+	}else if(timer->function==TIM_Encoder){
+		HAL_TIM_Encoder_DeInit(timer->handle);
 	}else{
 		return 0;
 	}
