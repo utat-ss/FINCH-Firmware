@@ -14,6 +14,7 @@
 
 #ifdef STM32H743xx
 #include <stm32h7xx_hal.h>
+#include <stm32h7_startup.h>
 #endif
 
 void clock_init(void);
