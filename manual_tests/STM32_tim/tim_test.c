@@ -23,6 +23,10 @@ void TIM2_IRQHandler(){
 	HAL_TIM_IRQHandler(&timer);
 }
 
+void TIM3_IRQHandler(){
+	HAL_TIM_IRQHandler(&timer);
+}
+
 // Advance to the next signal on every second time unit
 void HAL_TIM_PeriodElapsedHalfCpltCallback(TIM_HandleTypeDef *htim){
 	if(led_toggle[time_unit]){

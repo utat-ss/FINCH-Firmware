@@ -21,31 +21,6 @@
  * - A config function for the Encoder is currently not included, but can still be manually created, and uses the function constant TIM_Encoder in the struct.
  */
 
-/* Populate the handle for a timer
- * @param TIM_HandleTypeDef *handle - the handle to be populated
- * @param TIM_TypeDef *instance - the register where the specific timer is location
- * @param uint32_t prescaler - used in the prescaler calculation to divide the clock
- * @param uint32_t time_counter_mode - counting mode (USE: TIM_COUNTERMODE[_UP/_DOWN/_CENTERALIGNED1/_CENTERALIGNED2/_CENTERALIGNED3])
- * @param uint32_t period - value to reset to or at; part of the prescaler calculation
- * @param uint32_t clock_divison - value to divide clock by (USE: TIM_CLOCKDIVISION[_DIV1/_DIV2/_DIV4])
- * @param uint32_t repitition_counter - (period - 1) until an update event occurs; requires the timer update flag
- * @param uint32_t autoreload_preload - disable/enable auto-reloading of timer at min/max (USE: TIM_AUTORELOAD_PRELOAD[_DISABLE/_ENABLE])
- * @return TIM_HandleTypeDef* - the populated handle
- */
-TIM_HandleTypeDef *tim_populate_handle(TIM_HandleTypeDef *handle, TIM_TypeDef *instance, uint32_t prescaler, uint32_t time_counter_mode, uint32_t period,
-		uint32_t clock_division, uint32_t repitition_counter, uint32_t autoreload_preload){
-	handle->Instance = instance;
-	handle->Init.Prescaler = prescaler;
-	handle->Init.CounterMode = time_counter_mode;
-	handle->Init.Period = period;
-	handle->Init.ClockDivision = clock_division;
-	handle->Init.RepetitionCounter = repitition_counter;
-	handle->Init.AutoReloadPreload = autoreload_preload;
-
-	return handle;
-}
-
-
 /* Initializes a TimFunc timer struct with zeroed values.
  * @return TimFunc* - address of an initialized TimFunc struct
  */
@@ -59,6 +34,7 @@ TIM_HandleTypeDef *tim_init_handle(TIM_TypeDef *instance, uint32_t prescaler, ui
 	TIM_HandleTypeDef handle = {.Instance = instance};
 	handle.Init.Prescaler = prescaler;
 	handle.Init.Period = period;
+	handle.Init.CounterMode = TIM_COUNTERMODE_UP;
 	handle.Init.RepetitionCounter = 0;
 	TIM_HandleTypeDef *handle_addr = &handle;
 	return handle_addr;
@@ -214,100 +190,112 @@ void tim_config_repetition(TimFunc *timer, uint16_t period_repetitions){
 /* Start the timer with the given mode and options
  *
  * @param TimFunc *timer - the timer struct
- * @return uint8_t - confirmation of successful timer start
+ * @return HAL_StatusTypeDef - confirmation of successful timer start (good start is HAL_OK or 0x00U)
  */
-uint8_t tim_start(TimFunc *timer){
-	uint8_t successful = 1;
+HAL_StatusTypeDef tim_start(TimFunc *timer){
+	HAL_StatusTypeDef successful = HAL_OK, channel_successful = HAL_OK;
 
 	// Split by function
 	if(timer->function==TIM_Base) {
 		HAL_TIM_Base_MspInit(timer->handle);
 		tim_init_clock(timer);
-		HAL_TIM_Base_Init(timer->handle);
+		successful = HAL_TIM_Base_Init(timer->handle);
 
-		if(timer->mode->mode==TIM_Mode_None){
-			HAL_TIM_Base_Start(timer->handle);
+		if(successful != HAL_OK){ // Error check
+			// Cancel start
+		} else if(timer->mode->mode==TIM_Mode_None){
+			successful = HAL_TIM_Base_Start(timer->handle);
 		} else if (timer->mode->mode==TIM_Mode_IT){
-			HAL_TIM_Base_Start_IT(timer->handle);
+			successful = HAL_TIM_Base_Start_IT(timer->handle);
 		} else if (timer->mode->mode==TIM_Mode_DMA){
-			HAL_TIM_Base_Start_DMA(timer->handle, timer->mode->src_addr, timer->mode->length);
+			successful = HAL_TIM_Base_Start_DMA(timer->handle, timer->mode->src_addr, timer->mode->length);
 		} else {
-			successful = 0;
+			successful = HAL_ERROR;
 		}
 	}else if(timer->function==TIM_IC) {
 		HAL_TIM_IC_MspInit(timer->handle);
 		tim_init_clock(timer);
-		HAL_TIM_IC_ConfigChannel(timer->handle, timer->ic_cfg, timer->mode->channel);
-		HAL_TIM_IC_Init(timer->handle);
+		channel_successful = HAL_TIM_IC_ConfigChannel(timer->handle, timer->ic_cfg, timer->mode->channel);
+		successful = HAL_TIM_IC_Init(timer->handle);
 
-		if(timer->mode->mode==TIM_Mode_None){
-			HAL_TIM_IC_Start(timer->handle, timer->mode->channel);
+		if(successful != HAL_OK || channel_successful != HAL_OK){ // Error checks
+			successful = channel_successful; // Cancel start
+		} else if(timer->mode->mode==TIM_Mode_None){
+			successful = HAL_TIM_IC_Start(timer->handle, timer->mode->channel);
 		} else if (timer->mode->mode==TIM_Mode_IT){
-			HAL_TIM_IC_Start_IT(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_IC_Start_IT(timer->handle, timer->mode->channel);
 		} else if (timer->mode->mode==TIM_Mode_DMA){
-			HAL_TIM_IC_Start_DMA(timer->handle, timer->mode->channel, timer->mode->src_addr, timer->mode->length);
+			successful = HAL_TIM_IC_Start_DMA(timer->handle, timer->mode->channel, timer->mode->src_addr, timer->mode->length);
 		} else {
-			successful = 0;
+			successful = HAL_ERROR;
 		}
 	}else if(timer->function==TIM_OC) {
 		HAL_TIM_OC_MspInit(timer->handle);
 		tim_init_clock(timer);
-		HAL_TIM_OC_ConfigChannel(timer->handle, timer->oc_cfg, timer->mode->channel);
-		HAL_TIM_OC_Init(timer->handle);
+		channel_successful = HAL_TIM_OC_ConfigChannel(timer->handle, timer->oc_cfg, timer->mode->channel);
+		successful = HAL_TIM_OC_Init(timer->handle);
 
-		if(timer->mode->mode==TIM_Mode_None){
-			HAL_TIM_OC_Start(timer->handle, timer->mode->channel);
+		if(successful != HAL_OK || channel_successful != HAL_OK){
+			successful = channel_successful; // Cancel start
+		} else if(timer->mode->mode==TIM_Mode_None){
+			successful = HAL_TIM_OC_Start(timer->handle, timer->mode->channel);
 		} else if (timer->mode->mode==TIM_Mode_IT){
-			HAL_TIM_OC_Start_IT(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_OC_Start_IT(timer->handle, timer->mode->channel);
 		} else if (timer->mode->mode==TIM_Mode_DMA){
-			HAL_TIM_OC_Start_DMA(timer->handle, timer->mode->channel, timer->mode->src_addr, timer->mode->length);
+			successful = HAL_TIM_OC_Start_DMA(timer->handle, timer->mode->channel, timer->mode->src_addr, timer->mode->length);
 		} else {
-			successful = 0;
+			successful = HAL_ERROR;
 		}
 	}else if(timer->function==TIM_PWM) {
 		HAL_TIM_PWM_MspInit(timer->handle);
 		tim_init_clock(timer);
-		HAL_TIM_PWM_ConfigChannel(timer->handle, timer->oc_cfg, timer->mode->channel);
-		HAL_TIM_PWM_Init(timer->handle);
+		channel_successful = HAL_TIM_PWM_ConfigChannel(timer->handle, timer->oc_cfg, timer->mode->channel);
+		successful = HAL_TIM_PWM_Init(timer->handle);
 
-		if(timer->mode->mode==TIM_Mode_None){
-			HAL_TIM_PWM_Start(timer->handle, timer->mode->channel);
+		if(successful != HAL_OK || channel_successful != HAL_OK){
+			successful = channel_successful; // Cancel start
+		} else if(timer->mode->mode==TIM_Mode_None){
+			successful = HAL_TIM_PWM_Start(timer->handle, timer->mode->channel);
 		} else if (timer->mode->mode==TIM_Mode_IT){
-			HAL_TIM_PWM_Start_IT(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_PWM_Start_IT(timer->handle, timer->mode->channel);
 		} else if (timer->mode->mode==TIM_Mode_DMA){
-			HAL_TIM_PWM_Start_DMA(timer->handle, timer->mode->channel, timer->mode->src_addr, timer->mode->length);
+			successful = HAL_TIM_PWM_Start_DMA(timer->handle, timer->mode->channel, timer->mode->src_addr, timer->mode->length);
 		} else {
-			successful = 0;
+			successful = HAL_ERROR;
 		}
 	}else if(timer->function==TIM_OnePulse) {
 		HAL_TIM_OnePulse_MspInit(timer->handle);
 		tim_init_clock(timer);
-		HAL_TIM_OnePulse_ConfigChannel(timer->handle, timer->onepulse_cfg, timer->mode->output_channel, timer->mode->input_channel);
-		HAL_TIM_OnePulse_Init(timer->handle, timer->mode->onepulse_mode);
+		channel_successful = HAL_TIM_OnePulse_ConfigChannel(timer->handle, timer->onepulse_cfg, timer->mode->output_channel, timer->mode->input_channel);
+		successful = HAL_TIM_OnePulse_Init(timer->handle, timer->mode->onepulse_mode);
 
-		if(timer->mode->mode==TIM_Mode_None){
-			HAL_TIM_OnePulse_Start(timer->handle, timer->mode->channel);
+		if(successful != HAL_OK || channel_successful != HAL_OK){
+			successful = channel_successful; // Cancel start
+		} else if(timer->mode->mode==TIM_Mode_None){
+			successful = HAL_TIM_OnePulse_Start(timer->handle, timer->mode->channel);
 		} else if (timer->mode->mode==TIM_Mode_IT){
-			HAL_TIM_OnePulse_Start_IT(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_OnePulse_Start_IT(timer->handle, timer->mode->channel);
 		} else {
-			successful = 0;
+			successful = HAL_ERROR;
 		}
 	}else if(timer->function==TIM_Encoder) {
 		HAL_TIM_Encoder_MspInit(timer->handle);
 		tim_init_clock(timer);
-		HAL_TIM_Encoder_Init(timer->handle, timer->encoder_cfg);
+		successful = HAL_TIM_Encoder_Init(timer->handle, timer->encoder_cfg);
 
-		if(timer->mode->mode==TIM_Mode_None){
+		if(successful != HAL_OK){
+			// Cancel start
+		} else if(timer->mode->mode==TIM_Mode_None){
 			HAL_TIM_Encoder_Start(timer->handle, timer->mode->channel);
 		} else if (timer->mode->mode==TIM_Mode_IT){
 			HAL_TIM_Encoder_Start_IT(timer->handle, timer->mode->channel);
 		} else if (timer->mode->mode==TIM_Mode_DMA){
 			HAL_TIM_Encoder_Start_DMA(timer->handle, timer->mode->channel, timer->mode->src_addr, timer->mode->src_addr2, timer->mode->length);
 		} else {
-			successful = 0;
+			successful = HAL_ERROR;
 		}
 	}else{
-		successful = 0;
+		successful = HAL_ERROR;
 	}
 
 	return successful;
@@ -351,71 +339,71 @@ void tim_init_clock(TimFunc *timer){
 /* Stops a given timer
  *
  * @param TimFunc *timer - the timer struct
- * @return uint8_t - if the operation inputs were valid
+ * @return HAL_StatusTypeDef - if the operation inputs were valid (good stop is HAL_OK or 0x00U)
  */
-uint8_t tim_stop(TimFunc *timer){
-	uint8_t successful = 1;
+HAL_StatusTypeDef tim_stop(TimFunc *timer){
+	HAL_StatusTypeDef successful = 1;
 
 	if(timer->function==TIM_Base){
 		if(timer->mode->mode==TIM_Mode_None){
-			HAL_TIM_Base_Stop(timer->handle);
+			successful = HAL_TIM_Base_Stop(timer->handle);
 		}else if(timer->mode->mode==TIM_Mode_IT){
-			HAL_TIM_Base_Stop_IT(timer->handle);
+			successful = HAL_TIM_Base_Stop_IT(timer->handle);
 		}else if(timer->mode->mode==TIM_Mode_DMA){
-			HAL_TIM_Base_Stop_DMA(timer->handle);
+			successful = HAL_TIM_Base_Stop_DMA(timer->handle);
 		}else{
-			successful = 0;
+			successful = HAL_ERROR;
 		}
 	}else if(timer->function==TIM_IC){
 		if(timer->mode->mode==TIM_Mode_None){
-			HAL_TIM_IC_Stop(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_IC_Stop(timer->handle, timer->mode->channel);
 		}else if(timer->mode->mode==TIM_Mode_IT){
-			HAL_TIM_IC_Stop_IT(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_IC_Stop_IT(timer->handle, timer->mode->channel);
 		}else if(timer->mode->mode==TIM_Mode_DMA){
-			HAL_TIM_IC_Stop_DMA(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_IC_Stop_DMA(timer->handle, timer->mode->channel);
 		}else{
-			successful = 0;
+			successful = HAL_ERROR;
 		}
 	}else if(timer->function==TIM_OC){
 		if(timer->mode->mode==TIM_Mode_None){
-			HAL_TIM_OC_Stop(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_OC_Stop(timer->handle, timer->mode->channel);
 		}else if(timer->mode->mode==TIM_Mode_IT){
-			HAL_TIM_OC_Stop_IT(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_OC_Stop_IT(timer->handle, timer->mode->channel);
 		}else if(timer->mode->mode==TIM_Mode_DMA){
-			HAL_TIM_OC_Stop_DMA(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_OC_Stop_DMA(timer->handle, timer->mode->channel);
 		}else{
-			successful = 0;
+			successful = HAL_ERROR;
 		}
 	}else if(timer->function==TIM_PWM){
 		if(timer->mode->mode==TIM_Mode_None){
-			HAL_TIM_PWM_Stop(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_PWM_Stop(timer->handle, timer->mode->channel);
 		}else if(timer->mode->mode==TIM_Mode_IT){
-			HAL_TIM_PWM_Stop_IT(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_PWM_Stop_IT(timer->handle, timer->mode->channel);
 		}else if(timer->mode->mode==TIM_Mode_DMA){
-			HAL_TIM_PWM_Stop_DMA(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_PWM_Stop_DMA(timer->handle, timer->mode->channel);
 		}else{
-			successful = 0;
+			successful = HAL_ERROR;
 		}
 	}else if(timer->function==TIM_OnePulse){
 		if(timer->mode->mode==TIM_Mode_None){
-			HAL_TIM_OnePulse_Stop(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_OnePulse_Stop(timer->handle, timer->mode->channel);
 		}else if(timer->mode->mode==TIM_Mode_IT){
-			HAL_TIM_OnePulse_Stop_IT(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_OnePulse_Stop_IT(timer->handle, timer->mode->channel);
 		}else{
-			successful = 0;
+			successful = HAL_ERROR;
 		}
 	}else if(timer->function==TIM_Encoder){
 		if(timer->mode->mode==TIM_Mode_None){
-			HAL_TIM_Encoder_Stop(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_Encoder_Stop(timer->handle, timer->mode->channel);
 		}else if(timer->mode->mode==TIM_Mode_IT){
-			HAL_TIM_Encoder_Stop_IT(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_Encoder_Stop_IT(timer->handle, timer->mode->channel);
 		}else if(timer->mode->mode==TIM_Mode_DMA){
-			HAL_TIM_Encoder_Stop_DMA(timer->handle, timer->mode->channel);
+			successful = HAL_TIM_Encoder_Stop_DMA(timer->handle, timer->mode->channel);
 		}else{
-			successful = 0;
+			successful = HAL_ERROR;
 		}
 	}else{
-		successful = 0;
+		successful = HAL_ERROR;
 	}
 
 	return successful;
@@ -424,24 +412,69 @@ uint8_t tim_stop(TimFunc *timer){
 /* Deinitializes a given timer
  *
  * @param TimFunc *timer - the timer struct
- * @return uint8_t - if the operation inputs were valid
+ * @return HAL_StatusTypeDef - if the operation inputs were valid (good deinit is HAL_OK or 0x00U)
  */
-uint8_t tim_deinit(TimFunc *timer){
+HAL_StatusTypeDef tim_deinit(TimFunc *timer){
+	HAL_StatusTypeDef status = HAL_OK;
 	if(timer->function==TIM_Base){
-		HAL_TIM_Base_DeInit(timer->handle);
+		status = HAL_TIM_Base_DeInit(timer->handle);
 	}else if(timer->function==TIM_IC){
-		HAL_TIM_IC_DeInit(timer->handle);
+		status = HAL_TIM_IC_DeInit(timer->handle);
 	}else if(timer->function==TIM_OC){
-		HAL_TIM_OC_DeInit(timer->handle);
+		status = HAL_TIM_OC_DeInit(timer->handle);
 	}else if(timer->function==TIM_PWM){
-		HAL_TIM_PWM_DeInit(timer->handle);
+		status = HAL_TIM_PWM_DeInit(timer->handle);
 	}else if(timer->function==TIM_OnePulse){
-		HAL_TIM_OnePulse_DeInit(timer->handle);
+		status = HAL_TIM_OnePulse_DeInit(timer->handle);
 	}else if(timer->function==TIM_Encoder){
-		HAL_TIM_Encoder_DeInit(timer->handle);
+		status = HAL_TIM_Encoder_DeInit(timer->handle);
 	}else{
-		return 0;
+		status = HAL_ERROR;
 	}
 
-	return 1;
+	return status;
+}
+
+// Quickstart timer
+
+TimFunc *qs_timer = NULL;
+void (*qs_func)() = NULL;
+
+/* Weak function for TIM4 interrupt handler */
+__weak void TIM4_IRQHandler(){
+	if(tim_get_IT_flag(qs_timer->handle, TIM_IT_UPDATE) != RESET){
+		tim_clear_IT_flag(qs_timer->handle, TIM_IT_UPDATE);
+		qs_func();
+	}
+}
+
+/* Creates a Base timer on TIM4 that executes a void function at every update event.
+ *
+ * @param uint32_t clk_frequency - frequency at which the clock is operating
+ * @param uint32_t target_frequency - the frequency at which the function should execute (min. 1/65536 of clk_frequency)
+ * @param void (*f)() - the void function to execute
+ */
+TimFunc *tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_frequency, void (*function)()){
+	TimMode mode = {.mode = TIM_Mode_IT};
+	uint32_t prescaler = 0, period = 0;
+	qs_func = function;
+
+	// Set timer frequency
+	if (clk_frequency / target_frequency > 65536){
+		return NULL; // Invalid frequencies
+	} else if (clk_frequency / target_frequency > 256) {
+		prescaler = 255;
+		period = tim_calc_period(clk_frequency, prescaler, target_frequency);
+		qs_timer = tim_config_base(TIM4, &mode, prescaler, period);
+	} else {
+		prescaler = tim_calc_prescaler(clk_frequency, target_frequency);
+		period = tim_calc_period(clk_frequency, prescaler, target_frequency);
+		qs_timer = tim_config_base(TIM4, &mode, prescaler, period);
+	}
+
+	HAL_Init();
+	HAL_NVIC_EnableIRQ(TIM4_IRQn);
+	tim_start(qs_timer);
+
+	return qs_timer;
 }

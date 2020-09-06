@@ -61,8 +61,6 @@ enum tim_func_constants {TIM_Base, TIM_IC, TIM_OC, TIM_PWM, TIM_OnePulse, TIM_En
 #define tim_config_slave_IT(handle, slave_cfg)				HAL_TIM_SlaveConfigSynchro(handle, slave_cfg)
 
 // Timer config functions
-TIM_HandleTypeDef *tim_populate_handle(TIM_HandleTypeDef *handle, TIM_TypeDef *instance, uint32_t prescaler, uint32_t time_counter_mode, uint32_t period,
-		uint32_t clock_division, uint32_t repitition_counter, uint32_t autoreload_preload);
 TimFunc *tim_init_struct();
 TIM_HandleTypeDef *tim_init_handle(TIM_TypeDef *instance, uint32_t prescaler, uint32_t period);
 TimFunc *tim_config_base(TIM_TypeDef *instance, TimMode *mode, uint32_t prescaler, uint32_t period);
@@ -78,9 +76,12 @@ void tim_config_repetition(TimFunc *timer, uint16_t repititions);
 
 
 // Timer init/start/stop functions
-uint8_t tim_start(TimFunc *timer);
+HAL_StatusTypeDef tim_start(TimFunc *timer);
 void tim_init_clock(TimFunc *timer);
-uint8_t tim_stop(TimFunc *timer);
-uint8_t tim_deinit(TimFunc *timer);
+HAL_StatusTypeDef tim_stop(TimFunc *timer);
+HAL_StatusTypeDef tim_deinit(TimFunc *timer);
+
+// Quickstart timer
+TimFunc *tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_frequency, void (*f)());
 
 #endif /* DRIVERS_STM32_TIM_TIM_H_ */
