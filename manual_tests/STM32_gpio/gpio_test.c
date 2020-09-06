@@ -11,9 +11,10 @@
 
 #include <STM32_gpio/gpio.h>
 
-#if STM32H743xx
-	#include <STM32H7_clock/clock.h>
-#endif
+// TODO - figure out how to make this work for both the G4 and H7
+//#if STM32H743xx
+#include <STM32H7_clock/clock.h>
+//#endif
 
 int main() {
 	// Initialization
