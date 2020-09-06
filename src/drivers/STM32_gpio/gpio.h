@@ -10,6 +10,10 @@
 
 #include <stdint.h>
 
+#ifdef STM32G474xx
+#include <stm32g4xx_hal.h>
+#endif
+
 #ifdef STM32H743xx
 #include <stm32h7xx_hal.h>
 #endif
