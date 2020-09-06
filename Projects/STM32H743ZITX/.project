@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Firmware</name>
+	<name>STM32H743ZITX</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -31,4 +31,26 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>com.st.stm32cube.ide.mcu.MCUCubeIdeServicesRevAev2ProjectNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>Drivers</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Drivers</locationURI>
+		</link>
+		<link>
+			<name>Startup</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Startup</locationURI>
+		</link>
+		<link>
+			<name>manual_tests</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/manual_tests</locationURI>
+		</link>
+		<link>
+			<name>src</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

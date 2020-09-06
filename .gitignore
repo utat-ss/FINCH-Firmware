@@ -52,15 +52,11 @@ Mkfile.old
 dkms.conf
 
 # Build/Generated Files
-Debug/**
+**/Debug/**
 Core/**
 .mxproject
-.settings/**
+**/.settings/**
 mx.scratch
-
-# Program files
-*.ld
-Firmware.ioc
 
 # Other
 .DS_Store
