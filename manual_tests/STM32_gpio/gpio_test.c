@@ -9,11 +9,11 @@
  *  the yellow light will blink. Otherwise, the red light will blink.
  */
 
-#include <STM32_gpio/gpio.h>
+#include <drivers/STM32_gpio/gpio.h>
 
 // TODO - figure out how to make this work for both the G4 and H7
 //#if STM32H743xx
-#include <STM32H7_clock/clock.h>
+#include <drivers/STM32H7_clock/clock.h>
 //#endif
 
 int main() {
