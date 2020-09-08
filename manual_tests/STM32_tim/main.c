@@ -76,7 +76,7 @@ void setup_tim(){
  * In this context, a time unit is 150 ms (20/6 Hz), so the entire message (54 time units) is transmitted in 8.1 seconds.
  * Update events occur at each other time unit (300 ms or 20/3 Hz).
  */
-uint8_t main(){
+int main(){
 	setup_tim();
 	setup_gpio();
 	tim_start(timer);

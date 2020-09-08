@@ -59,8 +59,11 @@ enum tim_mode_constants {TIM_Mode_None, TIM_Mode_IT, TIM_Mode_DMA};
 enum tim_func_constants {TIM_Base, TIM_IC, TIM_OC, TIM_PWM, TIM_OnePulse, TIM_Encoder};
 
 // Helper calculator macros
+#ifdef STM32G474xx
 #define tim_calc_prescaler(tim_clk, count_clk) 				__HAL_TIM_CALC_PSC(tim_clk, count_clk)
 #define tim_calc_period(tim_clk, prescaler, frequency) 		__HAL_TIM_CALC_PERIOD(tim_clk, prescaler, frequency)
+#endif
+
 #define tim_calc_pulse(tim_clk, prescaler, us_delay)		__HAL_TIM_CALC_PULSE(tim_clk, prescaler, us_delay)
 #define tim_calc_pulse_dither(tim_clk, prescaler, us_delay)	__HAL_TIM_CALC_PULSE_DITHER(tim_clk, prescaler, us_delay)
 

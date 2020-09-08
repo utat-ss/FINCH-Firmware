@@ -15,7 +15,7 @@
 	#include <STM32H7_clock/clock.h>
 #endif
 
-int main() {
+int gpio_test() {
 	// Initialization
 	HAL_Init();
 	clock_init();
