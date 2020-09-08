@@ -8,7 +8,21 @@
 #ifndef DRIVERS_STM32_TIM_TIM_H_
 #define DRIVERS_STM32_TIM_TIM_H_
 
-#include "../../Core/Inc/main.h"
+#include <stdint.h>
+#include <STM32H7_clock/clock.h>
+
+#ifdef STM32G474xx
+#include <stm32g4xx_hal.h>
+#include <stm32g4xx_hal_tim.h>
+#include <stm32g4xx_hal_tim_ex.h>
+#include <stm32g4_startup.h>
+#endif
+#ifdef STM32H743xx
+#include <stm32h7xx_hal.h>
+#include <stm32h7xx_hal_tim.h>
+#include <stm32h7xx_hal_tim_ex.h>
+#include <stm32h7_startup.h>
+#endif
 
 /* User created struct to hold timer mode data, to be filled as follows:
  * - Mode is always required, see constants
