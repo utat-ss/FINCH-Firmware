@@ -302,7 +302,6 @@ HAL_StatusTypeDef tim_start(TimFunc *timer){
 }
 
 /* Starts the appropriate timer clock, and runs clock config if present.
- * NOTE: the timers listed are exist only on STM32G474RE series, and does not implement low-power/high-res timers. Other chips will require edits to this list.
  *
  * @param TimFunc *timer - the timer struct
  */
@@ -327,9 +326,29 @@ void tim_init_clock(TimFunc *timer){
 		 __HAL_RCC_TIM16_CLK_ENABLE();
 	}else if(timer->handle->Instance==TIM17){
 		 __HAL_RCC_TIM17_CLK_ENABLE();
-	}else if(timer->handle->Instance==TIM20){
-		 __HAL_RCC_TIM20_CLK_ENABLE();
+	}else if(timer->handle->Instance==HRTIM1){
+		__HRTIM1_CLK_ENABLE();
+	}else if(timer->handle->Instance==LPTIM1){
+		__LPTIM1_CLK_ENABLE();
+	}else if(timer->handle->Instance==LPTIM2){
+		__LPTIM2_CLK_ENABLE();
 	}
+
+	// MCU-specific timers
+#ifdef STM32G474xx
+	if(timer->handle->Instance==TIM20){
+			 __HAL_RCC_TIM20_CLK_ENABLE();
+	}
+#endif
+#ifdef STM32H743xx
+	if(timer->handle->Instance==TIM12){
+			 __HAL_RCC_TIM12_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM13){
+		 __HAL_RCC_TIM13_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM14){
+		 __HAL_RCC_TIM14_CLK_ENABLE();
+	}
+#endif
 
 	if(timer->clk_cfg != NULL){
 		tim_config_clock(timer->handle, timer->clk_cfg);
@@ -464,11 +483,11 @@ TimFunc *tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_fr
 		return NULL; // Invalid frequencies
 	} else if (clk_frequency / target_frequency > 256) {
 		prescaler = 255;
-		period = tim_calc_period(clk_frequency, prescaler, target_frequency);
+		period = (clk_frequency / target_frequency / (prescaler+1)) - 1;
 		qs_timer = tim_config_base(TIM4, &mode, prescaler, period);
 	} else {
-		prescaler = tim_calc_prescaler(clk_frequency, target_frequency);
-		period = tim_calc_period(clk_frequency, prescaler, target_frequency);
+		prescaler = (clk_frequency / target_frequency) - 1;
+		period = (clk_frequency / target_frequency / (prescaler+1)) - 1;
 		qs_timer = tim_config_base(TIM4, &mode, prescaler, period);
 	}
 
