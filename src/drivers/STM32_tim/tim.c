@@ -10,7 +10,7 @@
  * --> This can receive either NAME_OF_INPUT_SWAP or NAME_OF_INPUT_THESE
  */
 
-#include "../STM32_tim/tim.h"
+#include <STM32_tim/tim.h>
 
 /* Config functions
  * - These function generate basic TimFunc struct for each timer. Further changes can be made by manually adjusting values within the struct, or
