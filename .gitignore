@@ -57,6 +57,8 @@ Core/**
 .mxproject
 **/.settings/**
 mx.scratch
+.metadata/**
+RemoteSystemsTempFiles/**
 
 # Other
 .DS_Store

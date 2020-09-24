@@ -102,7 +102,6 @@ TimFunc *tim_config_oc(TIM_TypeDef *instance, TimMode *mode, uint32_t prescaler,
 	TIM_HandleTypeDef *handle = tim_init_handle(instance, prescaler, period);
 	TIM_OC_InitTypeDef oc_config = {.OCMode = oc_mode, .Pulse = oc_pulse, .OCPolarity = oc_polarity};
 
-
 	oc_timer->function = TIM_OC;
 	oc_timer->mode = mode;
 	oc_timer->handle = handle;
@@ -127,7 +126,6 @@ TimFunc *tim_config_pwm(TIM_TypeDef *instance, TimMode *mode, uint32_t prescaler
 	TimFunc *pwm_timer = tim_init_struct();
 	TIM_HandleTypeDef *handle = tim_init_handle(instance, prescaler, period);
 	TIM_OC_InitTypeDef pwm_config = {.OCMode = pwm_mode, .Pulse = pwm_pulse, .OCPolarity = pwm_polarity};
-
 
 	pwm_timer->function = TIM_PWM;
 	pwm_timer->mode = mode;
@@ -158,7 +156,6 @@ TimFunc *tim_config_onepulse(TIM_TypeDef *instance, TimMode *mode, uint32_t pres
 	TIM_HandleTypeDef *handle = tim_init_handle(instance, prescaler, period);
 	TIM_OnePulse_InitTypeDef op_config = {.OCMode = oc_mode, .Pulse = oc_pulse, .OCPolarity = oc_polarity, .ICPolarity = ic_polarity,
 		.ICSelection = ic_selection, .ICFilter = ic_filter};
-
 
 	op_timer->function = TIM_OnePulse;
 	op_timer->mode = mode;
@@ -301,52 +298,90 @@ HAL_StatusTypeDef tim_start(TimFunc *timer){
 	return successful;
 }
 
-/* Starts the appropriate timer clock, and runs clock config if present.
+/* Starts the appropriate timer clock and interrupt handler, and runs clock config if present.
  *
  * @param TimFunc *timer - the timer struct
  */
 void tim_init_clock(TimFunc *timer){
-	if(timer->handle->Instance==TIM1){
-		 __HAL_RCC_TIM1_CLK_ENABLE();
-	}else if(timer->handle->Instance==TIM2){
-		 __HAL_RCC_TIM2_CLK_ENABLE();
+	if(timer->handle->Instance==TIM2){
+		__HAL_RCC_TIM2_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM2_IRQn);
 	}else if(timer->handle->Instance==TIM3){
-		 __HAL_RCC_TIM3_CLK_ENABLE();
+		__HAL_RCC_TIM3_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM3_IRQn);
 	}else if(timer->handle->Instance==TIM4){
-		 __HAL_RCC_TIM4_CLK_ENABLE();
+		__HAL_RCC_TIM4_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM4_IRQn);
 	}else if(timer->handle->Instance==TIM5){
-		 __HAL_RCC_TIM5_CLK_ENABLE();
+		__HAL_RCC_TIM5_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM5_IRQn);
 	}else if(timer->handle->Instance==TIM6){
-		 __HAL_RCC_TIM6_CLK_ENABLE();
+		__HAL_RCC_TIM6_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
+	}
+
+	// MCU-specific timers
+#ifdef STM32G474xx
+	if (timer->handle->Instance==TIM1){
+		__HAL_RCC_TIM1_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
 	}else if(timer->handle->Instance==TIM7){
-		 __HAL_RCC_TIM7_CLK_ENABLE();
+		__HAL_RCC_TIM7_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM7_DAC_IRQn);
 	}else if(timer->handle->Instance==TIM15){
-		 __HAL_RCC_TIM15_CLK_ENABLE();
+		__HAL_RCC_TIM15_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
 	}else if(timer->handle->Instance==TIM16){
-		 __HAL_RCC_TIM16_CLK_ENABLE();
+		__HAL_RCC_TIM16_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
 	}else if(timer->handle->Instance==TIM17){
-		 __HAL_RCC_TIM17_CLK_ENABLE();
+		__HAL_RCC_TIM17_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM1_TRG_COM_TIM17_IRQn);
+	}else if(timer->handle->Instance==TIM20){
+		__HAL_RCC_TIM20_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM20_UP_IRQn);
+	}else if(timer->handle->Instance==HRTIM){
+		__HRTIM1_CLK_ENABLE();
+	}
+#endif
+#ifdef STM32H743xx
+	if(timer->handle->Instance==TIM1){
+		__HAL_RCC_TIM1_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM1_UP_IRQn);
+	}else if(timer->handle->Instance==TIM7){
+		__HAL_RCC_TIM7_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM7_IRQn);
+	}else if(timer->handle->Instance==TIM12){
+		__HAL_RCC_TIM12_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM13){
+		__HAL_RCC_TIM13_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM14){
+		__HAL_RCC_TIM14_CLK_ENABLE();
+	}else if(timer->handle->Instance==TIM15){
+		__HAL_RCC_TIM15_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM15_IRQn);
+	}else if(timer->handle->Instance==TIM16){
+		__HAL_RCC_TIM16_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM16_IRQn);
+	}else if(timer->handle->Instance==TIM17){
+		__HAL_RCC_TIM17_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM17_IRQn);
 	}else if(timer->handle->Instance==HRTIM1){
 		__HRTIM1_CLK_ENABLE();
 	}else if(timer->handle->Instance==LPTIM1){
 		__LPTIM1_CLK_ENABLE();
 	}else if(timer->handle->Instance==LPTIM2){
 		__LPTIM2_CLK_ENABLE();
-	}
-
-	// MCU-specific timers
-#ifdef STM32G474xx
-	if(timer->handle->Instance==TIM20){
-			 __HAL_RCC_TIM20_CLK_ENABLE();
-	}
-#endif
-#ifdef STM32H743xx
-	if(timer->handle->Instance==TIM12){
-			 __HAL_RCC_TIM12_CLK_ENABLE();
-	}else if(timer->handle->Instance==TIM13){
-		 __HAL_RCC_TIM13_CLK_ENABLE();
-	}else if(timer->handle->Instance==TIM14){
-		 __HAL_RCC_TIM14_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(LPTIM2_IRQn);
+	}else if(timer->handle->Instance==LPTIM3){
+		__LPTIM1_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(LPTIM3_IRQn);
+	}else if(timer->handle->Instance==LPTIM4){
+		__LPTIM2_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(LPTIM4_IRQn);
+	}else if(timer->handle->Instance==LPTIM5){
+		__LPTIM1_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(LPTIM5_IRQn);
 	}
 #endif
 
