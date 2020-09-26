@@ -9,8 +9,7 @@
 
 #include "clock.h"
 
-// TODO - implement initialization functions for the G474
-
+#ifdef STM32H743xx
 void clock_init(void) {
 	SystemClock_Config();
 	GPIOClock_Config();
@@ -25,7 +24,6 @@ void SystemClock_Config(void)
 	// Need to use #ifdef here for just the H7 because some of the constants
 	// and functions (e.g. PWR_LDO_SUPPLY) are not defined in the G4 HAL
 
-#ifdef STM32H743xx
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
@@ -86,8 +84,6 @@ void SystemClock_Config(void)
   /** Enable USB Voltage detector
   */
   HAL_PWREx_EnableUSBVoltageDetector();
-#endif
-
 }
 
 /**
@@ -98,7 +94,6 @@ void GPIOClock_Config(void) {
 	// Need to use #ifdef here for just the H7 because
 	// __HAL_RCC_GPIOH_CLK_ENABLE() is not defined in the G4 HAL
 
-#ifdef STM32H743xx
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
@@ -107,6 +102,5 @@ void GPIOClock_Config(void) {
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
-#endif
-
 }
+#endif

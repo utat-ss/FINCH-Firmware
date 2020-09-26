@@ -5,16 +5,30 @@
  *      Author: brytni
  *
  *  GPIO testing functions
- *  Test will manually blink light on NUCLEO-H743ZI2 devkit. When blue button is pressed,
- *  the yellow light will blink. Otherwise, the red light will blink.
+ *  Test will manually blink light on NUCLEO-H74/G474 devkit. When blue button is pressed,
+ *  the light (red for H7, green for G4) will blink twice as fast as when the button is not
+ *  pressed
  */
 
 #include <drivers/STM32_gpio/gpio.h>
 
-// TODO - figure out how to make this work for both the G4 and H7
-//#if STM32H743xx
+#ifdef STM32H743xx
 #include <drivers/STM32H7_clock/clock.h>
-//#endif
+// Declare pin variables for STM32H7 devkit
+#define BLUE_BUTTON_PIN GPIO_PIN_13
+#define BLUE_BUTTON_PORT GPIOC
+#define LED_PIN GPIO_PIN_14
+#define LED_PORT GPIOB
+#endif
+
+#ifdef STM32G474xx
+#include <drivers/STM32G4_clock/clock.h>
+// Declare pin variables for STM32G4 devkit
+#define BLUE_BUTTON_PIN GPIO_PIN_13
+#define BLUE_BUTTON_PORT GPIOC
+#define LED_PIN GPIO_PIN_5
+#define LED_PORT GPIOA
+#endif
 
 int main() {
 	// Initialization
@@ -22,21 +36,22 @@ int main() {
 	clock_init();
 
 	// Create GPIO instances
-	GPIO_OUTPUT red_led = gpio_init_output(GPIOB, GPIO_PIN_14);
-	GPIO_OUTPUT yellow_led = gpio_init_output(GPIOE, GPIO_PIN_1);
 	GPIO_INPUT blue_button = gpio_init_input(GPIOC, GPIO_PIN_13);
+	GPIO_OUTPUT led_light = gpio_init_output(GPIOA, GPIO_PIN_5);
 
 	// Blink light
 	while (1) {
+		gpio_set_high(led_light);
+		HAL_Delay(100);
+		gpio_set_low(led_light);
+		HAL_Delay(100);
+		// If button pressed, blink light faster
 		if (gpio_read(blue_button) == GPIO_PIN_SET) {
-			gpio_set_high(yellow_led);
-		} else {
-			gpio_set_high(red_led);
+			gpio_set_high(led_light);
+			HAL_Delay(100);
+			gpio_set_low(led_light);
+			HAL_Delay(100);
 		}
-		HAL_Delay(100);
-		gpio_set_low(red_led);
-		gpio_set_low(yellow_led);
-		HAL_Delay(100);
 	}
 
 	return 1;
