@@ -13,7 +13,7 @@
 #include <stm32g4xx_hal_gpio.h>
 #endif
 
-static TimFunc *timer;
+static TimFunc timer;
 volatile uint8_t time_unit = 0;
 volatile uint8_t led_toggle[] = {1,1,1,1,1,0,0,1,1,1,0,0,
 						  1,1,1,1,0,0,
@@ -22,7 +22,7 @@ volatile uint8_t led_toggle[] = {1,1,1,1,1,0,0,1,1,1,0,0,
 						  1,1,1,1,1,1,1,1,0,0,0,0,0,0}; // Each line is a letter and the trailing space or end of word.
 // Interrupt handler
 void TIM2_IRQHandler(){
-	HAL_TIM_IRQHandler(timer->handle);
+	HAL_TIM_IRQHandler(&(timer.handle));
 }
 
 // Advance to the next signal on every second time unit
@@ -67,7 +67,7 @@ void setup_tim(){
 	clock_init();
 	TimMode mode = {.mode = TIM_Mode_IT};
 
-	timer = tim_config_base(TIM2, &mode, 62499, 815);
+	timer = tim_config_base(TIM2, mode, 62499, 815);
 	HAL_NVIC_EnableIRQ(TIM2_IRQn);
 }
 
@@ -79,7 +79,7 @@ void setup_tim(){
 int main(){
 	setup_tim();
 	setup_gpio();
-	tim_start(timer);
+	tim_start(&timer);
 
 	return 0;
 }
