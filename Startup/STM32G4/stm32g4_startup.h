@@ -1,5 +1,5 @@
 /*
- * stm32h7_startup.h
+ * stm32g4_startup.h
  *
  *  Header file that connects all of the STM32H7 startup files
  */
@@ -7,7 +7,7 @@
 #ifndef STARTUP_H_
 #define STARTUP_H_
 
-// STM32H7 specific libraries
+// STM32G4 specific libraries
 #include "stm32g4xx_hal.h"
 #include "stm32g4xx.h"
 

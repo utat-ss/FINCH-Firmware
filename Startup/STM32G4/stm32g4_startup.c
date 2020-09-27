@@ -1,5 +1,5 @@
 /*
- * stm32h7_startup.c
+ * stm32g4_startup.c
  *
  *  Note that a lot of the files in the Startup folder are directly copied from the
  *  generated files. The files in this folder are needed for the devkit debugger
