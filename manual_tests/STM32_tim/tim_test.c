@@ -20,32 +20,19 @@ volatile uint8_t led_toggle[] = {1,1,1,1,1,0,0,1,1,1,0,0,
 						  1,0,0,1,1,1,0,0,
 						  1,0,0,1,1,1,1,0,0,1,1,1,0,0,
 						  1,1,1,1,1,1,1,1,0,0,0,0,0,0}; // Each line is a letter and the trailing space or end of word.
-// Interrupt handler
+
+// Interrupt handler, advances at the end of each period
 void TIM2_IRQHandler(){
-	HAL_TIM_IRQHandler(&(timer.handle));
-}
+	if(tim_get_IT_flag(&(timer.handle), TIM_IT_UPDATE)){
+		tim_clear_IT_flag(&(timer.handle), TIM_IT_UPDATE);
+		if(led_toggle[time_unit]){
+			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+		}
 
-// Advance to the next signal on every second time unit
-void HAL_TIM_PeriodElapsedHalfCpltCallback(TIM_HandleTypeDef *htim){
-	if(led_toggle[time_unit]){
-		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-	}
-
-	time_unit++;
-	if(time_unit==54){ //Reset the cycle
-		time_unit=0;
-	}
-}
-
-// Advance to the next signal on every first time unit
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	if(led_toggle[time_unit]){
-		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-	}
-
-	time_unit++;
-	if(time_unit==54){ //Reset the cycle
-		time_unit=0;
+		time_unit++;
+		if(time_unit==54){ //Reset the cycle
+			time_unit=0;
+		}
 	}
 }
 
@@ -67,8 +54,7 @@ void setup_tim(){
 	clock_init();
 	TimMode mode = {.mode = TIM_Mode_IT};
 
-	timer = tim_config_base(TIM2, mode, 62499, 815);
-	HAL_NVIC_EnableIRQ(TIM2_IRQn);
+	timer = tim_config_base(TIM2, mode, 62499, 1631);
 }
 
 /* Flashes 'FINCH' on the evaluation kit LD2 LED.

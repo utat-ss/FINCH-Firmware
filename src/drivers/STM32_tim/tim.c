@@ -423,8 +423,8 @@ HAL_StatusTypeDef tim_deinit(TimFunc *timer){
 TimFunc qs_timer;
 void (*qs_func)() = NULL;
 
-/* Weak function for TIM4 interrupt handler */
-__weak void TIM4_IRQHandler(){
+/* Function for TIM4 interrupt handler */
+void TIM4_IRQHandler(){
 	if(tim_get_IT_flag(&(qs_timer.handle), TIM_IT_UPDATE) != RESET){
 		tim_clear_IT_flag(&(qs_timer.handle), TIM_IT_UPDATE);
 		qs_func();
@@ -458,7 +458,7 @@ TimFunc tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_fre
 	}
 
 	HAL_Init();
-	HAL_NVIC_EnableIRQ(TIM4_IRQn);
+	clock_init();
 	tim_start(&qs_timer);
 
 	return qs_timer;
