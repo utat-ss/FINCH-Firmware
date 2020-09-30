@@ -38,19 +38,19 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Drivers</locationURI>
 		</link>
 		<link>
-			<name>Startup</name>
-			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Startup</locationURI>
-		</link>
-		<link>
-			<name>manual_tests</name>
+			<name>Manual_Tests</name>
 			<type>2</type>
 			<locationURI>PARENT-2-PROJECT_LOC/manual_tests</locationURI>
 		</link>
 		<link>
-			<name>src</name>
+			<name>Src</name>
 			<type>2</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src</locationURI>
+		</link>
+		<link>
+			<name>Startup</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Startup</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
