@@ -10,7 +10,7 @@
  * --> This can receive either NAME_OF_INPUT_SWAP or NAME_OF_INPUT_THESE
  */
 
-#include <STM32_tim/tim.h>
+#include "tim.h"
 
 /*Initializes a timer handle, counting up by default.
  * @param TIM_TypeDef *instance - the timer to use
