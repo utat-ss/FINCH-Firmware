@@ -40,12 +40,12 @@
 		<link>
 			<name>Manual_Tests</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/manual_tests</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Manual_Tests</locationURI>
 		</link>
 		<link>
 			<name>Src</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Src</locationURI>
 		</link>
 		<link>
 			<name>Startup</name>
