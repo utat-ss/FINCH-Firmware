@@ -7,10 +7,13 @@
  * Overview: A timer that uses LD2 to flash 'FINCH' in Morse code on the NUCLEO-G474RE. Based on https://visualgdb.com/tutorials/arm/stm32/timers/hal/
  */
 
+
 #include <STM32_tim/tim.h>
 
-#ifdef STM32G4xx
+#ifdef STM32G474xx
 #include <stm32g4xx_hal_gpio.h>
+#elif defined(STM32H743xx)
+#include <stn32h7xx_hal_gpio.h>
 #endif
 
 static TimFunc timer;
@@ -36,18 +39,6 @@ void TIM2_IRQHandler(){
 	}
 }
 
-// Setup the GPIO pins needed
-void setup_gpio(){
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	GPIO_InitTypeDef handle;
-	handle.Pin=GPIO_PIN_5;
-	handle.Mode=GPIO_MODE_OUTPUT_PP;
-	handle.Pull=GPIO_PULLDOWN;
-	handle.Speed=GPIO_SPEED_FREQ_MEDIUM;
-
-	HAL_GPIO_Init(GPIOA, &handle);
-}
-
 // Setup the timer and interrupt functions
 void setup_tim(){
 	HAL_Init();
@@ -64,7 +55,12 @@ void setup_tim(){
  */
 int main(){
 	setup_tim();
-	setup_gpio();
+#ifdef STM32G474xx
+	gpio_init_output(GPIOA, 5);
+#elif defined(STM32H743xx)
+	gpio_init_output(GPIOB, 7);
+#endif
+
 	tim_start(&timer);
 
 	return 0;

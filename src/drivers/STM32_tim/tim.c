@@ -294,8 +294,7 @@ void tim_init_clock(TimFunc *timer){
 		__HAL_RCC_TIM20_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM20_UP_IRQn);
 	}
-#endif
-#ifdef STM32H743xx
+#elif defined(STM32H743xx)
 	if(timer->handle.Instance==TIM1){
 		__HAL_RCC_TIM1_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM1_UP_IRQn);

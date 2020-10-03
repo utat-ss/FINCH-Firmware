@@ -16,8 +16,7 @@
 #include <stm32g4xx_hal_tim.h>
 #include <stm32g4xx_hal_tim_ex.h>
 #include <stm32g4_startup.h>
-#endif
-#ifdef STM32H743xx
+#elif defined(STM32H743xx)
 #include <drivers/STM32H7_clock/clock.h>
 #include <stm32h7xx_hal.h>
 #include <stm32h7xx_hal_tim.h>
