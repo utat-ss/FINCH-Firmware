@@ -59,6 +59,8 @@ Core/**
 mx.scratch
 .metadata/**
 RemoteSystemsTempFiles/**
+.project
+.cproject
 
 # Other
 .DS_Store
