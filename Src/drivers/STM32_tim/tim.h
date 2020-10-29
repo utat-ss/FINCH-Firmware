@@ -58,10 +58,12 @@ typedef struct {
 enum tim_mode_constants {TIM_Mode_None, TIM_Mode_IT, TIM_Mode_DMA};
 enum tim_func_constants {TIM_Base, TIM_IC, TIM_OC, TIM_PWM, TIM_OnePulse, TIM_Encoder};
 
-// Helper calculator macros
+// Optional calculator macros (not needed for proper timer functionality)
 #ifdef STM32G474xx
 #define tim_calc_prescaler(tim_clk, count_clk) 				__HAL_TIM_CALC_PSC(tim_clk, count_clk)
 #define tim_calc_period(tim_clk, prescaler, frequency) 		__HAL_TIM_CALC_PERIOD(tim_clk, prescaler, frequency)
+#elif defined(STM32H743xx)
+#define tim_calc_prescaler(tim_clk, count_clk)				__LL_TIM_CALC_PSC(tim_clk, count_clk)
 #endif
 
 #define tim_calc_pulse(tim_clk, prescaler, us_delay)		__HAL_TIM_CALC_PULSE(tim_clk, prescaler, us_delay)
@@ -89,11 +91,12 @@ TimFunc tim_config_onepulse(TIM_TypeDef *instance, TimMode mode, uint32_t presca
 void tim_config_repetition(TimFunc *timer, uint16_t repititions);
 
 
-// Timer init/start/stop functions
+// Timer operation functions
 HAL_StatusTypeDef tim_start(TimFunc *timer);
 void tim_init_clock(TimFunc *timer);
 HAL_StatusTypeDef tim_stop(TimFunc *timer);
 HAL_StatusTypeDef tim_deinit(TimFunc *timer);
+uint8_t tim_check_flag(uint16_t flag);
 
 // Quickstart timer
 TimFunc tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_frequency, void (*f)());

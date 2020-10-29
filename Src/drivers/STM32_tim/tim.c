@@ -147,7 +147,7 @@ void tim_config_repetition(TimFunc *timer, uint16_t period_repetitions){
 	tim_enable_IT_flag(&(timer->handle), TIM_FLAG_UPDATE);
 }
 
-// Timer start and stop functions
+// Timer operation functions
 
 /* Start the timer with the given mode and options
  *
@@ -330,7 +330,7 @@ void tim_init_clock(TimFunc *timer){
  * @return HAL_StatusTypeDef - if the operation inputs were valid (good stop is HAL_OK or 0x00U)
  */
 HAL_StatusTypeDef tim_stop(TimFunc *timer){
-	HAL_StatusTypeDef successful = 1;
+	HAL_StatusTypeDef successful = HAL_ERROR; // Default to error state
 
 	if(timer->function==TIM_Base){
 		if(timer->mode.mode==TIM_Mode_None){
@@ -417,6 +417,20 @@ HAL_StatusTypeDef tim_deinit(TimFunc *timer){
 	return status;
 }
 
+/* Checks if a flag has been raised, clears the flag, and returns a result
+ *
+ * @param uint16_t flag - the flag to check
+ * @return uint8_t - 1 if the flag was raised, 0 otherwise
+ */
+uint8_t tim_check_flag(TimFunc* timer, uint16_t flag){
+	if(tim_get_IT_flag(timer->handle, flag)){
+		tim_clear_IT_flag(timer->handle, flag);
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
 // Quickstart timer
 
 TimFunc qs_timer;
@@ -456,8 +470,6 @@ TimFunc tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_fre
 		qs_timer = tim_config_base(TIM4, mode, prescaler, period);
 	}
 
-	HAL_Init();
-	clock_init();
 	tim_start(&qs_timer);
 
 	return qs_timer;

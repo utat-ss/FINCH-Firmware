@@ -12,11 +12,16 @@
 
 #ifdef STM32G474xx
 #include <stm32g4xx_hal_gpio.h>
+#define LED_PORT GPIOA
+#define LED_PIN GPIO_PIN_5
 #elif defined(STM32H743xx)
 #include <stn32h7xx_hal_gpio.h>
+#define LED_PORT GPIOB
+#define LED_PIN GPIO_PIN_7
 #endif
 
 static TimFunc timer;
+static GPIO_OUTPUT led_struct;
 volatile uint8_t time_unit = 0;
 volatile uint8_t led_toggle[] = {1,1,1,1,1,0,0,1,1,1,0,0,
 						  1,1,1,1,0,0,
@@ -26,10 +31,9 @@ volatile uint8_t led_toggle[] = {1,1,1,1,1,0,0,1,1,1,0,0,
 
 // Interrupt handler, advances at the end of each period
 void TIM2_IRQHandler(){
-	if(tim_get_IT_flag(&(timer.handle), TIM_IT_UPDATE)){
-		tim_clear_IT_flag(&(timer.handle), TIM_IT_UPDATE);
+	if(tim_check_flag(*timer, TIM_IT_UPDATE)){
 		if(led_toggle[time_unit]){
-			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+			HAL_GPIO_TogglePin(led_struct.port, led_struct.pin);
 		}
 
 		time_unit++;
@@ -55,11 +59,7 @@ void setup_tim(){
  */
 int main(){
 	setup_tim();
-#ifdef STM32G474xx
-	gpio_init_output(GPIOA, 5);
-#elif defined(STM32H743xx)
-	gpio_init_output(GPIOB, 7);
-#endif
+	led_struct = gpio_init_output(LED_PORT, LED_PIN);
 
 	tim_start(&timer);
 
