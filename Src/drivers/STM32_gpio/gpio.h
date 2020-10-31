@@ -45,6 +45,7 @@ GPIO_INPUT gpio_init_input(GPIO_TypeDef *port, uint16_t pin);
 void gpio_set_high(GPIO_OUTPUT gpio);
 void gpio_set_low(GPIO_OUTPUT gpio);
 void gpio_set_value(GPIO_OUTPUT gpio, GPIO_PinState state);
+void gpio_toggle(GPIO_OUTPUT gpio);
 GPIO_PinState gpio_read(GPIO_INPUT gpio);
 
 #endif /* DRIVERS_STM32_GPIO_GPIO_H_ */
