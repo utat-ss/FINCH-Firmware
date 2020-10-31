@@ -178,6 +178,14 @@ void gpio_set_value(GPIO_OUTPUT gpio, GPIO_PinState state) {
 }
 
 /*
+Toggle the value of an output gpio pin
+@param GPIO_OUTPUT gpio - the pin's GPIO_OUTPUT struct
+*/
+void gpio_toggle(GPIO_OUTPUT gpio) {
+	HAL_GPIO_TogglePin(gpio.port, gpio.pin);
+}
+
+/*
 Return the input value of a pin
 @param GPIO_INPUT gpio - the pin's GPIO_INPUT struct
 @param GPIO_PinState state - the pin's GPIO_PinState; value will be either
