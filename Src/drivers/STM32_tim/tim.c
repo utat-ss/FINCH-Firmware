@@ -419,16 +419,18 @@ HAL_StatusTypeDef tim_deinit(TimFunc *timer){
 
 /* Checks if a flag has been raised, clears the flag, and returns a result
  *
+ * @param TimFunc* timer - the timer struct
  * @param uint16_t flag - the flag to check
  * @return uint8_t - 1 if the flag was raised, 0 otherwise
  */
-uint8_t tim_check_flag(TimFunc* timer, uint16_t flag){
-	if(tim_get_IT_flag(timer->handle, flag)){
-		tim_clear_IT_flag(timer->handle, flag);
+uint8_t tim_check_flag(TimFunc* timer, uint8_t flag){
+	if(tim_get_IT_flag(&(timer->handle), flag)){
+		tim_clear_IT_flag(&(timer->handle), flag);
 		return 1;
 	}else{
 		return 0;
 	}
+	return 0;
 }
 
 // Quickstart timer
@@ -436,13 +438,13 @@ uint8_t tim_check_flag(TimFunc* timer, uint16_t flag){
 TimFunc qs_timer;
 void (*qs_func)() = NULL;
 
-/* Function for TIM4 interrupt handler */
+/* Function for TIM4 interrupt handler *
 void TIM4_IRQHandler(){
 	if(tim_get_IT_flag(&(qs_timer.handle), TIM_IT_UPDATE) != RESET){
 		tim_clear_IT_flag(&(qs_timer.handle), TIM_IT_UPDATE);
 		qs_func();
 	}
-}
+} */
 
 /* Creates a Base timer on TIM4 that executes a void function at every update event.
  *

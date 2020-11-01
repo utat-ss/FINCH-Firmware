@@ -70,14 +70,14 @@ enum tim_func_constants {TIM_Base, TIM_IC, TIM_OC, TIM_PWM, TIM_OnePulse, TIM_En
 #define tim_calc_pulse_dither(tim_clk, prescaler, us_delay)	__HAL_TIM_CALC_PULSE_DITHER(tim_clk, prescaler, us_delay)
 
 // User-friendly macros for counter, interrupt flags, clock, and slave
-#define tim_get_counter(handle) 							__HAL_TIM_GET_COUNTER(handle)
-#define tim_enable_IT_flag(handle, flag)					__HAL_TIM_ENABLE_IT(handle, flag)
-#define tim_disable_IT_flag(handle, flag)					__HAL_TIM_DISABLE_IT(handle, flag)
-#define tim_get_IT_flag(handle, flag)						__HAL_TIM_GET_FLAG(handle, flag)
-#define tim_clear_IT_flag(handle, flag)						__HAL_TIM_CLEAR_FLAG(handle, flag)
-#define tim_config_clock(handle, clk_cfg)					HAL_TIM_ConfigClockSource(handle, clk_cfg)
-#define tim_config_slave(handle, slave_cfg)					HAL_TIM_SlaveConfigSynchro(handle, slave_cfg)
-#define tim_config_slave_IT(handle, slave_cfg)				HAL_TIM_SlaveConfigSynchro(handle, slave_cfg)
+#define tim_get_counter(handle_addr) 							__HAL_TIM_GET_COUNTER(handle_addr)
+#define tim_enable_IT_flag(handle_addr, flag)					__HAL_TIM_ENABLE_IT(handle_addr, flag)
+#define tim_disable_IT_flag(handle_addr, flag)					__HAL_TIM_DISABLE_IT(handle_addr, flag)
+#define tim_get_IT_flag(handle_addr, flag)						__HAL_TIM_GET_FLAG(handle_addr, flag)
+#define tim_clear_IT_flag(handle_addr, flag)					__HAL_TIM_CLEAR_FLAG(handle_addr, flag)
+#define tim_config_clock(handle_addr, clk_cfg)					HAL_TIM_ConfigClockSource(handle_addr, clk_cfg)
+#define tim_config_slave(handle_addr, slave_cfg)				HAL_TIM_SlaveConfigSynchro(handle_addr, slave_cfg)
+#define tim_config_slave_IT(handle_addr, slave_cfg)				HAL_TIM_SlaveConfigSynchro(handle_addr, slave_cfg)
 
 // Timer config functions
 TIM_HandleTypeDef tim_init_handle(TIM_TypeDef *instance, uint32_t prescaler, uint32_t period);
@@ -96,9 +96,10 @@ HAL_StatusTypeDef tim_start(TimFunc *timer);
 void tim_init_clock(TimFunc *timer);
 HAL_StatusTypeDef tim_stop(TimFunc *timer);
 HAL_StatusTypeDef tim_deinit(TimFunc *timer);
-uint8_t tim_check_flag(uint16_t flag);
+uint8_t tim_check_flag(TimFunc* timer, uint8_t flag);
 
-// Quickstart timer
+// Quickstart timer and callback setup
 TimFunc tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_frequency, void (*f)());
+TimFunc tim_setup_callback(TimFunc timer, void (*function)());
 
 #endif /* DRIVERS_STM32_TIM_TIM_H_ */

@@ -31,9 +31,9 @@ volatile uint8_t led_toggle[] = {1,1,1,1,1,0,0,1,1,1,0,0,
 
 // Interrupt handler, advances at the end of each period
 void TIM2_IRQHandler(){
-	if(tim_check_flag(*timer, TIM_IT_UPDATE)){
+	if(tim_check_flag(&timer, TIM_IT_UPDATE)){
 		if(led_toggle[time_unit]){
-			HAL_GPIO_TogglePin(led_struct.port, led_struct.pin);
+			gpio_toggle(led_struct);
 		}
 
 		time_unit++;
