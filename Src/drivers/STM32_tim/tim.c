@@ -436,7 +436,6 @@ uint8_t tim_check_flag(TimFunc* timer, uint8_t flag){
 // Quickstart timer
 
 TimFunc qs_timer;
-void (*qs_func)() = NULL;
 
 /* Function for TIM4 interrupt handler *
 void TIM4_IRQHandler(){
@@ -453,10 +452,9 @@ void TIM4_IRQHandler(){
  * @param void (*f)() - the void function to execute
  * @return TimFunc - the loaded timer struct
  */
-TimFunc tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_frequency, void (*function)()){
+TimFunc tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_frequency, void (*qs_function)()){
 	TimMode mode = {.mode = TIM_Mode_IT};
 	uint32_t prescaler = 0, period = 0;
-	qs_func = function;
 
 	// Set timer frequency
 	if (clk_frequency / target_frequency > 65536){
@@ -472,6 +470,7 @@ TimFunc tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_fre
 		qs_timer = tim_config_base(TIM4, mode, prescaler, period);
 	}
 
+	tim_setup_callback(qs_timer, qs_function);
 	tim_start(&qs_timer);
 
 	return qs_timer;

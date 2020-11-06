@@ -8,14 +8,15 @@
  */
 
 
-#include <STM32_tim/tim.h>
+#include <drivers/STM32_tim/tim.h>
+#include <drivers/STM32_gpio/gpio.h>
 
 #ifdef STM32G474xx
 #include <stm32g4xx_hal_gpio.h>
 #define LED_PORT GPIOA
 #define LED_PIN GPIO_PIN_5
 #elif defined(STM32H743xx)
-#include <stn32h7xx_hal_gpio.h>
+#include <stm32h7xx_hal_gpio.h>
 #define LED_PORT GPIOB
 #define LED_PIN GPIO_PIN_7
 #endif
@@ -29,17 +30,14 @@ volatile uint8_t led_toggle[] = {1,1,1,1,1,0,0,1,1,1,0,0,
 						  1,0,0,1,1,1,1,0,0,1,1,1,0,0,
 						  1,1,1,1,1,1,1,1,0,0,0,0,0,0}; // Each line is a letter and the trailing space or end of word.
 
-// Interrupt handler, advances at the end of each period
-void TIM2_IRQHandler(){
-	if(tim_check_flag(&timer, TIM_IT_UPDATE)){
-		if(led_toggle[time_unit]){
-			gpio_toggle(led_struct);
-		}
+void led_toggle_func(){
+	if(led_toggle[time_unit]){
+		gpio_toggle(led_struct);
+	}
 
-		time_unit++;
-		if(time_unit==54){ //Reset the cycle
-			time_unit=0;
-		}
+	time_unit++;
+	if(time_unit==54){ //Reset the cycle
+		time_unit=0;
 	}
 }
 
@@ -50,6 +48,7 @@ void setup_tim(){
 	TimMode mode = {.mode = TIM_Mode_IT};
 
 	timer = tim_config_base(TIM2, mode, 62499, 1631);
+	tim_setup_callback(timer, led_toggle_func);
 }
 
 /* Flashes 'FINCH' on the evaluation kit LD2 LED.

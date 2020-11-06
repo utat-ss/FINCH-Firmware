@@ -10,7 +10,7 @@
 void tim_run_callback(TIM_TypeDef *timer, uint8_t func_location);
 
 // Array of timers. Timers available: 1-7, 12-14 (H7 only), 15-17, 20 (G4 only)
-volatile void (*callback_array[14])() = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+volatile void (*tim_callback_array[14])() = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 /* Interrupt handlers
  *
@@ -143,38 +143,38 @@ TimFunc tim_setup_callback(TimFunc timer, void (*function)()){
 	void (*callback_func)() = function;
 	// Array of functions, called by each handler
 	if(timer.handle.Instance==TIM1){
-		callback_array[0] = callback_func;
+		tim_callback_array[0] = callback_func;
 	}else if(timer.handle.Instance==TIM2){
-		callback_array[1] = callback_func;
+		tim_callback_array[1] = callback_func;
 	}else if(timer.handle.Instance==TIM3){
-		callback_array[2] = callback_func;
+		tim_callback_array[2] = callback_func;
 	}else if(timer.handle.Instance==TIM4){
-		callback_array[3] = callback_func;
+		tim_callback_array[3] = callback_func;
 	}else if(timer.handle.Instance==TIM5){
-		callback_array[4] = callback_func;
+		tim_callback_array[4] = callback_func;
 	}else if(timer.handle.Instance==TIM6){
-		callback_array[5] = callback_func;
+		tim_callback_array[5] = callback_func;
 	}else if(timer.handle.Instance==TIM7){
-		callback_array[6] = callback_func;
+		tim_callback_array[6] = callback_func;
 	}else if(timer.handle.Instance==TIM15){
-		callback_array[10] = callback_func;
+		tim_callback_array[10] = callback_func;
 	}else if(timer.handle.Instance==TIM16){
-		callback_array[11] = callback_func;
+		tim_callback_array[11] = callback_func;
 	}else if(timer.handle.Instance==TIM17){
-		callback_array[12] = callback_func;
+		tim_callback_array[12] = callback_func;
 	}
 
 #ifdef STM32G474xx
 	if(timer.handle.Instance==TIM20){
-		callback_array[13] = callback_func;
+		tim_callback_array[13] = callback_func;
 	}
 #elif defined(STM32H743xx)
 	if(timer.handle.Instance==TIM12){
-		callback_array[7] = callback_func;
+		tim_callback_array[7] = callback_func;
 	}else if(timer.handle.Instance==TIM13){
-		callback_array[8] = callback_func;
+		tim_callback_array[8] = callback_func;
 	}else if(timer.handle.Instance==TIM14){
-		callback_array[9] = callback_func;
+		tim_callback_array[9] = callback_func;
 	}
 #endif
 	return timer;
@@ -187,5 +187,7 @@ TimFunc tim_setup_callback(TimFunc timer, void (*function)()){
  */
 void tim_run_callback(TIM_TypeDef *timer, uint8_t func_location){
 	timer->SR = ~TIM_IT_UPDATE; // Clear flag
-	(*callback_array[func_location])();// Run the callback function
+	if(func_location>=0 && func_location<14){
+		(*tim_callback_array[func_location])();// Run the callback function
+	}
 }
