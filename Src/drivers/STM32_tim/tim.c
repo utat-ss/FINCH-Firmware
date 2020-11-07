@@ -437,22 +437,15 @@ uint8_t tim_check_flag(TimFunc* timer, uint8_t flag){
 
 TimFunc qs_timer;
 
-/* Function for TIM4 interrupt handler *
-void TIM4_IRQHandler(){
-	if(tim_get_IT_flag(&(qs_timer.handle), TIM_IT_UPDATE) != RESET){
-		tim_clear_IT_flag(&(qs_timer.handle), TIM_IT_UPDATE);
-		qs_func();
-	}
-} */
-
-/* Creates a Base timer on TIM4 that executes a void function at every update event.
+/* Creates a Base timer that executes a void function at every update event.
  *
+ * @param TIM_TypeDef *timer - the specific timer to start on
  * @param uint32_t clk_frequency - frequency at which the clock is operating
  * @param uint32_t target_frequency - the frequency at which the function should execute (min. 1/65536 of clk_frequency)
  * @param void (*f)() - the void function to execute
  * @return TimFunc - the loaded timer struct
  */
-TimFunc tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_frequency, void (*qs_function)()){
+TimFunc tim_quickstart_void_function(TIM_TypeDef *timer, uint32_t clk_frequency, uint32_t target_frequency, void (*qs_function)()){
 	TimMode mode = {.mode = TIM_Mode_IT};
 	uint32_t prescaler = 0, period = 0;
 
@@ -463,11 +456,11 @@ TimFunc tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_fre
 	} else if (clk_frequency / target_frequency > 256) {
 		prescaler = 255;
 		period = (clk_frequency / target_frequency / (prescaler+1)) - 1;
-		qs_timer = tim_config_base(TIM4, mode, prescaler, period);
+		qs_timer = tim_config_base(timer, mode, prescaler, period);
 	} else {
 		prescaler = (clk_frequency / target_frequency) - 1;
 		period = (clk_frequency / target_frequency / (prescaler+1)) - 1;
-		qs_timer = tim_config_base(TIM4, mode, prescaler, period);
+		qs_timer = tim_config_base(timer, mode, prescaler, period);
 	}
 
 	tim_setup_callback(qs_timer, qs_function);

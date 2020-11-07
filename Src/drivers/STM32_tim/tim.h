@@ -99,7 +99,7 @@ HAL_StatusTypeDef tim_deinit(TimFunc *timer);
 uint8_t tim_check_flag(TimFunc* timer, uint8_t flag);
 
 // Quickstart timer and callback setup
-TimFunc tim_quickstart_void_function(uint32_t clk_frequency, uint32_t target_frequency, void (*f)());
+TimFunc tim_quickstart_void_function(TIM_TypeDef *timer, uint32_t clk_frequency, uint32_t target_frequency, void (*f)());
 TimFunc tim_setup_callback(TimFunc timer, void (*function)());
 
 #endif /* DRIVERS_STM32_TIM_TIM_H_ */

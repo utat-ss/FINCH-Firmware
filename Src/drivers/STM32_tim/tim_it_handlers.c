@@ -188,6 +188,8 @@ TimFunc tim_setup_callback(TimFunc timer, void (*function)()){
 void tim_run_callback(TIM_TypeDef *timer, uint8_t func_location){
 	timer->SR = ~TIM_IT_UPDATE; // Clear flag
 	if(func_location>=0 && func_location<14){
-		(*tim_callback_array[func_location])();// Run the callback function
+		if(tim_callback_array[func_location] != NULL){ // In range, and function exists
+			(*tim_callback_array[func_location])();
+		}
 	}
 }
