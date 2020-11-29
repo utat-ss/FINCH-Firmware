@@ -108,8 +108,25 @@ void nvic_disable_interrupt(IRQn_Type interrupt){
 
 /* Check if an interrupt is pending on the channel
  *
- * @para
+ * @param IRQn_Type interrupt - the interrupt channel to check
+ * @return uint32_t - if there is a pending interrupt (1 if pending, 0 otherwise)
  */
 uint32_t nvic_get_pending_interrupt(IRQn_Type interrupt){
+	return HAL_NVIC_GetPendingIRQ(interrupt);
+}
 
+/* Manually set an interrupt channel as pending.
+ *
+ * @param IRQn_Type interrupt - the interrupt to set as pending
+ */
+void nvic_set_pending_interrupt(IRQn_Type interrupt){
+	HAL_NVIC_SetPendingIRQ(interrupt);
+}
+
+/* Clear a pending interrupt from a given channel.
+ *
+ * @param IQRn_Type interrupt - the channel to clear the interrupt from
+ */
+void nvic_clear_pending_interrupt(IRQn_Type interrupt){
+	HAL_NVIC_SetPendingIRQ(interrupt);
 }
