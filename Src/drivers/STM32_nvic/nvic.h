@@ -26,14 +26,14 @@ uint32_t nvic_get_priority_grouping();
 void nvic_set_priority_grouping(uint32_t grouping_bits);
 uint8_t nvic_validate_priority_inputs(uint32_t group, uint32_t subpriority);
 void nvic_get_priority(IRQn_Type interrupt, uint32_t *group, uint32_t *subpriority);
-void nvic_set_priority();
+void nvic_set_priority(IRQn_Type interrupt, uint32_t group, uint32_t subpriority);
 
-// IRQ operation functions
-void nvic_get_active_interrupt();
-void nvic_enable_interupt();
-void nvic_disable_interrupt();
-uint32_t nvic_get_pending_interrupt();
-void nvic_set_pending_interrupt();
-void nvic_clear_pending_interrupt();
+// Interrupt (IRQ) operation functions
+uint32_t nvic_get_active_interrupt(IRQn_Type interrupt);
+void nvic_enable_interupt(IRQn_Type interrupt);
+void nvic_disable_interrupt(IRQn_Type interrupt);
+uint32_t nvic_get_pending_interrupt(IRQn_Type interrupt);
+void nvic_set_pending_interrupt(IRQn_Type interrupt);
+void nvic_clear_pending_interrupt(IRQn_Type interrupt);
 
 #endif /* DRIVERS_STM32_NVIC_NVIC_H_ */

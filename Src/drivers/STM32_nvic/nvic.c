@@ -66,3 +66,50 @@ uint8_t nvic_validate_priority_inputs(uint32_t group, uint32_t subpriority){
 void nvic_get_priority(IRQn_Type interrupt, uint32_t *group, uint32_t *subpriority){
 	HAL_NVIC_GetPriority(interrupt, nvic_get_priority_grouping(), group, subpriority);
 }
+
+/* Sets the priority of an interrupt, if the inputs are valid
+ *
+ * @param IRQn_Type interrupt - the interrupt channel to set the priority for
+ * @param uint32_t group - the preemption group to set the interrupt to
+ * @param uint32_t subpriority - the subpriority level to set the interrupt to
+ */
+void nvic_set_priority(IRQn_Type interrupt, uint32_t group, uint32_t subpriority){
+	if(nvic_validate_priority_inputs(group, subpriority)){ // Error checking
+		HAL_NVIC_SetPriority(interrupt, group, subpriority);
+	}
+}
+
+// Interrupt (IRQ) operation functions
+
+/* Returns whether a given interrupt is active or not.
+ *
+ * @param IRQn_type interrupt -  the interrupt to check
+ * @return uint32_t - the status of the interrupt (1 if active, 0 otherwise)
+ */
+uint32_t nvic_get_active_interrupt(IRQn_Type interrupt){
+	return HAL_NVIC_GetActive(interrupt);
+}
+
+/* Enables the given interrupt channel.
+ *
+ * @param IRQn_Type interrupt - the interrupt channel to enable
+ */
+void nvic_enable_interrupt(IRQn_Type interrupt){
+	HAL_NVIC_EnableIRQ(interrupt);
+}
+
+/* Disables the given interrupt channel.
+ *
+ * @param IRQn_Type interrupt - the interrupt channel to disable
+ */
+void nvic_disable_interrupt(IRQn_Type interrupt){
+	HAL_NVIC_DisableIRQ(interrupt);
+}
+
+/* Check if an interrupt is pending on the channel
+ *
+ * @para
+ */
+uint32_t nvic_get_pending_interrupt(IRQn_Type interrupt){
+
+}
