@@ -1,19 +1,30 @@
 # This file is adapted from https://dev.to/younup/cmake-on-stm32-the-beginning-3766
 
-cmake_minimum_required(VERSION 3.15.3)
+# Define the minimum version of CMake required to compile
+# (preferably the latest version so we are all consistent)
+cmake_minimum_required(VERSION 3.19.2)
+# Define the entire project name
+project(Firmware
+        DESCRIPTION "FINCH Firmware"
+)
 
-project(nucleo-f413zh)
-
+# Enable using C and Assembly source files
 enable_language(C ASM)
-set(CMAKE_C_STANDARD 99)
+# Use the C11 standard to match the CubeIDE project
+set(CMAKE_C_STANDARD 11)
+# Enforce that we must use the C11 standard
 set(CMAKE_C_STANDARD_REQUIRED ON)
+# Don't request compiler-specific extensions
 set(CMAKE_C_EXTENSIONS OFF)
 
+set(EXECUTABLE STM32_gpio.out)
+add_executable(${EXECUTABLE})
+
+# Specify all source (.c and .s) files
 # It seems that it is a bad idea to use globbing to find all .c (or other)
 # files, so we will explicitly list all files
 # Source: https://stackoverflow.com/questions/2110795/how-to-use-all-c-files-in-a-directory-with-the-cmake-build-system
-set(STM32CUBEMX_GENERATED_FILES
-
+target_sources(${EXECUTABLE} PRIVATE
         Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c
         Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma.c
         Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma_ex.c
@@ -40,39 +51,34 @@ set(STM32CUBEMX_GENERATED_FILES
         Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c
         Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_usb.c
 
+        Manual_Tests/STM32_gpio/gpio_test.c
+
         Src/drivers/STM32H7_clock/clock.c
         Src/drivers/STM32_gpio/gpio.c
 
-        Startup/STM32H7/stm32h7xx_hal_conf.h
-        Startup/STM32H7/stm32h7xx_it.h
-
-        Manual_Tests/STM32_gpio/gpio_test.c
+        Startup/STM32H7/startup_stm32h743zitx.s
+        Startup/STM32H7/stm32h7_startup.c
         Startup/STM32H7/stm32h7xx_it.c
         Startup/STM32H7/system_stm32h7xx.c
-        Startup/STM32H7/stm32h7_startup.c
+)
 
-        Startup/STM32H7/startup_stm32h743zitx.s)
-
-set(EXECUTABLE ${PROJECT_NAME}.out)
-
-add_executable(${EXECUTABLE} ${STM32CUBEMX_GENERATED_FILES})
-
-target_compile_definitions(${EXECUTABLE} PRIVATE
-        -DUSE_HAL_DRIVER
-        -DSTM32H743xx
-        )
-
+# Specify all header (.h) file directories
+# Similar to source files, explicitly list all files rather than globbing 
 target_include_directories(${EXECUTABLE} PRIVATE
-        Src
-        Drivers/STM32H7xx_HAL_Driver/Inc
         Drivers/CMSIS/Device/ST/STM32H7xx/Include
         Drivers/CMSIS/Include
+        Drivers/STM32H7xx_HAL_Driver/Inc
+        Src
         Startup/STM32H7
-        BSP/Drivers/STM32F4xx_HAL_Driver/Inc
-        BSP/Drivers/CMSIS/Device/ST/STM32F4xx/Include
-        BSP/Drivers/CMSIS/Include
-        )
+)
 
+# Specify compiler definitions (macros)
+target_compile_definitions(${EXECUTABLE} PRIVATE
+        -DSTM32H743xx
+        -DUSE_HAL_DRIVER
+)
+
+# Add compiler options
 target_compile_options(${EXECUTABLE} PRIVATE
         -mcpu=cortex-m4
         -mthumb
@@ -85,8 +91,9 @@ target_compile_options(${EXECUTABLE} PRIVATE
         -Wall
 
         $<$<CONFIG:Debug>:-Og>
-        )
+)
 
+# Add linker script and linker options
 target_link_options(${EXECUTABLE} PRIVATE
         -T${CMAKE_SOURCE_DIR}/Projects/STM32H743ZITX/STM32H743ZITX_FLASH.ld
         -mcpu=cortex-m4
@@ -99,15 +106,17 @@ target_link_options(${EXECUTABLE} PRIVATE
         -lnosys
         -Wl,-Map=${PROJECT_NAME}.map,--cref
         -Wl,--gc-sections
-        )
+)
 
 # Print executable size
 add_custom_command(TARGET ${EXECUTABLE}
         POST_BUILD
-        COMMAND arm-none-eabi-size ${EXECUTABLE})
+        COMMAND arm-none-eabi-size ${EXECUTABLE}
+)
 
 # Create hex file
 add_custom_command(TARGET ${EXECUTABLE}
         POST_BUILD
         COMMAND arm-none-eabi-objcopy -O ihex ${EXECUTABLE} ${PROJECT_NAME}.hex
-        COMMAND arm-none-eabi-objcopy -O binary ${EXECUTABLE} ${PROJECT_NAME}.bin)
+        COMMAND arm-none-eabi-objcopy -O binary ${EXECUTABLE} ${PROJECT_NAME}.bin
+)
