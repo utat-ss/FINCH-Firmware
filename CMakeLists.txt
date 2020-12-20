@@ -9,39 +9,49 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
-
+# It seems that it is a bad idea to use globbing to find all .c (or other)
+# files, so we will explicitly list all files
+# Source: https://stackoverflow.com/questions/2110795/how-to-use-all-c-files-in-a-directory-with-the-cmake-build-system
 set(STM32CUBEMX_GENERATED_FILES
 
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd_ex.c
-        BSP/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma_ex.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth_ex.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_exti.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash_ex.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_gpio.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_hsem.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c_ex.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_mdma.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd_ex.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr_ex.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c
+        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_usb.c
 
-        BSP/Inc/main.h
-        BSP/Inc/stm32f4xx_hal_conf.h
-        BSP/Inc/stm32f4xx_it.h
+        Src/drivers/STM32H7_clock/clock.c
+        Src/drivers/STM32_gpio/gpio.c
 
-        BSP/Src/main.c
-        BSP/Src/stm32f4xx_hal_msp.c
-        BSP/Src/stm32f4xx_it.c
-        BSP/Src/system_stm32f4xx.c
+        Startup/STM32H7/stm32h7xx_hal_conf.h
+        Startup/STM32H7/stm32h7xx_it.h
 
-        BSP/startup_stm32f413xx.s)
+        Manual_Tests/STM32_gpio/gpio_test.c
+        Startup/STM32H7/stm32h7xx_it.c
+        Startup/STM32H7/system_stm32h7xx.c
+        Startup/STM32H7/stm32h7_startup.c
+
+        Startup/STM32H7/startup_stm32h743zitx.s)
 
 set(EXECUTABLE ${PROJECT_NAME}.out)
 
@@ -49,11 +59,15 @@ add_executable(${EXECUTABLE} ${STM32CUBEMX_GENERATED_FILES})
 
 target_compile_definitions(${EXECUTABLE} PRIVATE
         -DUSE_HAL_DRIVER
-        -DSTM32F413xx
+        -DSTM32H743xx
         )
 
 target_include_directories(${EXECUTABLE} PRIVATE
-        BSP/Inc
+        Src
+        Drivers/STM32H7xx_HAL_Driver/Inc
+        Drivers/CMSIS/Device/ST/STM32H7xx/Include
+        Drivers/CMSIS/Include
+        Startup/STM32H7
         BSP/Drivers/STM32F4xx_HAL_Driver/Inc
         BSP/Drivers/CMSIS/Device/ST/STM32F4xx/Include
         BSP/Drivers/CMSIS/Include
@@ -74,7 +88,7 @@ target_compile_options(${EXECUTABLE} PRIVATE
         )
 
 target_link_options(${EXECUTABLE} PRIVATE
-        -T${CMAKE_SOURCE_DIR}/BSP/STM32F413ZHTx_FLASH.ld
+        -T${CMAKE_SOURCE_DIR}/Projects/STM32H743ZITX/STM32H743ZITX_FLASH.ld
         -mcpu=cortex-m4
         -mthumb
         -mfpu=fpv4-sp-d16
