@@ -12,6 +12,8 @@
 BUILD_DIR = Build
 # Default built type
 BUILD = Debug
+# MCU series (currently can be "G4" or "H7")
+MCU = H7
 
 # Strip trailing slash in the test path if there is one
 TEST_TARGET := $(patsubst %/,%,$(TEST))
@@ -48,10 +50,10 @@ upload: compile
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 	@cd $(BUILD_DIR) && \
-	cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../arm-none-eabi-gcc.cmake -DCMAKE_BUILD_TYPE=$(BUILD) .. && \
+	cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../arm-none-eabi-gcc.cmake -DCMAKE_BUILD_TYPE=$(BUILD) -DMCU_SERIES=$(MCU) .. && \
 	cd ..
 
 # Remove the build directory
 # This forces CMake to regenerate the Makefiles next time a program is compiled
 clean:
-	rm -r $(BUILD_DIR)
+	rm -rf $(BUILD_DIR)

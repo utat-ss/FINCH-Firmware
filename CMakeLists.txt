@@ -8,6 +8,12 @@ project(Firmware
         DESCRIPTION "FINCH Firmware"
 )
 
+# Make sure MCU series parameter is valid
+if ((${MCU_SERIES} MATCHES "G4") OR (${MCU_SERIES} MATCHES "H7"))
+else()
+        message(FATAL_ERROR "Invalid MCU series: must be G4 or H7")
+endif()
+
 # Enable using C and Assembly source files
 enable_language(C ASM)
 # Use the C11 standard to match the CubeIDE project
@@ -30,40 +36,71 @@ add_library(${COMMON_TARGET} OBJECT)
 # files, so we will explicitly list all files
 # Source: https://stackoverflow.com/questions/2110795/how-to-use-all-c-files-in-a-directory-with-the-cmake-build-system
 target_sources(${COMMON_TARGET} PRIVATE
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma_ex.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth_ex.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_exti.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash_ex.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_gpio.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_hsem.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c_ex.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_mdma.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd_ex.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr_ex.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c
-        Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_usb.c
-
-        Src/drivers/STM32H7_clock/clock.c
         Src/drivers/STM32_gpio/gpio.c
-
-        Startup/STM32H7/startup_stm32h743zitx.s
-        Startup/STM32H7/stm32h7_startup.c
-        Startup/STM32H7/stm32h7xx_it.c
-        Startup/STM32H7/system_stm32h7xx.c
+        Src/drivers/STM32G4_clock/clock.c
+        Src/drivers/STM32H7_clock/clock.c
 )
+
+# Add common source files for the particular MCU series in use
+if (${MCU_SERIES} MATCHES "G4")
+        target_sources(${COMMON_TARGET} PRIVATE
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_cortex.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dma.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dma_ex.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_exti.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ramfunc.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_gpio.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pwr.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pwr_ex.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc_ex.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim_ex.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart.c
+                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart_ex.c
+
+                Startup/STM32G4/startup_stm32g474retx.s
+                Startup/STM32G4/stm32g4_startup.c
+                Startup/STM32G4/stm32g4xx_it.c
+                Startup/STM32G4/system_stm32g4xx.c
+        )
+elseif (${MCU_SERIES} MATCHES "H7")
+        target_sources(${COMMON_TARGET} PRIVATE
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma_ex.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth_ex.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_exti.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash_ex.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_gpio.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_hsem.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c_ex.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_mdma.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd_ex.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr_ex.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c
+                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_usb.c
+
+                Startup/STM32H7/startup_stm32h743zitx.s
+                Startup/STM32H7/stm32h7_startup.c
+                Startup/STM32H7/stm32h7xx_it.c
+                Startup/STM32H7/system_stm32h7xx.c
+        )
+endif()
 
 # Recursively find all test source (.c) files under the Manual_Tests directory
 # https://stackoverflow.com/questions/2110795/how-to-use-all-c-files-in-a-directory-with-the-cmake-build-system/2110796
@@ -105,39 +142,83 @@ foreach(DIR TARGET IN ZIP_LISTS TEST_DIRS TEST_TARGETS)
         add_executable(${TARGET} $<TARGET_OBJECTS:${COMMON_TARGET}> ${SOURCES})
 endforeach()
 
-# Loop through all targets (both common and tests)
-# These settings apply to both
+# Save common options between compiler and linker so we don't have to repeat them
+set(OPTIONS
+        -mfloat-abi=hard
+        -mthumb
+        -specs=nano.specs
+)
+set(G4_OPTIONS
+        -mcpu=cortex-m4
+        -mfpu=fpv4-sp-d16
+)
+set(H7_OPTIONS
+        -mcpu=cortex-m7
+        -mfpu=fpv5-d16
+)
+
+# Loop through all targets (both common and tests since these settings apply to
+# both)
 foreach(TARGET IN LISTS COMMON_TARGET TEST_TARGETS)
         # Specify all header (.h) file directories
         # Similar to source files, explicitly list all files rather than globbing 
         target_include_directories(${TARGET} PRIVATE
-                Drivers/CMSIS/Device/ST/STM32H7xx/Include
                 Drivers/CMSIS/Include
-                Drivers/STM32H7xx_HAL_Driver/Inc
                 Src
-                Startup/STM32H7
         )
 
         # Specify compiler definitions (macros)
         target_compile_definitions(${TARGET} PRIVATE
-                -DSTM32H743xx
+                -DDEBUG
                 -DUSE_HAL_DRIVER
         )
 
         # Add compiler options
         target_compile_options(${TARGET} PRIVATE
-                -mcpu=cortex-m4
-                -mthumb
-                -mfpu=fpv4-sp-d16
-                -mfloat-abi=hard
+                ${OPTIONS}
 
                 -fdata-sections
                 -ffunction-sections
+                -fstack-usage
+
+                # Maximum debugging information
+                # https://stackoverflow.com/questions/10475040/gcc-g-vs-g3-gdb-flag-what-is-the-difference
+                -g3
+
+                # Optimization level
+                $<$<CONFIG:Debug>:-Og>
 
                 -Wall
-
-                $<$<CONFIG:Debug>:-Og>
         )
+
+        # Add MCU series-specific settings
+        if (${MCU_SERIES} MATCHES "G4")
+                target_include_directories(${TARGET} PRIVATE
+                        Drivers/CMSIS/Device/ST/STM32G4xx/Include
+                        Drivers/STM32G4xx_HAL_Driver/Inc
+                        Startup/STM32G4
+                )
+                target_compile_definitions(${TARGET} PRIVATE
+                        -DSTM32G4
+                        -DSTM32G474xx
+                )
+                target_compile_options(${TARGET} PRIVATE
+                        ${G4_OPTIONS}
+                )
+        elseif (${MCU_SERIES} MATCHES "H7")
+                target_include_directories(${TARGET} PRIVATE
+                        Drivers/CMSIS/Device/ST/STM32H7xx/Include
+                        Drivers/STM32H7xx_HAL_Driver/Inc
+                        Startup/STM32H7
+                )
+                target_compile_definitions(${TARGET} PRIVATE
+                        -DSTM32H7
+                        -DSTM32H743xx
+                )
+                target_compile_options(${TARGET} PRIVATE
+                        ${H7_OPTIONS}
+                )
+        endif()
 endforeach()
 
 # Loop through test targets
@@ -146,18 +227,35 @@ endforeach()
 foreach(TARGET IN LISTS TEST_TARGETS)
         # Add linker script and linker options
         target_link_options(${TARGET} PRIVATE
-                -T${CMAKE_SOURCE_DIR}/Projects/STM32H743ZITX/STM32H743ZITX_FLASH.ld
-                -mcpu=cortex-m4
-                -mthumb
-                -mfpu=fpv4-sp-d16
-                -mfloat-abi=hard
-                -specs=nano.specs
+                ${OPTIONS}
+                
                 -lc
                 -lm
                 -lnosys
-                -Wl,-Map=${PROJECT_NAME}.map,--cref
+
+                -static
+
+                # Map file provides linker info, symbols
+                -Wl,-Map=${TARGET}.map,--cref
                 -Wl,--gc-sections
+                # end-group must come after start-group or else we get the
+                # linker error: "group ended before it began"
+                -Wl,--start-group
+                -Wl,--end-group
         )
+
+        # Add MCU series-specific settings
+        if (${MCU_SERIES} MATCHES "G4")
+                target_link_options(${TARGET} PRIVATE
+                        ${G4_OPTIONS}
+                        -T${CMAKE_SOURCE_DIR}/Projects/STM32G474RETX/STM32G474RETX_FLASH.ld
+                )
+        elseif (${MCU_SERIES} MATCHES "H7")
+                target_link_options(${TARGET} PRIVATE
+                        ${H7_OPTIONS}
+                        -T${CMAKE_SOURCE_DIR}/Projects/STM32H743ZITX/STM32H743ZITX_FLASH.ld
+                )
+        endif()
 
         # Print executable size
         add_custom_command(TARGET ${TARGET}
