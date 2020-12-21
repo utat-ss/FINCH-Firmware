@@ -58,5 +58,9 @@ Core/**
 **/.settings/**
 mx.scratch
 
+# CMake build folder
+Build
+
 # Other
 .DS_Store
+.vscode
