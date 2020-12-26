@@ -59,7 +59,7 @@ Core/**
 mx.scratch
 
 # CMake build folder
-Build
+Build*
 
 # Other
 .DS_Store
