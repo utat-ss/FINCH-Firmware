@@ -1,8 +1,9 @@
 # This file is adapted from https://dev.to/younup/cmake-on-stm32-the-beginning-3766
 
-# Define the minimum version of CMake required to compile
-# (preferably the latest version so we are all consistent)
-cmake_minimum_required(VERSION 3.19.2)
+# Define the minimum version of CMake required
+# As of 2021-01-02 the latest version is 3.19.2, but use 3.16.3 as the minimum
+# because that is the version used for Ubuntu 20.04 LTS
+cmake_minimum_required(VERSION 3.16.3)
 # Define the entire project name
 project(Firmware
         DESCRIPTION "FINCH Firmware"
@@ -112,7 +113,13 @@ foreach(TEST_SOURCE IN LISTS TEST_SOURCES)
         get_filename_component(TEST_DIR ${TEST_SOURCE} DIRECTORY)
         # Append the parent directory path to the list of test directories
         list(APPEND TEST_DIRS ${TEST_DIR})
+endforeach()
+# In case there are multiple .c files in any test directory, remove duplicated
+# test directories
+list(REMOVE_DUPLICATES TEST_DIRS)
 
+# Loop through all test directories
+foreach(TEST_DIR IN LISTS TEST_DIRS)
         # A CMake target can't have slashes in its name, so replace all forward
         # slashes in the test directory path with dashes to create the target
         # name
@@ -121,25 +128,14 @@ foreach(TEST_SOURCE IN LISTS TEST_SOURCES)
         string(REPLACE "/" "-" TEST_TARGET ${TEST_DIR})
         # Append the target name to the list of test target names
         list(APPEND TEST_TARGETS ${TEST_TARGET})
-endforeach()
-
-# In case there are multiple .c files in any test directory, remove duplicated
-# test directories and test targets
-list(REMOVE_DUPLICATES TEST_DIRS)
-list(REMOVE_DUPLICATES TEST_TARGETS)
-
-# Loop through all test targets
-message(STATUS "Found test targets:")
-foreach(DIR TARGET IN ZIP_LISTS TEST_DIRS TEST_TARGETS)
-        message(STATUS "  ${TARGET} (${DIR})")
 
         # Recursively find all test source (.c) files under the test directory
-        file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "${DIR}/*.c")
+        file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "${TEST_DIR}/*.c")
 
         # Add a new executable target for this test
         # Combine object files compiled from the common target with the test
         # sources specifically for this test
-        add_executable(${TARGET} $<TARGET_OBJECTS:${COMMON_TARGET}> ${SOURCES})
+        add_executable(${TEST_TARGET} $<TARGET_OBJECTS:${COMMON_TARGET}> ${SOURCES})
 endforeach()
 
 # Save common options between compiler and linker so we don't have to repeat them
