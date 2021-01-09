@@ -8,6 +8,12 @@
 # It uses default CMake configuration parameters (such as the toolchain file
 # and build type) which can be overriden if desired
 
+# TODO - test STLink software with H7 MCUs
+# As of January 2021, the STLink software package does not support the H7 series
+# H7 support has been merged into the development branch
+# (https://github.com/stlink-org/stlink/pull/1033), but it will not be available
+# in a release until March 2021 (https://github.com/stlink-org/stlink/milestone/15)
+
 # TODO - try to detect MCU model/series automatically (maybe using st-info?)
 # TODO - allow user to specify which MCU/STLink if multiple are connected
 # https://github.com/stlink-org/stlink/blob/develop/doc/man/st-flash.md
@@ -67,9 +73,12 @@ endif
 	cd ..
 
 # Compile and upload one test program to MCU
+# Need the --reset option to reset the MCU (to start executing the program)
+# after writing the program to memory, or else the program doesn't start running
+# automatically and you need to press the hardware reset button to start it
 .PHONY: upload
 upload: compile
-	st-flash write $(BUILD_DIR)/$(TEST_TARGET).bin 0x8000000
+	st-flash --reset write $(BUILD_DIR)/$(TEST_TARGET).bin 0x8000000
 
 # Download (read) current firmware on MCU
 # BYTES defines the number of bytes to read (as a hex value, e.g.
