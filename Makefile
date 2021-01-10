@@ -31,6 +31,13 @@ BUILD_DIR_BASE = Build
 # Folder for CMake configuration and builds
 BUILD_DIR = $(BUILD_DIR_BASE)-$(MCU)
 
+# Directory path to use for `make clean` command
+ifeq ($(MCU),)
+	CLEAN_PATH = $(BUILD_DIR_BASE)-*
+else
+	CLEAN_PATH = $(BUILD_DIR)
+endif
+
 # Strip trailing slash in the test path if there is one
 # Use both forward slash (/) and backward slash (\) for Windows compatibility
 # Need to use a simply expanded variable (:=) instead of a recursively expanded
@@ -45,6 +52,11 @@ TEST_TARGET := $(patsubst %\,%,$(TEST_TARGET))
 # https://www.gnu.org/software/make/manual/html_node/Flavors.html
 TEST_TARGET := $(subst /,-,$(TEST_TARGET))
 TEST_TARGET := $(subst \,-,$(TEST_TARGET))
+
+# Detect operating system
+ifeq ($(OS),Windows_NT)
+	WINDOWS = 1
+endif
 
 # Compile all test programs for each MCU series
 # This command is useful to run before committing or merging code, to at least
@@ -97,23 +109,34 @@ erase:
 	st-flash erase
 
 # Create the build directory and convert the CMake configuration to Makefiles
+# Want to use the -p switch for mkdir so it doesn't give an error if the
+# directory already exists
+# mkdir is emulated by New-Item on Windows, but the -p switch doesn't work so we
+# call New-Item directly instead
+# Based on https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/new-item?view=powershell-7.1
+# (Example 8)
 $(BUILD_DIR):
 ifeq ($(MCU),)
 	@echo "ERROR: Parameter MCU must be defined"
 	exit 1
 endif
+ifeq ($(WINDOWS),1)
+	powershell New-Item -Path $(BUILD_DIR) -ItemType Directory -Force
+else
 	mkdir -p $(BUILD_DIR)
+endif
 	@cd $(BUILD_DIR) && \
 	cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../arm-none-eabi-gcc.cmake -DCMAKE_BUILD_TYPE=$(BUILD) -DMCU_SERIES=$(MCU) .. && \
 	cd ..
 
 # Remove the build directory
 # This forces CMake to regenerate the Makefiles next time a program is compiled
+# Similar to the $(BUILD_DIR) target, rm is emulated by Remove-Item on Windows
+# The -f switch does not work, so call Remove-Item directly instead
 .PHONY: clean
 clean:
-ifeq ($(MCU),)
-	rm -rf $(BUILD_DIR_BASE)-G4
-	rm -rf $(BUILD_DIR_BASE)-H7
+ifeq ($(WINDOWS),1)
+	powershell Remove-Item -Path $(CLEAN_PATH) -Recurse -ErrorAction Ignore
 else
-	rm -rf $(BUILD_DIR)
+	rm -rf $(CLEAN_PATH)
 endif
