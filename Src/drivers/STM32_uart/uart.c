@@ -5,153 +5,101 @@
  *      Author: Ketan
  */
 
+#include <drivers/STM32_uart/uart.h>
 
-USART USART_Init(USART_TypeDef Instance, uint32_t BaudRate, uint32_t HwFlowCtl,
-		GPIO_TypeDef *tx_port, uint16_t tx_pin, GPIO_TypeDef *rx_port,
-		uint16_t rx_pin, GPIO_TypeDef *hw_port, uint16_t hw_pin, uint8_t alt)
-{
-
-	USART usart;
-	GPIO_InitTypeDef GPIO_InitStruct = {0};
+// alt - e.g. GPIO_AF7_USART3 for an instance of USART3
+UART uart_init_base(USART_TypeDef *instance, uint32_t baud_rate, uint8_t alt,
+		GPIO_TypeDef *tx_port, uint16_t tx_pin,
+		GPIO_TypeDef *rx_port, uint16_t rx_pin) {
 
 	__HAL_RCC_SYSCFG_CLK_ENABLE();
 
-	usart.handle.Instance = Instance;
-	usart.handle.Init.BaudRate = BaudRate;
-	usart.handle.WordLength = UART_WORDLENGTH_8B;
-	usart.handle.Init.StopBits = UART_STOPBITS_1;
-	usart.handle.Init.Parity = UART_PARITY_NONE;
-	usart.handle.Init.Mode = UART_MODE_TX_RX;
-	usart.handle.Init.HwFlowCtl = HwFlowCtl;
-	usart.handle.Init.OverSampling = UART_OVERSAMPLING_16;
-	usart.handle.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-	usart.handle.Init.ClockPrescaler = UART_PRESCALER_DIV1;
-	usart.handle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_RS485Ex_Init(&usart.handle, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetTxFifoThreshold(&usart.handle, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetRxFifoThreshold(&usart.handle, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_DisableFifoMode(&usart.handle) != HAL_OK)
-  {
-    Error_Handler();
-  }
+	UART uart;
+	uart.handle.Instance = instance;
+	uart.handle.Init.BaudRate = baud_rate;
+	uart.handle.Init.WordLength = UART_WORDLENGTH_8B;
+	uart.handle.Init.StopBits = UART_STOPBITS_1;
+	uart.handle.Init.Parity = UART_PARITY_NONE;
+	uart.handle.Init.Mode = UART_MODE_TX_RX;
+	uart.handle.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	uart.handle.Init.OverSampling = UART_OVERSAMPLING_16;
+	uart.handle.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+	uart.handle.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+	uart.handle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 
-  //tx pin init
-  usart.tx = gpio_init_alt(tx_port, tx_pin, alt);
+	if (HAL_UARTEx_SetTxFifoThreshold(&uart.handle, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK) {
+		Error_Handler();
+	}
+	if (HAL_UARTEx_SetRxFifoThreshold(&uart.handle, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK) {
+		Error_Handler();
+	}
+	if (HAL_UARTEx_DisableFifoMode(&uart.handle) != HAL_OK) {
+		Error_Handler();
+	}
 
-  //rx pin init
-  usart.rx = gpio_init_alt(rx_port, rx_pin, alt);
+	//tx pin init
+	uart.tx = gpio_init_alt(tx_port, tx_pin, alt);
 
+	//rx pin init
+	uart.rx = gpio_init_alt(rx_port, rx_pin, alt);
 
-  //check for rs485 hardware flow
-  if(HwFlowCtl != UART_HWCONTROL_NONE) {
-	  usart.hw_enable = gpio_init_alt(hw_port, hw_pin, alt);
-  }
+	// Peripheral clock enable for the appropriate UxART peripheral
+	if(uart.handle.Instance==USART1) {
+		__HAL_RCC_USART1_CLK_ENABLE();
+	}
+	if(uart.handle.Instance==USART2) {
+		__HAL_RCC_USART2_CLK_ENABLE();
+	}
+	if(uart.handle.Instance==USART3) {
+		__HAL_RCC_USART3_CLK_ENABLE();
+	}
+	if(uart.handle.Instance==UART4) {
+		__HAL_RCC_UART4_CLK_ENABLE();
+	}
+	if(uart.handle.Instance==UART5) {
+		__HAL_RCC_UART5_CLK_ENABLE();
+	}
+	if(uart.handle.Instance==USART6) {
+		__HAL_RCC_USART6_CLK_ENABLE();
+	}
+	if(uart.handle.Instance==UART7) {
+		__HAL_RCC_UART7_CLK_ENABLE();
+	}
+	if(uart.handle.Instance==UART8) {
+		__HAL_RCC_UART8_CLK_ENABLE();
+	}
 
-  if(usart.handle->Instance==USART1)
-  {
-
-  /* USER CODE END USART3_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_USART1_CLK_ENABLE();
-
-  }
-
-  if(usart.handle->Instance==USART2)
-  {
-
-  /* USER CODE END USART3_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_USART2_CLK_ENABLE();
-
-  }
-
-  if(usart.handle->Instance==USART3)
-  {
-
-  /* USER CODE END USART3_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_USART3_CLK_ENABLE();
-
-  }
-
-  if(usart.handle->Instance==USART4)
-  {
-
-  /* USER CODE END USART3_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_USART4_CLK_ENABLE();
-
-  }
-
-  if(usart.handle->Instance==USART5)
-  {
-
-  /* USER CODE END USART3_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_USART5_CLK_ENABLE();
-
-  }
-
-  if(usart.handle->Instance==USART6)
-  {
-
-  /* USER CODE END USART3_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_USART6_CLK_ENABLE();
-
-  }
-
-  if(usart.handle->Instance==USART7)
-  {
-
-  /* USER CODE END USART3_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_USART7_CLK_ENABLE();
-
-  }
-
-  if(usart.handle->Instance==USART8)
-  {
-
-    __HAL_RCC_USART8_CLK_ENABLE();
-
-  }
-
-  if(usart.handle->Instance==USART9)
-  {
-
-    __HAL_RCC_USART9_CLK_ENABLE();
-
-  }
-
-  if(usart.handle->Instance==USART10)
-  {
-
-    __HAL_RCC_USART10_CLK_ENABLE();
-
-  }
-
-  return usart;
-
+	return uart;
 }
 
-void USART_DeInit(USART* huart)
-{
-  if(huart->Instance==USART3)
-  {
-    __HAL_RCC_USART3_CLK_DISABLE();
+// Initialize normal UART
+UART uart_init(USART_TypeDef *instance, uint32_t baud_rate, uint8_t alt,
+		GPIO_TypeDef *tx_port, uint16_t tx_pin,
+		GPIO_TypeDef *rx_port, uint16_t rx_pin) {
 
-    HAL_GPIO_DeInit(GPIOD, STLINK_RX_Pin|STLINK_TX_Pin|GPIO_PIN_12);
+	UART uart = uart_init_base(instance, baud_rate, alt, tx_port, tx_pin, rx_port, rx_pin);
 
-  }
+	if (HAL_UART_Init(&uart.handle) != HAL_OK) {
+		Error_Handler();
+	}
 
+	return uart;
+}
+
+// Initialize UART + RS-485
+UART uart_init_rs485(USART_TypeDef *instance, uint32_t baud_rate, uint8_t alt,
+		GPIO_TypeDef *tx_port, uint16_t tx_pin,
+		GPIO_TypeDef *rx_port, uint16_t rx_pin,
+		GPIO_TypeDef *de_port, uint16_t de_pin) {
+
+	UART uart = uart_init_base(instance, baud_rate, alt, tx_port, tx_pin, rx_port, rx_pin);
+
+	// RS-485 DE pin init
+	uart.de = gpio_init_alt(de_port, de_pin, alt);
+
+	if (HAL_RS485Ex_Init(&uart.handle, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK) {
+		Error_Handler();
+	}
+
+	return uart;
 }
