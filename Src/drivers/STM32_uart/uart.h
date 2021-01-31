@@ -5,8 +5,8 @@
  *      Author: Ketan
  */
 
-#ifndef DRIVERS_STM32_USART_USART_H_
-#define DRIVERS_STM32_USART_USART_H_
+#ifndef DRIVERS_STM32_UART_UART_H_
+#define DRIVERS_STM32_UART_UART_H_
 
 #ifdef STM32G474xx
 #include <stm32g4xx_hal.h>
@@ -27,4 +27,4 @@ typedef struct {
 } USART;
 
 
-#endif /* DRIVERS_STM32_USART_USART_H_ */
+#endif /* DRIVERS_STM32_UART_UART_H_ */
