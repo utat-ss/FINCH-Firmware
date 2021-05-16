@@ -1,5 +1,5 @@
 /*
- * usart.h
+ * uart.h
  *
  *  Created on: Oct 10, 2020
  *      Author: Ketan
@@ -33,12 +33,34 @@ Therefore, this library only implements UART mode (asynchronous). If we want to
 use USART mode (synchronous) in the future, we can implement a separate library
 for it.
  */
+
+#define UART_BUF_SIZE 80
+
+// TODO - should there be a DMA buffer in this struct?
 typedef struct {
 	UART_HandleTypeDef handle;
 	GPIO_ALT tx;
 	GPIO_ALT rx;
 	GPIO_ALT de;
+	// Store a buffer of bytes (characters) to send in this UART struct
+	// Want it to be in the UART struct instead of the Log struct because we
+	// expect to have many Log structs for each UART struct, so having a buffer
+	// in each Log struct would be a big waste of memory
+	// TODO - can this buffer be variable sized?
+	char buf[UART_BUF_SIZE];
 } UART;
 
+void uart_init(UART* uart,
+        USART_TypeDef *instance, uint32_t baud_rate, uint8_t alt,
+		GPIO_TypeDef *tx_port, uint16_t tx_pin,
+		GPIO_TypeDef *rx_port, uint16_t rx_pin);
+void uart_init_with_rs485(UART* uart,
+        USART_TypeDef *instance, uint32_t baud_rate, uint8_t alt,
+		GPIO_TypeDef *tx_port, uint16_t tx_pin,
+		GPIO_TypeDef *rx_port, uint16_t rx_pin,
+		GPIO_TypeDef *de_port, uint16_t de_pin);
+
+void uart_write(UART *uart, uint8_t *buf, uint32_t count);
+void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count);
 
 #endif /* DRIVERS_STM32_UART_UART_H_ */
