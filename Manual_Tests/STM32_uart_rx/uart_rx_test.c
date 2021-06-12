@@ -32,41 +32,22 @@ int main() {
     uart_init(&uart, UART_INST, 115200, UART_ALT,
             UART_TX_PORT, UART_TX_PIN, UART_RX_PORT, UART_RX_PIN);
 
-    uint8_t buf1[20] = "testing\r\n";
-    // Need to cast `buf1` or else we get an error about mismatched signedness
-    uart_write(&uart, buf1, strlen((const char *) buf1));
+    Log log;
+    log_init(&log, &uart);
+    info(&log, "Starting UART RX test");
 
-    Log log = log_init(&uart);
-    error(&log, "error %d", 1);
-    warning(&log, "warning %d", 2);
-    info(&log, "info %d", 3);
-    debug(&log, "debug %d", 4);
-    verbose(&log, "verbose %d", 5);
-
-    HAL_Delay(100);
-    error(&log, "error %f", 5.12);
-
-    log_set_level(&log, LOG_LEVEL_VERBOSE);
-    info(&log, "info %d", 3);
-    debug(&log, "debug %d", 4);
-    verbose(&log, "verbose %d", 5);
-
-    log_set_level(&log, LOG_LEVEL_INFO);
-
-    log_set_global_level(LOG_LEVEL_VERBOSE);
-    info(&log, "info %d", 3);
-    debug(&log, "debug %d", 4);
-    verbose(&log, "verbose %d", 5);
-
-    log_set_global_level(LOG_LEVEL_WARNING);
-    info(&log, "info %d", 3);
-    debug(&log, "debug %d", 4);
-    verbose(&log, "verbose %d", 5);
-
-    // Print repeatedly
+    // Polling
     while (1) {
-        info(&log, "done");
-        HAL_Delay(5000);
+        uint8_t rx_buf[1];
+        HAL_StatusTypeDef result = HAL_UART_Receive(&uart.handle, rx_buf, 1, 1);
+
+//        info(&log, "loop %u", result);
+        if (result == HAL_OK) {
+            info(&log, "char %c (%u)", rx_buf[0], rx_buf[0]);
+            info(&log, "char %c", rx_buf[0]);
+            info(&log, "int %u", rx_buf[0]);
+        }
+//        HAL_Delay(1000);
     }
 
     return 0;
