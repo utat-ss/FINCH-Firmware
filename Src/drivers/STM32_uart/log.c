@@ -81,37 +81,37 @@ void log_log(Log *log, LogLevel level, const char *format, va_list args) {
 		//   buffer boundary and overflow it
 		// - This should automatically add a terminating nul ('\0') character
 		//   at the appropriate place in the buffer
-		char main_buf[UART_BUF_SIZE];
+		char main_buf[UART_TX_BUF_SIZE];
 		vsnprintf(main_buf, sizeof(main_buf), format, args);
 
 		// Start the string in the buffer with the current system (tick) time
 		// This operates very similar to `vsnprintf` (see above) except we pass
 		// in the variable arguments directly rather than as a `va_list`
-		snprintf(log->uart->buf, sizeof(log->uart->buf), "%lums: ", HAL_GetTick());
+		snprintf(log->uart->tx_buf, sizeof(log->uart->tx_buf), "%lums: ", HAL_GetTick());
 
 		// Add the string for the message's log level
 		char *level_str = log_get_level_string(level);
-		strncat(log->uart->buf, level_str, sizeof(log->uart->buf));
+		strncat(log->uart->tx_buf, level_str, sizeof(log->uart->tx_buf));
 
 		// Add a colon and space after the message's log level
-		strncat(log->uart->buf, ": ", sizeof(log->uart->buf));
+		strncat(log->uart->tx_buf, ": ", sizeof(log->uart->tx_buf));
 
 		// Add the main string
-		strncat(log->uart->buf, main_buf, sizeof(log->uart->buf));
+		strncat(log->uart->tx_buf, main_buf, sizeof(log->uart->tx_buf));
 
 		// Add a newline after the message
 		// \r is also called CR, while \n is also called LF
 		// Normally we would only need \n, but we choose to include \r as well
 		// because if you only use \n, some serial terminal viewers go to the
 		// next line but do not reset the cursor all the way to the left
-		strncat(log->uart->buf, "\r\n", sizeof(log->uart->buf));
+		strncat(log->uart->tx_buf, "\r\n", sizeof(log->uart->tx_buf));
 
 		// Now that the actual characters/bytes we want to send over UART are
 		// ready in `log->uart->buf`, send them over UART
 		// Number of characters from the buffer to actually send is determined
 		// using `strlen` since there is a \0 character in the buffer
 		// TODO - should this use DMA mode?
-		uart_write(log->uart, (uint8_t*) log->uart->buf, strlen(log->uart->buf));
+		uart_write(log->uart, (uint8_t*) log->uart->tx_buf, strlen(log->uart->tx_buf));
 	}
 }
 

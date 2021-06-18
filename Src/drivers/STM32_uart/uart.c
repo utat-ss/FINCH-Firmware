@@ -9,6 +9,9 @@
 
 #include <drivers/STM32_uart/log.h>
 
+// TODO - add others
+UART *g_uart_usart3 = NULL;
+
 // alt - e.g. GPIO_AF7_USART3 for an instance of USART3
 void uart_init_base(UART* uart,
         USART_TypeDef *instance, uint32_t baud_rate, uint8_t alt,
@@ -48,6 +51,7 @@ void uart_init_base(UART* uart,
 	uart->rx = gpio_init_alt(rx_port, rx_pin, alt);
 
 	// Peripheral clock enable for the appropriate UxART peripheral
+	// TODO finish others
 	if(uart->handle.Instance==USART1) {
 		__HAL_RCC_USART1_CLK_ENABLE();
 	}
@@ -56,6 +60,7 @@ void uart_init_base(UART* uart,
 	}
 	if(uart->handle.Instance==USART3) {
 		__HAL_RCC_USART3_CLK_ENABLE();
+		g_uart_usart3 = uart;
 	}
 	if(uart->handle.Instance==UART4) {
 		__HAL_RCC_UART4_CLK_ENABLE();
@@ -72,6 +77,15 @@ void uart_init_base(UART* uart,
 	if(uart->handle.Instance==UART8) {
 		__HAL_RCC_UART8_CLK_ENABLE();
 	}
+
+	/* USART3 interrupt Init */
+    // TODO - should preempty priority be 1 instead of 0?
+    // Configure the NVIC and enable the RX interrupt
+    HAL_NVIC_SetPriority(USART3_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART3_IRQn);
+    // Don't need to call __enable_irq() - interrupts are already enabled
+
+    // TODO - could try implementing receiver timeout for RX in the future
 }
 
 // Initialize normal UART
@@ -113,6 +127,10 @@ void uart_init_with_rs485(UART* uart,
 	if (HAL_RS485Ex_Init(&uart->handle, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK) {
 		Error_Handler();
 	}
+
+	if (g_log_def_initialized) {
+        info(&g_log_def, "Initialized UART + RS-485");
+    }
 }
 
 // Writes data in blocking mode
@@ -128,3 +146,40 @@ void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
 	HAL_UART_Transmit_DMA(&uart->handle, buf, count);
 }
 
+
+
+
+/*
+ * This function is called in the UART IRQ handler when all possible bytes have
+ * been received, i.e. number of bytes received is equal to the `Size` parameter
+ * passed to HAL_UART_Receive_IT().
+ */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    if (!g_log_def_initialized) {
+        return;
+    }
+    warning(&g_log_def, "UART RX buffer is full");
+}
+
+/*
+ * From https://vivonomicon.com/2020/06/28/bare-metal-stm32-programming-part-10-uart-communication/
+ * To define an interrupt handler, "you just declare a void function with no arguments and the same
+ * name as the corresponding entry in the vector table".
+ * The vector table with the available peripheral interrupt handler names is in
+ * the startup file (of assembly code), e.g. startup_stm32h743zitx.s.
+ */
+
+/**
+  * @brief This function handles USART3 global interrupt.
+  */
+// TODO - add others
+void USART3_IRQHandler(void)
+{
+    if (g_uart_usart3 == NULL) {
+        return;
+    }
+
+    // Need to call this here so that it calls the default RX ISR function,
+    // which saves the received byte into the RX buffer
+    HAL_UART_IRQHandler(&g_uart_usart3->handle);
+}

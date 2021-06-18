@@ -32,9 +32,18 @@ the HAL has completely separate libraries and functions for UART vs. USART.
 Therefore, this library only implements UART mode (asynchronous). If we want to
 use USART mode (synchronous) in the future, we can implement a separate library
 for it.
+
+UART supports a "FIFO mode" which is disabled by default. If this mode is
+enabled, the MCU buffers multiple bytes for UART TX and RX. In this mode, you
+can receive an interrupt when the number of empty slots (for TX) or the number
+of full slots (for RX) reaches a specified threshold value. See reference manual
+(RM0433), p.2046. We choose not to use this mode (TODO might want this?).
+
+https://www.st.com/content/ccc/resource/training/technical/product_training/group0/b1/26/c3/87/d8/7a/42/27/STM32H7-Peripheral-USART_interface_USART/files/STM32H7-Peripheral-USART_interface_USART.pdf/_jcr_content/translations/en.STM32H7-Peripheral-USART_interface_USART.pdf
  */
 
-#define UART_BUF_SIZE 80
+#define UART_TX_BUF_SIZE 80
+#define UART_RX_BUF_SIZE 80
 
 // TODO - should there be a DMA buffer in this struct?
 typedef struct {
@@ -47,8 +56,12 @@ typedef struct {
 	// expect to have many Log structs for each UART struct, so having a buffer
 	// in each Log struct would be a big waste of memory
 	// TODO - can this buffer be variable sized?
-	char buf[UART_BUF_SIZE];
+	char tx_buf[UART_TX_BUF_SIZE];
+	// Buffer for receiving bytes by interrupt
+	char rx_buf[UART_RX_BUF_SIZE];
 } UART;
+
+extern UART *g_uart_usart3;
 
 void uart_init(UART* uart,
         USART_TypeDef *instance, uint32_t baud_rate, uint8_t alt,
