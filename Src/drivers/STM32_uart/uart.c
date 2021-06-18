@@ -29,6 +29,8 @@ void uart_init_base(UART* uart,
 	uart->handle.Init.ClockPrescaler = UART_PRESCALER_DIV1;
 	uart->handle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 
+	// TODO - should these TX/RX FIFO thresholds be changed?
+	// TODO - look into FIFO modes
 	if (HAL_UARTEx_SetTxFifoThreshold(&uart->handle, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK) {
 		Error_Handler();
 	}
