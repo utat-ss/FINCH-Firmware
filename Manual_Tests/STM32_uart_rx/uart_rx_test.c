@@ -55,19 +55,6 @@ int main() {
 
     // Interrupt
 
-    // TODO - HAL_UART_ReceiverTimeout_Config?
-    // TODO - HAL_UART_ERROR_RTO?
-    // TODO - __HAL_UART_GET_FLAG?
-    // TODO - __HAL_UART_ENABLE_IT()?
-    // TODO - __HAL_UART_GET_IT?
-    // TODO - UART_RECEIVER_TIMEOUT_ENABLE?
-
-    // TODO - may need to uncomment define(s) in ...hal_conf.h?
-    // TODO - uncomment USE_FULL_ASSERT in ...hal_conf.h
-
-    // TODO - UART_RxISR_8BIT_FIFOEN is automatically set to be the RX ISR when in FIFO mode?
-    // TODO - UART_RxISR_8BIT when not in FIFO mode?
-
 //    HAL_UART_Receive_IT(&uart.handle, (uint8_t*) uart.rx_buf, 3);
 //    info(&logger, "waiting...");
 //    while (1) {}
@@ -75,7 +62,6 @@ int main() {
 
     // DMA
 
-    // HAL_UART_Receive_DMA
     // HAL_UART_DMAStop
     // HAL_UART_ErrorCallback??
 
@@ -86,20 +72,27 @@ int main() {
 
 
 
-    HAL_UART_Transmit(&huart3, "test\r\n", 6, 0xFFFF);
-    HAL_UART_Transmit_DMA(&huart3, "testing dma\r\n", 14);
+//    HAL_UART_Transmit(&uart.handle, "test\r\n", 6, 0xFFFF);
+//    HAL_Delay(1000);
+
+    uart_write_dma(&uart, "testing dma 1\r\n", 15);
+//    HAL_Delay(1000);
+    uart_write_dma(&uart, "testing dma 2\r\n", 15);
+//    HAL_Delay(1000);
+    uart_write_dma(&uart, "testing dma 3\r\n", 15);
+//    HAL_Delay(1000);
+    uart_write_dma(&uart, "testing dma 4\r\n", 15);
+//    HAL_Delay(1000);
+    uart_write_dma(&uart, "testing dma 5\r\n", 15);
     HAL_Delay(1000);
-    HAL_UART_Receive_DMA(&huart3, rx_buf, 4);
-  //  HAL_UART_Receive_IT(&huart3, rx_buf, 4);
-  //  HAL_UART_Receive(&huart3, rx_buf, 4, 0xFFFF);
+
+    uint8_t rx_buf[10] = {0};
+    HAL_UART_Receive_DMA(&uart.handle, rx_buf, 4);
 
     while (1)
     {
-      /* USER CODE END WHILE */
 
-      /* USER CODE BEGIN 3 */
     }
-    /* USER CODE END 3 */
 
 
 

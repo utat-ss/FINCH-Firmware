@@ -26,6 +26,7 @@ typedef enum {
 typedef struct {
 	UART *uart;
 	LogLevel level;
+	// TODO - use_dma bool field?
 } Log;
 
 extern Log g_log_def;

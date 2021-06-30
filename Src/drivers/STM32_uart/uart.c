@@ -10,7 +10,9 @@
 #include <drivers/STM32_uart/log.h>
 
 // TODO - add others
+// TODO - add default
 UART *g_uart_usart3 = NULL;
+
 
 // alt - e.g. GPIO_AF7_USART3 for an instance of USART3
 void uart_init_base(UART* uart,
@@ -39,8 +41,7 @@ void uart_init_base(UART* uart,
 
 
 
-	  DMA_HandleTypeDef hdma_usart3_rx;
-	  DMA_HandleTypeDef hdma_usart3_tx;
+
 
 
 
@@ -126,75 +127,67 @@ void uart_init_base(UART* uart,
 
 
 
+    /* TX DMA Init */
+    uart->tx_dma_handle.Instance = DMA1_Stream0;
+    uart->tx_dma_handle.Init.Request = DMA_REQUEST_USART3_TX;
+    uart->tx_dma_handle.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    uart->tx_dma_handle.Init.PeriphInc = DMA_PINC_DISABLE;
+    uart->tx_dma_handle.Init.MemInc = DMA_MINC_ENABLE;
+    uart->tx_dma_handle.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    uart->tx_dma_handle.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    uart->tx_dma_handle.Init.Mode = DMA_NORMAL;
+    uart->tx_dma_handle.Init.Priority = DMA_PRIORITY_LOW;
+    uart->tx_dma_handle.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+    uart->tx_dma_handle.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_1QUARTERFULL;
+    uart->tx_dma_handle.Init.MemBurst = DMA_MBURST_SINGLE;
+    uart->tx_dma_handle.Init.PeriphBurst = DMA_PBURST_SINGLE;
+    if (HAL_DMA_Init(&uart->tx_dma_handle) != HAL_OK)
+    {
+      Error_Handler();
+    }
+    __HAL_LINKDMA(&uart->handle,hdmatx,uart->tx_dma_handle);
 
-	/* USART3 DMA Init */
-    /* USART3_RX Init */
-    hdma_usart3_rx.Instance = DMA1_Stream0;
-    hdma_usart3_rx.Init.Request = DMA_REQUEST_USART3_RX;
-    hdma_usart3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_usart3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_usart3_rx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_usart3_rx.Init.Mode = DMA_NORMAL;
+
+
+
+    /* RX DMA Init */
+    uart->rx_dma_handle.Instance = DMA1_Stream1;
+    uart->rx_dma_handle.Init.Request = DMA_REQUEST_USART3_RX;
+    uart->rx_dma_handle.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    uart->rx_dma_handle.Init.PeriphInc = DMA_PINC_DISABLE;
+    uart->rx_dma_handle.Init.MemInc = DMA_MINC_ENABLE;
+    uart->rx_dma_handle.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    uart->rx_dma_handle.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    uart->rx_dma_handle.Init.Mode = DMA_NORMAL;
     // Bruno TODO high?
-    hdma_usart3_rx.Init.Priority = DMA_PRIORITY_MEDIUM;
+    uart->rx_dma_handle.Init.Priority = DMA_PRIORITY_MEDIUM;
     //
     // Bruno disabled fifo mode
 //    hdma_usart3_rx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
-    hdma_usart3_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    uart->rx_dma_handle.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     //
-    hdma_usart3_rx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_1QUARTERFULL;
-    hdma_usart3_rx.Init.MemBurst = DMA_MBURST_SINGLE;
-    hdma_usart3_rx.Init.PeriphBurst = DMA_PBURST_SINGLE;
-    if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK)
+    uart->rx_dma_handle.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_1QUARTERFULL;
+    uart->rx_dma_handle.Init.MemBurst = DMA_MBURST_SINGLE;
+    uart->rx_dma_handle.Init.PeriphBurst = DMA_PBURST_SINGLE;
+    if (HAL_DMA_Init(&uart->rx_dma_handle) != HAL_OK)
     {
       Error_Handler();
     }
-
-    __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart3_rx);
-
-
-
-
-
-
-    /* USART3_TX Init */
-    hdma_usart3_tx.Instance = DMA1_Stream1;
-    hdma_usart3_tx.Init.Request = DMA_REQUEST_USART3_TX;
-    hdma_usart3_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
-    hdma_usart3_tx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_usart3_tx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_usart3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_usart3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_usart3_tx.Init.Mode = DMA_NORMAL;
-    hdma_usart3_tx.Init.Priority = DMA_PRIORITY_LOW;
-    hdma_usart3_tx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
-    hdma_usart3_tx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_1QUARTERFULL;
-    hdma_usart3_tx.Init.MemBurst = DMA_MBURST_SINGLE;
-    hdma_usart3_tx.Init.PeriphBurst = DMA_PBURST_SINGLE;
-    if (HAL_DMA_Init(&hdma_usart3_tx) != HAL_OK)
-    {
-      Error_Handler();
-    }
-
-    __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart3_tx);
-
-
-
-
+    __HAL_LINKDMA(&uart->handle,hdmarx,uart->rx_dma_handle);
 
 
 
 
 	/* USART3 interrupt Init */
+    // Configure the NVIC and enable the interrupt
+    // This is necessary for TX (even though it's in DMA mode), enabling
+    // interrupts when a transmission is done so it
+    // can call the IRQ handler, which sets the UART handle back to a ready
+    // state to be able to do the next DMA transmission
     // TODO - should preempty priority be 1 instead of 0?
-    // Configure the NVIC and enable the RX interrupt
     HAL_NVIC_SetPriority(USART3_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(USART3_IRQn);
-    // Don't need to call __enable_irq() - interrupts are already enabled
-
-    // TODO - could try implementing receiver timeout for RX in the future
+    // Don't need to call __enable_irq() - global interrupts are already enabled
 }
 
 // Initialize normal UART
@@ -250,25 +243,24 @@ void uart_write(UART *uart, uint8_t *buf, uint32_t count) {
 
 // Writes data in DMA mode
 void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
-	// TODO - might need to check if there is a DMA write already going on, and
-	// wait if necessary?
+    // If a TX process is already ongoing, wait for it to finish
+    // If a previous DMA TX is in progress, when the TX is done the UART ISR
+    // will set gState to ready
+    // This is necessary because if you call HAL_UART_Transmit_DMA() when
+    // gState is not ready, it fails and returns busy (without printing anything)
+    uint32_t start = HAL_GetTick();
+    while (uart->handle.gState != HAL_UART_STATE_READY) {
+        // 100ms timeout (this should never happen)
+        if (HAL_GetTick() > start + 100) {
+            return;
+        }
+    }
+
 	HAL_UART_Transmit_DMA(&uart->handle, buf, count);
 }
 
 
 
-
-/*
- * This function is called in the UART IRQ handler when all possible bytes have
- * been received, i.e. number of bytes received is equal to the `Size` parameter
- * passed to HAL_UART_Receive_IT().
- */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (!g_log_def_initialized) {
-        return;
-    }
-    warning(&g_log_def, "UART RX buffer is full");
-}
 
 /*
  * From https://vivonomicon.com/2020/06/28/bare-metal-stm32-programming-part-10-uart-communication/
@@ -279,52 +271,60 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
  */
 
 /**
+  * @brief This function handles DMA1 stream0 global interrupt.
+  * This function is automatically called for TX transfer complete
+  */
+void DMA1_Stream0_IRQHandler(void) {
+    // TODO - default UART
+    if (g_uart_usart3 == NULL) {
+        return;
+    }
+    HAL_DMA_IRQHandler(&g_uart_usart3->tx_dma_handle);
+}
+
+/**
   * @brief This function handles USART3 global interrupt.
+  * This function is only called by the HAL for TX DMA complete, not RX DMA complete.
   */
 // TODO - add others
-void USART3_IRQHandler(void)
-{
+void USART3_IRQHandler(void) {
     if (g_uart_usart3 == NULL) {
         return;
     }
 
-    // Need to call this here so that it calls the default RX ISR function,
-    // which saves the received byte into the RX buffer
+    // Must call this here so that after a DMA transmission is complete, it
+    // changes the UART handle's gState from busy to ready, allowing it to do
+    // the next transmission
     HAL_UART_IRQHandler(&g_uart_usart3->handle);
+
+    // Note that HAL_UART_TxCpltCallback() never gets called after a DMA
+    // transmission is complete because our DMA does not use circular mode
 }
 
 
 
-
-
-/**
-  * @brief This function handles DMA1 stream0 global interrupt.
-  */
-void DMA1_Stream0_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
-
-  /* USER CODE END DMA1_Stream0_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_usart3_rx);
-  /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
-
-  /* USER CODE END DMA1_Stream0_IRQn 1 */
-}
 
 /**
   * @brief This function handles DMA1 stream1 global interrupt.
+  * This function is automatically called for RX transfer complete
   */
-void DMA1_Stream1_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Stream1_IRQn 0 */
-
-  /* USER CODE END DMA1_Stream1_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_usart3_tx);
-  /* USER CODE BEGIN DMA1_Stream1_IRQn 1 */
-
-  /* USER CODE END DMA1_Stream1_IRQn 1 */
+void DMA1_Stream1_IRQHandler(void) {
+    // TODO - default UART
+    if (g_uart_usart3 == NULL) {
+        return;
+    }
+    HAL_DMA_IRQHandler(&g_uart_usart3->rx_dma_handle);
 }
 
-
-
-
+/*
+ * This function is called in the UART IRQ handler when all possible bytes have
+ * been received, i.e. number of bytes received is equal to the `Size` parameter
+ * passed to HAL_UART_Receive_DMA().
+ * This function is called from DMA1_Stream1_IRQHandler() -> HAL_DMA_IRQHandler() -> UART_DMAReceiveCplt() if all RX bytes have been received.
+ */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    if (!g_log_def_initialized) {
+        return;
+    }
+    warning(&g_log_def, "UART RX buffer is full");
+}

@@ -47,10 +47,16 @@ https://www.st.com/content/ccc/resource/training/technical/product_training/grou
 
 // TODO - should there be a DMA buffer in this struct?
 typedef struct {
+    // HAL control
 	UART_HandleTypeDef handle;
+    DMA_HandleTypeDef tx_dma_handle;
+    DMA_HandleTypeDef rx_dma_handle;
+
+	// GPIO pins
 	GPIO_ALT tx;
 	GPIO_ALT rx;
 	GPIO_ALT de;
+
 	// Store a buffer of bytes (characters) to send in this UART struct
 	// Want it to be in the UART struct instead of the Log struct because we
 	// expect to have many Log structs for each UART struct, so having a buffer
