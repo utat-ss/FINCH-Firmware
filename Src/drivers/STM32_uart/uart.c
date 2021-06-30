@@ -18,7 +18,31 @@ void uart_init_base(UART* uart,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin) {
 
+    // TODO - move to HAL_MspInit()??
 	__HAL_RCC_SYSCFG_CLK_ENABLE();
+
+
+
+
+	// TODO - common header file / Confluence page with DMA/stream allocations/constants?
+
+	  /* DMA controller clock enable */
+	  __HAL_RCC_DMA1_CLK_ENABLE();
+
+	  /* DMA interrupt init */
+	  /* DMA1_Stream0_IRQn interrupt configuration */
+	  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
+	  HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
+	  /* DMA1_Stream1_IRQn interrupt configuration */
+	  HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 0, 0);
+	  HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
+
+
+
+	  DMA_HandleTypeDef hdma_usart3_rx;
+	  DMA_HandleTypeDef hdma_usart3_tx;
+
+
 
 	uart->handle.Instance = instance;
 	uart->handle.Init.BaudRate = baud_rate;
@@ -43,12 +67,33 @@ void uart_init_base(UART* uart,
 	if (HAL_UARTEx_DisableFifoMode(&uart->handle) != HAL_OK) {
 		Error_Handler();
 	}
+	// TODO - test enabling FIFO mode
+	//  if (HAL_UARTEx_EnableFifoMode(&huart3) != HAL_OK)
+	//  {
+	//    Error_Handler();
+	//  }
 
+	// TODO - move to after usart clk enable?
 	//tx pin init
 	uart->tx = gpio_init_alt(tx_port, tx_pin, alt);
-
 	//rx pin init
 	uart->rx = gpio_init_alt(rx_port, rx_pin, alt);
+
+	// Peripheral clock configuration
+	RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+	if (uart->handle.Instance==USART1 || uart->handle.Instance==USART6) {
+	    // UART peripheral 1 or 6
+	    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART16;
+        PeriphClkInitStruct.Usart16ClockSelection = RCC_USART16CLKSOURCE_D2PCLK2;
+	} else {
+	    // UART peripheral 2, 3, 4, 5, 7, or 8
+	    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART234578;
+        PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
+	}
+	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+      Error_Handler();
+    }
 
 	// Peripheral clock enable for the appropriate UxART peripheral
 	// TODO finish others
@@ -77,6 +122,70 @@ void uart_init_base(UART* uart,
 	if(uart->handle.Instance==UART8) {
 		__HAL_RCC_UART8_CLK_ENABLE();
 	}
+
+
+
+
+
+	/* USART3 DMA Init */
+    /* USART3_RX Init */
+    hdma_usart3_rx.Instance = DMA1_Stream0;
+    hdma_usart3_rx.Init.Request = DMA_REQUEST_USART3_RX;
+    hdma_usart3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_usart3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_usart3_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart3_rx.Init.Mode = DMA_NORMAL;
+    // Bruno TODO high?
+    hdma_usart3_rx.Init.Priority = DMA_PRIORITY_MEDIUM;
+    //
+    // Bruno disabled fifo mode
+//    hdma_usart3_rx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+    hdma_usart3_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    //
+    hdma_usart3_rx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_1QUARTERFULL;
+    hdma_usart3_rx.Init.MemBurst = DMA_MBURST_SINGLE;
+    hdma_usart3_rx.Init.PeriphBurst = DMA_PBURST_SINGLE;
+    if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart3_rx);
+
+
+
+
+
+
+    /* USART3_TX Init */
+    hdma_usart3_tx.Instance = DMA1_Stream1;
+    hdma_usart3_tx.Init.Request = DMA_REQUEST_USART3_TX;
+    hdma_usart3_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_usart3_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_usart3_tx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_usart3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart3_tx.Init.Mode = DMA_NORMAL;
+    hdma_usart3_tx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_usart3_tx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+    hdma_usart3_tx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_1QUARTERFULL;
+    hdma_usart3_tx.Init.MemBurst = DMA_MBURST_SINGLE;
+    hdma_usart3_tx.Init.PeriphBurst = DMA_PBURST_SINGLE;
+    if (HAL_DMA_Init(&hdma_usart3_tx) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart3_tx);
+
+
+
+
+
+
+
 
 	/* USART3 interrupt Init */
     // TODO - should preempty priority be 1 instead of 0?
@@ -183,3 +292,39 @@ void USART3_IRQHandler(void)
     // which saves the received byte into the RX buffer
     HAL_UART_IRQHandler(&g_uart_usart3->handle);
 }
+
+
+
+
+
+/**
+  * @brief This function handles DMA1 stream0 global interrupt.
+  */
+void DMA1_Stream0_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
+
+  /* USER CODE END DMA1_Stream0_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart3_rx);
+  /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream0_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 stream1 global interrupt.
+  */
+void DMA1_Stream1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream1_IRQn 0 */
+
+  /* USER CODE END DMA1_Stream1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart3_tx);
+  /* USER CODE BEGIN DMA1_Stream1_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream1_IRQn 1 */
+}
+
+
+
+

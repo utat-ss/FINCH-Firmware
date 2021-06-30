@@ -86,6 +86,23 @@ int main() {
 
 
 
+    HAL_UART_Transmit(&huart3, "test\r\n", 6, 0xFFFF);
+    HAL_UART_Transmit_DMA(&huart3, "testing dma\r\n", 14);
+    HAL_Delay(1000);
+    HAL_UART_Receive_DMA(&huart3, rx_buf, 4);
+  //  HAL_UART_Receive_IT(&huart3, rx_buf, 4);
+  //  HAL_UART_Receive(&huart3, rx_buf, 4, 0xFFFF);
+
+    while (1)
+    {
+      /* USER CODE END WHILE */
+
+      /* USER CODE BEGIN 3 */
+    }
+    /* USER CODE END 3 */
+
+
+
 
     return 0;
 }
