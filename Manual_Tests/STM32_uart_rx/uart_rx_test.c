@@ -23,8 +23,7 @@
 #define UART_RX_PIN     GPIO_PIN_3
 #endif
 
-UART uart;
-Log logger;
+
 
 
 int main() {
@@ -32,25 +31,32 @@ int main() {
     HAL_Init();
     clock_init();
 
+    UART uart;
     uart_init(&uart, UART_INST, 115200, UART_ALT,
             UART_TX_PORT, UART_TX_PIN, UART_RX_PORT, UART_RX_PIN);
+    Log logger;
     log_init(&logger, &uart);
     info(&logger, "Starting UART RX test");
 
-
-    // HAL_UART_DMAStop
 
     info(&logger, "testing dma 1");
     info(&logger, "testing dma 2");
     info(&logger, "testing dma 3");
     info(&logger, "testing dma 4");
     info(&logger, "testing dma 5");
-    HAL_Delay(1000);
 
-    uart_read(&uart);
     while (1) {
-        info(&logger, "%u bytes", uart_get_rx_count(&uart));
-        HAL_Delay(1000);
+        info(&logger, "Enter uint:");
+        uint32_t uint = uart_read_uint(&uart);
+        info(&logger, "Read %lu", uint);
+
+        info(&logger, "Enter int:");
+        int32_t sint = uart_read_int(&uart);
+        info(&logger, "Read %ld", sint);
+
+        info(&logger, "Enter char:");
+        char c = uart_read_char(&uart);
+        info(&logger, "Read %c", c);
     }
 
     return 0;
