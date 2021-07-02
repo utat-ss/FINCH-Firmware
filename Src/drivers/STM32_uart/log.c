@@ -84,6 +84,20 @@ void log_log(Log *log, LogLevel level, const char *format, va_list args) {
 		char main_buf[UART_TX_BUF_SIZE];
 		vsnprintf(main_buf, sizeof(main_buf), format, args);
 
+		// Must wait until the previous TX DMA transmission has completed
+		// (see uart_write_data() in uart.c for more details)
+		// If we write to log->uart->tx_buf before the previous transmission has
+		// completed, it overwrites the previous data and corrupts the bytes
+		// that have not been sent out yet by the previous transmission
+		uint32_t start = HAL_GetTick();
+        while (log->uart->handle.gState != HAL_UART_STATE_READY) {
+            // 100ms timeout (this should never happen)
+            if (HAL_GetTick() > start + 100) {
+                // TODO - hard fault or something?
+                return;
+            }
+        }
+
 		// Start the string in the buffer with the current system (tick) time
 		// This operates very similar to `vsnprintf` (see above) except we pass
 		// in the variable arguments directly rather than as a `va_list`
@@ -108,10 +122,10 @@ void log_log(Log *log, LogLevel level, const char *format, va_list args) {
 
 		// Now that the actual characters/bytes we want to send over UART are
 		// ready in `log->uart->buf`, send them over UART
+		// (using DMA so we don't have to wait in this function until it's done)
 		// Number of characters from the buffer to actually send is determined
 		// using `strlen` since there is a \0 character in the buffer
-		// TODO - should this use DMA mode?
-		uart_write(log->uart, (uint8_t*) log->uart->tx_buf, strlen(log->uart->tx_buf));
+		uart_write_dma(log->uart, (uint8_t*) log->uart->tx_buf, strlen(log->uart->tx_buf));
 	}
 }
 

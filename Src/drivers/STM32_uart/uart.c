@@ -252,6 +252,7 @@ void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
     while (uart->handle.gState != HAL_UART_STATE_READY) {
         // 100ms timeout (this should never happen)
         if (HAL_GetTick() > start + 100) {
+            // TODO - hard fault or something?
             return;
         }
     }

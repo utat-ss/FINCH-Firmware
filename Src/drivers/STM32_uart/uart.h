@@ -45,7 +45,6 @@ https://www.st.com/content/ccc/resource/training/technical/product_training/grou
 #define UART_TX_BUF_SIZE 80
 #define UART_RX_BUF_SIZE 80
 
-// TODO - should there be a DMA buffer in this struct?
 typedef struct {
     // HAL control
 	UART_HandleTypeDef handle;
