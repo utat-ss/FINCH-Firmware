@@ -259,6 +259,22 @@ void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
 	HAL_UART_Transmit_DMA(&uart->handle, buf, count);
 }
 
+void uart_read(UART *uart) {
+    // TODO - 4->size
+    HAL_UART_Receive_DMA(&uart->handle, (uint8_t*) uart->rx_buf, 4);
+}
+
+uint32_t uart_get_rx_count(UART *uart) {
+    // The DMA's NDTR (or CNDTR) register counts down from the number of RX
+    // bytes expected to 0 (at which point the DMA RX transfer is done)
+
+    // uart->rx_dma_handle.Instance is actually a void* type, so we need to cast
+    // it to its struct type to access the NDTR field/register
+
+    // TODO - 4->size
+    return 4 - ((DMA_Stream_TypeDef *) uart->rx_dma_handle.Instance)->NDTR;
+}
+
 
 
 

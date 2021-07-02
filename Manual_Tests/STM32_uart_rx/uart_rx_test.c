@@ -38,64 +38,20 @@ int main() {
     info(&logger, "Starting UART RX test");
 
 
-    // Polling
-//    while (1) {
-//        uint8_t rx_buf[1];
-//        HAL_StatusTypeDef result = HAL_UART_Receive(&uart.handle, rx_buf, 1, 1);
-//
-////        info(&log, "loop %u", result);
-//        if (result == HAL_OK) {
-//            info(&log, "char %c (%u)", rx_buf[0], rx_buf[0]);
-//            info(&log, "char %c", rx_buf[0]);
-//            info(&log, "int %u", rx_buf[0]);
-//        }
-////        HAL_Delay(1000);
-//    }
-
-
-    // Interrupt
-
-//    HAL_UART_Receive_IT(&uart.handle, (uint8_t*) uart.rx_buf, 3);
-//    info(&logger, "waiting...");
-//    while (1) {}
-
-
-    // DMA
-
     // HAL_UART_DMAStop
-    // HAL_UART_ErrorCallback??
 
-    // The DMA has a CNDTR register (be aware that it counts down)
-    // uint32_t bytesRx DMA1_Stream1->NDTR;
-    // UART_HandleTypeDef huart3;
-    // uint32_t bytesRx = huart3.hdmarx->Instance->NDTR;
-
-
-
-//    HAL_UART_Transmit(&uart.handle, "test\r\n", 6, 0xFFFF);
-//    HAL_Delay(1000);
-
-    uart_write_dma(&uart, "testing dma 1\r\n", 15);
-//    HAL_Delay(1000);
-    uart_write_dma(&uart, "testing dma 2\r\n", 15);
-//    HAL_Delay(1000);
-    uart_write_dma(&uart, "testing dma 3\r\n", 15);
-//    HAL_Delay(1000);
-    uart_write_dma(&uart, "testing dma 4\r\n", 15);
-//    HAL_Delay(1000);
-    uart_write_dma(&uart, "testing dma 5\r\n", 15);
+    info(&logger, "testing dma 1");
+    info(&logger, "testing dma 2");
+    info(&logger, "testing dma 3");
+    info(&logger, "testing dma 4");
+    info(&logger, "testing dma 5");
     HAL_Delay(1000);
 
-    uint8_t rx_buf[10] = {0};
-    HAL_UART_Receive_DMA(&uart.handle, rx_buf, 4);
-
-    while (1)
-    {
-
+    uart_read(&uart);
+    while (1) {
+        info(&logger, "%u bytes", uart_get_rx_count(&uart));
+        HAL_Delay(1000);
     }
-
-
-
 
     return 0;
 }

@@ -82,4 +82,7 @@ void uart_init_with_rs485(UART* uart,
 void uart_write(UART *uart, uint8_t *buf, uint32_t count);
 void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count);
 
+void uart_read(UART *uart);
+uint32_t uart_get_rx_count(UART *uart);
+
 #endif /* DRIVERS_STM32_UART_UART_H_ */
