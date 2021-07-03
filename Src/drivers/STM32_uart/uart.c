@@ -9,44 +9,31 @@
 
 #include <drivers/STM32_uart/log.h>
 
-// TODO - add others
-// TODO - add default
+UART *g_uart_usart1 = NULL;
+UART *g_uart_usart2 = NULL;
 UART *g_uart_usart3 = NULL;
+UART *g_uart_uart4 = NULL;
+UART *g_uart_uart5 = NULL;
+UART *g_uart_usart6 = NULL;
+UART *g_uart_uart7 = NULL;
+UART *g_uart_uart8 = NULL;
 
+UART *g_uart_def = NULL;
 
-// alt - e.g. GPIO_AF7_USART3 for an instance of USART3
+/*
+ * alt - e.g. GPIO_AF7_USART3 for an instance of USART3
+ */
 void uart_init_base(UART* uart,
-        USART_TypeDef *instance, uint32_t baud_rate, uint8_t alt,
+        USART_TypeDef *instance, UARTBaud baud, uint8_t alt,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin) {
 
     // TODO - move to HAL_MspInit()??
 	__HAL_RCC_SYSCFG_CLK_ENABLE();
 
-
-
-
-	// TODO - common header file / Confluence page with DMA/stream allocations/constants?
-
-	  /* DMA controller clock enable */
-	  __HAL_RCC_DMA1_CLK_ENABLE();
-
-	  /* DMA interrupt init */
-	  /* DMA1_Stream0_IRQn interrupt configuration */
-	  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
-	  HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
-	  /* DMA1_Stream1_IRQn interrupt configuration */
-	  HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 0, 0);
-	  HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
-
-
-
-
-
-
-
+	// Set up UART handle
 	uart->handle.Instance = instance;
-	uart->handle.Init.BaudRate = baud_rate;
+	uart->handle.Init.BaudRate = baud;
 	uart->handle.Init.WordLength = UART_WORDLENGTH_8B;
 	uart->handle.Init.StopBits = UART_STOPBITS_1;
 	uart->handle.Init.Parity = UART_PARITY_NONE;
@@ -57,28 +44,20 @@ void uart_init_base(UART* uart,
 	uart->handle.Init.ClockPrescaler = UART_PRESCALER_DIV1;
 	uart->handle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 
-	// TODO - should these TX/RX FIFO thresholds be changed?
-	// TODO - look into FIFO modes
-	if (HAL_UARTEx_SetTxFifoThreshold(&uart->handle, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK) {
+	// The TX FIFO threshold is for the number of EMPTY slots in the FIFO, while
+	// the RX FIFO threshold is for the number of FILLED slots in the FIFO
+	// (RM0433 p.2046).
+	// These thresholds honestly shouldn't matter since we are not using the
+	// FIFO threshold interrupts.
+	if (HAL_UARTEx_SetTxFifoThreshold(&uart->handle, UART_TXFIFO_THRESHOLD_7_8) != HAL_OK) {
 		Error_Handler();
 	}
-	if (HAL_UARTEx_SetRxFifoThreshold(&uart->handle, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK) {
+	if (HAL_UARTEx_SetRxFifoThreshold(&uart->handle, UART_RXFIFO_THRESHOLD_7_8) != HAL_OK) {
 		Error_Handler();
 	}
-	if (HAL_UARTEx_DisableFifoMode(&uart->handle) != HAL_OK) {
-		Error_Handler();
-	}
-	// TODO - test enabling FIFO mode
-	//  if (HAL_UARTEx_EnableFifoMode(&huart3) != HAL_OK)
-	//  {
-	//    Error_Handler();
-	//  }
-
-	// TODO - move to after usart clk enable?
-	//tx pin init
-	uart->tx = gpio_init_alt(tx_port, tx_pin, alt);
-	//rx pin init
-	uart->rx = gpio_init_alt(rx_port, rx_pin, alt);
+    if (HAL_UARTEx_EnableFifoMode(&uart->handle) != HAL_OK) {
+        Error_Handler();
+    }
 
 	// Peripheral clock configuration
 	RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
@@ -91,45 +70,85 @@ void uart_init_base(UART* uart,
 	    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART234578;
         PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
 	}
-	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-    {
-      Error_Handler();
+	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+	    Error_Handler();
     }
 
 	// Peripheral clock enable for the appropriate UxART peripheral
-	// TODO finish others
-	if(uart->handle.Instance==USART1) {
+	// Also select other parameters for the specific UxART peripheral
+	uint32_t tx_dma_request;
+	uint32_t rx_dma_request;
+	IRQn_Type irq;
+	if (uart->handle.Instance == USART1) {
 		__HAL_RCC_USART1_CLK_ENABLE();
+		tx_dma_request = DMA_REQUEST_USART1_TX;
+        rx_dma_request = DMA_REQUEST_USART1_RX;
+        irq = USART1_IRQn;
 	}
-	if(uart->handle.Instance==USART2) {
+	if (uart->handle.Instance == USART2) {
 		__HAL_RCC_USART2_CLK_ENABLE();
+		tx_dma_request = DMA_REQUEST_USART2_TX;
+        rx_dma_request = DMA_REQUEST_USART2_RX;
+        irq = USART2_IRQn;
 	}
-	if(uart->handle.Instance==USART3) {
+	if (uart->handle.Instance == USART3) {
 		__HAL_RCC_USART3_CLK_ENABLE();
-		g_uart_usart3 = uart;
+		tx_dma_request = DMA_REQUEST_USART3_TX;
+		rx_dma_request = DMA_REQUEST_USART3_RX;
+		irq = USART3_IRQn;
 	}
-	if(uart->handle.Instance==UART4) {
+	if (uart->handle.Instance == UART4) {
 		__HAL_RCC_UART4_CLK_ENABLE();
+		tx_dma_request = DMA_REQUEST_UART4_TX;
+        rx_dma_request = DMA_REQUEST_UART4_RX;
+        irq = UART4_IRQn;
 	}
-	if(uart->handle.Instance==UART5) {
+	if (uart->handle.Instance == UART5) {
 		__HAL_RCC_UART5_CLK_ENABLE();
+		tx_dma_request = DMA_REQUEST_UART5_TX;
+        rx_dma_request = DMA_REQUEST_UART5_RX;
+        irq = UART5_IRQn;
 	}
-	if(uart->handle.Instance==USART6) {
+	if (uart->handle.Instance == USART6) {
 		__HAL_RCC_USART6_CLK_ENABLE();
+		tx_dma_request = DMA_REQUEST_USART6_TX;
+        rx_dma_request = DMA_REQUEST_USART6_RX;
+        irq = USART6_IRQn;
 	}
-	if(uart->handle.Instance==UART7) {
+	if (uart->handle.Instance == UART7) {
 		__HAL_RCC_UART7_CLK_ENABLE();
+		tx_dma_request = DMA_REQUEST_UART7_TX;
+        rx_dma_request = DMA_REQUEST_UART7_RX;
+        irq = UART7_IRQn;
 	}
-	if(uart->handle.Instance==UART8) {
+	if (uart->handle.Instance == UART8) {
 		__HAL_RCC_UART8_CLK_ENABLE();
+		tx_dma_request = DMA_REQUEST_UART8_TX;
+        rx_dma_request = DMA_REQUEST_UART8_RX;
+        irq = UART8_IRQn;
 	}
 
+    //tx pin init
+    uart->tx = gpio_init_alt(tx_port, tx_pin, alt);
+    //rx pin init
+    uart->rx = gpio_init_alt(rx_port, rx_pin, alt);
 
+	// DMA priorities: TX low, RX medium
+	// UART should be relatively low priority compared to other peripherals that
+	// are more time-critical (e.g. DCMI, SD card) since UART is generally only
+	// used for logging and debugging.
+	// RX should have a higher priority than TX because we don't want to delay
+	// bytes arriving so they aren't lost, whereas TX will not lose bytes if it
+	// is delayed.
 
+	/* DMA controller clock enable */
+	// This MUST come BEFORE initializing the DMA handles and calling
+	// HAL_DMA_Init() or else the DMAs will not work
+    __HAL_RCC_DMA1_CLK_ENABLE();
 
     /* TX DMA Init */
     uart->tx_dma_handle.Instance = DMA1_Stream0;
-    uart->tx_dma_handle.Init.Request = DMA_REQUEST_USART3_TX;
+    uart->tx_dma_handle.Init.Request = tx_dma_request;
     uart->tx_dma_handle.Init.Direction = DMA_MEMORY_TO_PERIPH;
     uart->tx_dma_handle.Init.PeriphInc = DMA_PINC_DISABLE;
     uart->tx_dma_handle.Init.MemInc = DMA_MINC_ENABLE;
@@ -138,45 +157,43 @@ void uart_init_base(UART* uart,
     uart->tx_dma_handle.Init.Mode = DMA_NORMAL;
     uart->tx_dma_handle.Init.Priority = DMA_PRIORITY_LOW;
     uart->tx_dma_handle.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
-    uart->tx_dma_handle.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_1QUARTERFULL;
+    uart->tx_dma_handle.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_HALFFULL;
     uart->tx_dma_handle.Init.MemBurst = DMA_MBURST_SINGLE;
     uart->tx_dma_handle.Init.PeriphBurst = DMA_PBURST_SINGLE;
-    if (HAL_DMA_Init(&uart->tx_dma_handle) != HAL_OK)
-    {
-      Error_Handler();
+    if (HAL_DMA_Init(&uart->tx_dma_handle) != HAL_OK) {
+        Error_Handler();
     }
-    __HAL_LINKDMA(&uart->handle,hdmatx,uart->tx_dma_handle);
-
-
-
+    __HAL_LINKDMA(&uart->handle, hdmatx, uart->tx_dma_handle);
 
     /* RX DMA Init */
     uart->rx_dma_handle.Instance = DMA1_Stream1;
-    uart->rx_dma_handle.Init.Request = DMA_REQUEST_USART3_RX;
+    uart->rx_dma_handle.Init.Request = rx_dma_request;
     uart->rx_dma_handle.Init.Direction = DMA_PERIPH_TO_MEMORY;
     uart->rx_dma_handle.Init.PeriphInc = DMA_PINC_DISABLE;
     uart->rx_dma_handle.Init.MemInc = DMA_MINC_ENABLE;
     uart->rx_dma_handle.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     uart->rx_dma_handle.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     uart->rx_dma_handle.Init.Mode = DMA_NORMAL;
-    // Bruno TODO high?
     uart->rx_dma_handle.Init.Priority = DMA_PRIORITY_MEDIUM;
-    //
-    // Bruno disabled fifo mode
-//    hdma_usart3_rx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
     uart->rx_dma_handle.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-    //
     uart->rx_dma_handle.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_1QUARTERFULL;
     uart->rx_dma_handle.Init.MemBurst = DMA_MBURST_SINGLE;
     uart->rx_dma_handle.Init.PeriphBurst = DMA_PBURST_SINGLE;
-    if (HAL_DMA_Init(&uart->rx_dma_handle) != HAL_OK)
-    {
-      Error_Handler();
+    if (HAL_DMA_Init(&uart->rx_dma_handle) != HAL_OK) {
+        Error_Handler();
     }
-    __HAL_LINKDMA(&uart->handle,hdmarx,uart->rx_dma_handle);
+    __HAL_LINKDMA(&uart->handle, hdmarx, uart->rx_dma_handle);
 
-
-
+    // TODO - common header file / Confluence page with DMA/stream allocations/constants?
+    /* DMA interrupt init */
+    // Set the preempt priority to 8, around the middle of the 0-15 range
+    // Give stream 1 (RX) a higher importance subpriority than stream 0 (TX)
+    /* DMA1_Stream0_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 8, 1);
+    HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
+    /* DMA1_Stream1_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 8, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
 
 	/* USART3 interrupt Init */
     // Configure the NVIC and enable the interrupt
@@ -184,47 +201,125 @@ void uart_init_base(UART* uart,
     // interrupts when a transmission is done so it
     // can call the IRQ handler, which sets the UART handle back to a ready
     // state to be able to do the next DMA transmission
-    // TODO - should preempt priority be 1 instead of 0?
-    HAL_NVIC_SetPriority(USART3_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(USART3_IRQn);
+    HAL_NVIC_SetPriority(irq, 8, 2);
+    HAL_NVIC_EnableIRQ(irq);
+
     // Don't need to call __enable_irq() - global interrupts are already enabled
+}
+
+/*
+ * Sets the necessary global variable(s) for this UART.
+ */
+void uart_set_globals(UART *uart) {
+    // Save a pointer to the UART struct to the appropriate global variable
+    if (uart->handle.Instance == USART1) {
+        g_uart_usart1 = uart;
+    }
+    if (uart->handle.Instance == USART2) {
+        g_uart_usart2 = uart;
+    }
+    if (uart->handle.Instance == USART3) {
+        g_uart_usart3 = uart;
+    }
+    if (uart->handle.Instance == UART4) {
+        g_uart_uart4 = uart;
+    }
+    if (uart->handle.Instance == UART5) {
+        g_uart_uart5 = uart;
+    }
+    if (uart->handle.Instance == USART6) {
+        g_uart_usart6 = uart;
+    }
+    if (uart->handle.Instance == UART7) {
+        g_uart_uart7 = uart;
+    }
+    if (uart->handle.Instance == UART8) {
+        g_uart_uart8 = uart;
+    }
+
+    if (g_uart_def == NULL) {
+        g_uart_def = uart;
+    }
 }
 
 // Initialize normal UART
 void uart_init(UART* uart,
-        USART_TypeDef *instance, uint32_t baud_rate, uint8_t alt,
+        USART_TypeDef *instance, UARTBaud baud, uint8_t alt,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin) {
 
-	uart_init_base(uart, instance, baud_rate, alt, tx_port, tx_pin, rx_port, rx_pin);
+	uart_init_base(uart, instance, baud, alt, tx_port, tx_pin, rx_port, rx_pin);
 
 	if (HAL_UART_Init(&uart->handle) != HAL_OK) {
 		Error_Handler();
 	}
 
+	// Common buffer for printing messages
+	char buf[140];
+
+	// Print message at original baud rate
+    snprintf(buf, sizeof(buf), "Started UART at %lu baud\r\n", (uint32_t) baud);
+    uart_write(uart, (uint8_t*) buf, strlen(buf));
+
+    // Serial monitors often default to 9600 baud, so in case the user has
+    // theirs set to 9600, we switch the MCU's UART to 9600, print a warning
+    // message, then switch back to the original baud rate
+    // TODO - baud enum?
+    if (baud != 9600) {
+
+        // Abort all ongoing transfers (this function executes in blocking mode)
+        HAL_UART_Abort(&uart->handle);
+        // Deinitialize the UART peripheral
+        HAL_UART_DeInit(&uart->handle);
+        // Change baud rate to 9600
+        uart->handle.Init.BaudRate = 9600;
+        // Reinitialize UART at 9600 baud
+        if (HAL_UART_Init(&uart->handle) != HAL_OK) {
+            Error_Handler();
+        }
+
+        // Print warning message at 9600 baud
+        snprintf(buf, sizeof(buf),
+                "WARNING: UART is operating at %lu baud\r\n"
+                "Your serial monitor is set to 9600 baud\r\n"
+                "Change your serial monitor's baud rate!\r\n",
+                (uint32_t) baud);
+        uart_write(uart, (uint8_t*) buf, strlen(buf));
+
+        // Restore the original baud rate and reinitialize UART
+        HAL_UART_Abort(&uart->handle);
+        HAL_UART_DeInit(&uart->handle);
+        uart->handle.Init.BaudRate = baud;
+        if (HAL_UART_Init(&uart->handle) != HAL_OK) {
+            Error_Handler();
+        }
+    }
+
+	// Set global variables after HAL_UART_Init() to make sure they are
+	// initialized before being used
+	uart_set_globals(uart);
+
 	// Start receiving data through RX DMA
 	uart_restart_rx_dma(uart);
 
-	uint8_t buf[] = "Initialized UART\r\n";
-	uart_write(uart, buf, sizeof(buf));
+	snprintf(buf, sizeof(buf), "Initialized UART\r\n");
+	uart_write(uart, (uint8_t*) buf, strlen(buf));
 
 	if (!g_log_def_initialized) {
 	    log_init(&g_log_def, uart);
         info(&g_log_def, "Initialized default log");
         g_log_def_initialized = true;
 	}
-
-	// TODO - change to 9600 baud, print warning message, change back
 }
 
 // Initialize UART + RS-485
 void uart_init_with_rs485(UART* uart,
-        USART_TypeDef *instance, uint32_t baud_rate, uint8_t alt,
+        USART_TypeDef *instance, UARTBaud baud, uint8_t alt,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin,
 		GPIO_TypeDef *de_port, uint16_t de_pin) {
 
-	uart_init_base(uart, instance, baud_rate, alt, tx_port, tx_pin, rx_port, rx_pin);
+	uart_init_base(uart, instance, baud, alt, tx_port, tx_pin, rx_port, rx_pin);
 
 	// RS-485 DE pin init
 	uart->de = gpio_init_alt(de_port, de_pin, alt);
@@ -232,6 +327,10 @@ void uart_init_with_rs485(UART* uart,
 	if (HAL_RS485Ex_Init(&uart->handle, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK) {
 		Error_Handler();
 	}
+
+	// Set global variables after HAL_RS485Ex_Init() to make sure they are
+    // initialized before being used
+	uart_set_globals(uart);
 
 	if (g_log_def_initialized) {
         info(&g_log_def, "Initialized UART + RS-485");
@@ -255,7 +354,6 @@ void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
     while (uart->handle.gState != HAL_UART_STATE_READY) {
         // 100ms timeout (this should never happen)
         if (HAL_GetTick() > start + 100) {
-            // TODO - hard fault or something?
             return;
         }
     }
@@ -277,6 +375,7 @@ void uart_restart_rx_dma(UART *uart) {
     uint32_t prev_count = uart_get_rx_count(uart);
 
     // Abort the ongoing UART RX DMA transfer
+    // TODO - might be able to use HAL_UART_AbortReceive (blocking mode) instead
     HAL_UART_AbortReceive_IT(&uart->handle);
     // Shortly after the abort function is called (or maybe during the function),
     // the abort complete callback (UART_DMARxOnlyAbortCallback()) is called,
@@ -289,7 +388,7 @@ void uart_restart_rx_dma(UART *uart) {
     while (uart->handle.RxState != HAL_UART_STATE_READY) {
         // 100ms timeout (this should never happen)
         if (HAL_GetTick() > start + 100) {
-            // TODO - hard fault or something?
+            error(&g_log_def, "Timed out waiting for UART RX to be ready");
             return;
         }
     }
@@ -453,21 +552,19 @@ char uart_read_char(UART *uart) {
 
 /**
   * @brief This function handles DMA1 stream0 global interrupt.
-  * This function is automatically called for TX transfer complete
+  * This function is automatically called for TX transfer complete.
   */
 void DMA1_Stream0_IRQHandler(void) {
-    // TODO - default UART
-    if (g_uart_usart3 == NULL) {
+    if (g_uart_def == NULL) {
         return;
     }
-    HAL_DMA_IRQHandler(&g_uart_usart3->tx_dma_handle);
+    HAL_DMA_IRQHandler(&g_uart_def->tx_dma_handle);
 }
 
 /**
   * @brief This function handles USART3 global interrupt.
   * This function is only called by the HAL for TX DMA complete, not RX DMA complete.
   */
-// TODO - add others
 void USART3_IRQHandler(void) {
     if (g_uart_usart3 == NULL) {
         return;
@@ -482,26 +579,71 @@ void USART3_IRQHandler(void) {
     // transmission is complete because our DMA does not use circular mode
 }
 
+// Same as USART3_IRQHandler(), but for other UART peripherals
+void USART1_IRQHandler(void) {
+    if (g_uart_usart1 == NULL) {
+        return;
+    }
+    HAL_UART_IRQHandler(&g_uart_usart1->handle);
+}
+void USART2_IRQHandler(void) {
+    if (g_uart_usart2 == NULL) {
+        return;
+    }
+    HAL_UART_IRQHandler(&g_uart_usart2->handle);
+}
+void UART4_IRQHandler(void) {
+    if (g_uart_uart4 == NULL) {
+        return;
+    }
+    HAL_UART_IRQHandler(&g_uart_uart4->handle);
+}
+void UART5_IRQHandler(void) {
+    if (g_uart_uart5 == NULL) {
+        return;
+    }
+    HAL_UART_IRQHandler(&g_uart_uart5->handle);
+}
+void USART6_IRQHandler(void) {
+    if (g_uart_usart6 == NULL) {
+        return;
+    }
+    HAL_UART_IRQHandler(&g_uart_usart6->handle);
+}
+void UART7_IRQHandler(void) {
+    if (g_uart_uart7 == NULL) {
+        return;
+    }
+    HAL_UART_IRQHandler(&g_uart_uart7->handle);
+}
+void UART8_IRQHandler(void) {
+    if (g_uart_uart8 == NULL) {
+        return;
+    }
+    HAL_UART_IRQHandler(&g_uart_uart8->handle);
+}
+
 
 
 
 /**
   * @brief This function handles DMA1 stream1 global interrupt.
-  * This function is automatically called for RX transfer complete
+  * This function is automatically called for RX transfer complete.
   */
 void DMA1_Stream1_IRQHandler(void) {
-    // TODO - default UART
-    if (g_uart_usart3 == NULL) {
+    if (g_uart_def == NULL) {
         return;
     }
-    HAL_DMA_IRQHandler(&g_uart_usart3->rx_dma_handle);
+    HAL_DMA_IRQHandler(&g_uart_def->rx_dma_handle);
 }
 
 /*
  * This function is called in the UART IRQ handler when all possible bytes have
  * been received, i.e. number of bytes received is equal to the `Size` parameter
  * passed to HAL_UART_Receive_DMA().
- * This function is called from DMA1_Stream1_IRQHandler() -> HAL_DMA_IRQHandler() -> UART_DMAReceiveCplt() if all RX bytes have been received.
+ * This function is called from
+ * DMA1_Stream1_IRQHandler() -> HAL_DMA_IRQHandler() -> UART_DMAReceiveCplt()
+ * if all RX bytes have been received.
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     if (!g_log_def_initialized) {

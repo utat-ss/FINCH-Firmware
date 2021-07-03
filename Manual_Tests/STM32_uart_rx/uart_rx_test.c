@@ -24,20 +24,17 @@
 #endif
 
 
-
-
 int main() {
     // Initialization
     HAL_Init();
     clock_init();
 
     UART uart;
-    uart_init(&uart, UART_INST, 115200, UART_ALT,
+    uart_init(&uart, UART_INST, UART_BAUD_115200, UART_ALT,
             UART_TX_PORT, UART_TX_PIN, UART_RX_PORT, UART_RX_PIN);
     Log logger;
     log_init(&logger, &uart);
     info(&logger, "Starting UART RX test");
-
 
     info(&logger, "testing dma 1");
     info(&logger, "testing dma 2");
