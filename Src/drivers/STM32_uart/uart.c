@@ -264,7 +264,6 @@ void uart_init(UART* uart,
     // Serial monitors often default to 9600 baud, so in case the user has
     // theirs set to 9600, we switch the MCU's UART to 9600, print a warning
     // message, then switch back to the original baud rate
-    // TODO - baud enum?
     if (baud != 9600) {
 
         // Abort all ongoing transfers (this function executes in blocking mode)
@@ -366,32 +365,13 @@ void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
  * after the first time.
  */
 void uart_restart_rx_dma(UART *uart) {
-    // Do NOT temporary disable interrupts in the function
-    // The abort complete interrupt callback must be executed to set the RX
-    // state to ready and start the next RX transfer (described below)
-
     // Get number of bytes already transferred
     // Do this before aborting the RX transfer just in case NDTR is changed
     uint32_t prev_count = uart_get_rx_count(uart);
 
     // Abort the ongoing UART RX DMA transfer
-    // TODO - might be able to use HAL_UART_AbortReceive (blocking mode) instead
-    HAL_UART_AbortReceive_IT(&uart->handle);
-    // Shortly after the abort function is called (or maybe during the function),
-    // the abort complete callback (UART_DMARxOnlyAbortCallback()) is called,
-    // which sets RxState to ready
-    // HAL_UART_Receive_DMA() requires the RxState to be ready or else it fails
-    // to start a new RX DMA transfer
-
-    // Wait until RxState changes to ready (set in the abort callback)
-    uint32_t start = HAL_GetTick();
-    while (uart->handle.RxState != HAL_UART_STATE_READY) {
-        // 100ms timeout (this should never happen)
-        if (HAL_GetTick() > start + 100) {
-            error(&g_log_def, "Timed out waiting for UART RX to be ready");
-            return;
-        }
-    }
+    // This function blocks until the abort is complete and RxState is set to ready
+    HAL_UART_AbortReceive(&uart->handle);
 
     // Set bytes in RX buffer to zero, but only the bytes that were filled by
     // the previous RX transfer
