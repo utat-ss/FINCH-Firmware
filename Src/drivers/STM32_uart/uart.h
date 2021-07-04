@@ -10,6 +10,7 @@
 
 #ifdef STM32G474xx
 #include <stm32g4xx_hal.h>
+#include <stm32g4_startup.h>
 #endif
 
 #ifdef STM32H743xx
