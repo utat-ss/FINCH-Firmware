@@ -9,13 +9,13 @@
 #define DRIVERS_STM32_UART_COMMON_H_
 
 /*
- * Normally these definitions would be separated into uart.h and log.h, but since
- * the UART and Log structs refer to each other, it was impossible for it to work
- * with both header files including each other in a circular dependency.
+ * Normally these definitions would be separated into uart.h and log.h, but
+ * since the UART and Log structs refer to each other, it was impossible for it
+ * to work with both header files including each other in a circular dependency.
  *
  * Must have Log defined before UART because a Log contains a pointer to a UART,
- * but a UART contains a Log variable. If UART is defined before Log, it produces
- * the error "field 'log' has incomplete type".
+ * but a UART contains a Log variable. If UART is defined before Log, it
+ * produces the error "field 'log' has incomplete type".
  * See explanation:
  * https://stackoverflow.com/questions/12466055/field-has-incomplete-type-error
  */
@@ -60,10 +60,9 @@ typedef struct UARTStruct {
     DMA_HandleTypeDef rx_dma_handle;
 
     // GPIO pins
-    // TODO - rename
-    GPIO_ALT tx;
-    GPIO_ALT rx;
-    GPIO_ALT de;
+    GPIO_ALT tx_gpio;
+    GPIO_ALT rx_gpio;
+    GPIO_ALT de_gpio;
 
     // Store a buffer of bytes (characters) in this UART struct to be sent by
     // the TX DMA.

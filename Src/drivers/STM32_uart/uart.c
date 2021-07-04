@@ -8,6 +8,7 @@
 // log.h includes uart.h
 #include <drivers/STM32_uart/log.h>
 
+// Pointer to each specific UART peripheral (if used) - needed for use in ISRs
 UART *g_uart_usart1 = NULL;
 UART *g_uart_usart2 = NULL;
 UART *g_uart_usart3 = NULL;
@@ -17,6 +18,7 @@ UART *g_uart_usart6 = NULL;
 UART *g_uart_uart7 = NULL;
 UART *g_uart_uart8 = NULL;
 
+// Default UART - used globally
 UART *g_uart_def = NULL;
 
 /*
@@ -45,9 +47,9 @@ void uart_init_base(UART* uart,
 
 	// The TX FIFO threshold is for the number of EMPTY slots in the FIFO, while
 	// the RX FIFO threshold is for the number of FILLED slots in the FIFO
-	// (RM0433 p.2046).
+	// (RM0433 p.2046)
 	// These thresholds honestly shouldn't matter since we are not using the
-	// FIFO threshold interrupts.
+	// FIFO threshold interrupts
 	if (HAL_UARTEx_SetTxFifoThreshold(&uart->handle, UART_TXFIFO_THRESHOLD_7_8) != HAL_OK) {
 		Error_Handler();
 	}
@@ -60,7 +62,7 @@ void uart_init_base(UART* uart,
 
 	// Peripheral clock configuration
 	RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
-	if (uart->handle.Instance==USART1 || uart->handle.Instance==USART6) {
+	if (uart->handle.Instance == USART1 || uart->handle.Instance == USART6) {
 	    // UART peripheral 1 or 6
 	    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART16;
         PeriphClkInitStruct.Usart16ClockSelection = RCC_USART16CLKSOURCE_D2PCLK2;
@@ -127,18 +129,18 @@ void uart_init_base(UART* uart,
         irq = UART8_IRQn;
 	}
 
-    //tx pin init
-    uart->tx = gpio_init_alt(tx_port, tx_pin, alt);
-    //rx pin init
-    uart->rx = gpio_init_alt(rx_port, rx_pin, alt);
+    // TX pin init
+    uart->tx_gpio = gpio_init_alt(tx_port, tx_pin, alt);
+    // RX pin init
+    uart->rx_gpio = gpio_init_alt(rx_port, rx_pin, alt);
 
 	// DMA priorities: TX low, RX medium
 	// UART should be relatively low priority compared to other peripherals that
 	// are more time-critical (e.g. DCMI, SD card) since UART is generally only
-	// used for logging and debugging.
+	// used for logging and debugging
 	// RX should have a higher priority than TX because we don't want to delay
 	// bytes arriving so they aren't lost, whereas TX will not lose bytes if it
-	// is delayed.
+	// is delayed
 
 	/* DMA controller clock enable */
 	// This MUST come BEFORE initializing the DMA handles and calling
@@ -186,7 +188,7 @@ void uart_init_base(UART* uart,
     // TODO - common header file / Confluence page with DMA/stream allocations/constants?
     /* DMA interrupt init */
     // Set the preempt priority to 8, around the middle of the 0-15 range
-    // Give stream 1 (RX) a higher importance subpriority than stream 0 (TX)
+    // Give stream 1 (RX) a more important subpriority than stream 0 (TX)
     /* DMA1_Stream0_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 8, 1);
     HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
@@ -197,9 +199,9 @@ void uart_init_base(UART* uart,
 	/* USART3 interrupt Init */
     // Configure the NVIC and enable the interrupt
     // This is necessary for TX (even though it's in DMA mode), enabling
-    // interrupts when a transmission is done so it
-    // can call the IRQ handler, which sets the UART handle back to a ready
-    // state to be able to do the next DMA transmission
+    // interrupts when a transmission is done so it can call the IRQ handler,
+    // which sets the UART handle back to a ready state to be able to do the
+    // next DMA transmission
     HAL_NVIC_SetPriority(irq, 8, 2);
     HAL_NVIC_EnableIRQ(irq);
 
@@ -316,7 +318,7 @@ void uart_init_with_rs485(UART* uart,
 	uart_init_base(uart, instance, baud, alt, tx_port, tx_pin, rx_port, rx_pin);
 
 	// RS-485 DE pin init
-	uart->de = gpio_init_alt(de_port, de_pin, alt);
+	uart->de_gpio = gpio_init_alt(de_port, de_pin, alt);
 
 	if (HAL_RS485Ex_Init(&uart->handle, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK) {
 		Error_Handler();
@@ -333,8 +335,8 @@ void uart_init_with_rs485(UART* uart,
 
 // Writes data in blocking mode
 void uart_write(UART *uart, uint8_t *buf, uint32_t count) {
-	// Just use the max possible timeout
-	HAL_UART_Transmit(&uart->handle, buf, count, 0xFFFF);
+	// 1000ms timeout
+	HAL_UART_Transmit(&uart->handle, buf, count, 1000);
 }
 
 // Writes data in DMA mode
@@ -342,12 +344,13 @@ void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
     // If a TX process is already ongoing, wait for it to finish
     // If a previous DMA TX is in progress, when the TX is done the UART ISR
     // will set gState to ready
-    // This is necessary because if you call HAL_UART_Transmit_DMA() when
-    // gState is not ready, it fails and returns busy (without printing anything)
+    // This is necessary because if you call HAL_UART_Transmit_DMA() when gState
+    // is not ready, it fails and returns busy (without printing anything)
     uint32_t start = HAL_GetTick();
     while (uart->handle.gState != HAL_UART_STATE_READY) {
         // 100ms timeout (this should never happen)
         if (HAL_GetTick() > start + 100) {
+            Error_Handler();
             return;
         }
     }
@@ -365,7 +368,8 @@ void uart_restart_rx_dma(UART *uart) {
     uint32_t prev_count = uart_get_rx_count(uart);
 
     // Abort the ongoing UART RX DMA transfer
-    // This function blocks until the abort is complete and RxState is set to ready
+    // This function blocks until the abort is complete and RxState is set to
+    // ready
     HAL_UART_AbortReceive(&uart->handle);
 
     // Set bytes in RX buffer to zero, but only the bytes that were filled by
@@ -409,12 +413,13 @@ uint32_t uart_read_uint(UART *uart) {
         if (count > 0 && uart_is_newline_char(uart->rx_buf[count - 1])) {
             // Must add a \0 character to the end of the string to terminate it
             // as a C string, which is required when passing it to sscanf()
-            // Don't need the \r or \n newline character anyway, so just replace it with \0
+            // Don't need the \r or \n newline character anyway, so just replace
+            // it with \0
             uart->rx_buf[count - 1] = '\0';
 
             uint32_t value = 0;
-            // sscanf() returns the number of values successfully matched,
-            // so should be 0 (failed) or 1 (succeeded)
+            // sscanf() returns the number of values successfully matched, so
+            // should be 0 (failed) or 1 (succeeded)
 
             // Match in hexadecimal format
             if (sscanf(uart->rx_buf, "0x%lx", &value) > 0) {
@@ -453,12 +458,13 @@ int32_t uart_read_int(UART *uart) {
         if (count > 0 && uart_is_newline_char(uart->rx_buf[count - 1])) {
             // Must add a \0 character to the end of the string to terminate it
             // as a C string, which is required when passing it to sscanf()
-            // Don't need the \r or \n newline character anyway, so just replace it with \0
+            // Don't need the \r or \n newline character anyway, so just replace
+            // it with \0
             uart->rx_buf[count - 1] = '\0';
 
             int32_t value = 0;
-            // sscanf() returns the number of values successfully matched,
-            // so should be 0 (failed) or 1 (succeeded)
+            // sscanf() returns the number of values successfully matched, so
+            // should be 0 (failed) or 1 (succeeded)
             if (sscanf(uart->rx_buf, "%ld", &value) > 0) {
                 // Restarting RX DMA clears the RX buffer and starts a new DMA
                 // transfer
@@ -488,12 +494,13 @@ char uart_read_char(UART *uart) {
         if (count > 0 && uart_is_newline_char(uart->rx_buf[count - 1])) {
             // Must add a \0 character to the end of the string to terminate it
             // as a C string, which is required when passing it to sscanf()
-            // Don't need the \r or \n newline character anyway, so just replace it with \0
+            // Don't need the \r or \n newline character anyway, so just replace
+            // it with \0
             uart->rx_buf[count - 1] = '\0';
 
             char value = 0;
-            // sscanf() returns the number of values successfully matched,
-            // so should be 0 (failed) or 1 (succeeded)
+            // sscanf() returns the number of values successfully matched, so
+            // should be 0 (failed) or 1 (succeeded)
             if (sscanf(uart->rx_buf, "%c", &value) > 0) {
                 // Restarting RX DMA clears the RX buffer and starts a new DMA
                 // transfer
@@ -514,10 +521,14 @@ char uart_read_char(UART *uart) {
 
 
 
+
+// -----------------------------------------------------------------------------
+// Interrupt handlers (ISRs)
+
 /*
  * From https://vivonomicon.com/2020/06/28/bare-metal-stm32-programming-part-10-uart-communication/
- * To define an interrupt handler, "you just declare a void function with no arguments and the same
- * name as the corresponding entry in the vector table".
+ * To define an interrupt handler, "you just declare a void function with no
+ * arguments and the same name as the corresponding entry in the vector table".
  * The vector table with the available peripheral interrupt handler names is in
  * the startup file (of assembly code), e.g. startup_stm32h743zitx.s.
  */
@@ -535,7 +546,8 @@ void DMA1_Stream0_IRQHandler(void) {
 
 /**
   * @brief This function handles USART3 global interrupt.
-  * This function is only called by the HAL for TX DMA complete, not RX DMA complete.
+  * This function is only called by the HAL for TX DMA complete, not RX DMA
+  * complete.
   */
 void USART3_IRQHandler(void) {
     if (g_uart_usart3 == NULL) {
@@ -610,12 +622,12 @@ void DMA1_Stream1_IRQHandler(void) {
 }
 
 /*
- * This function is called in the UART IRQ handler when all possible bytes have
- * been received, i.e. number of bytes received is equal to the `Size` parameter
- * passed to HAL_UART_Receive_DMA().
+ * This function is called in the DMA1 Stream1 IRQ handler when all possible
+ * bytes have been received, i.e. number of bytes received is equal to the
+ * `Size` parameter passed to HAL_UART_Receive_DMA().
  * This function is called from
  * DMA1_Stream1_IRQHandler() -> HAL_DMA_IRQHandler() -> UART_DMAReceiveCplt()
- * if all RX bytes have been received.
+ * if all possible RX bytes have been received.
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     if (g_log_def == NULL) {

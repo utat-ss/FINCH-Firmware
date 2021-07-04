@@ -1,5 +1,4 @@
 #include <drivers/STM32_uart/log.h>
-#include <string.h>
 
 #ifdef STM32H743xx
 #include <drivers/STM32H7_clock/clock.h>
@@ -16,7 +15,7 @@
 #include <drivers/STM32G4_clock/clock.h>
 // Declare pin variables for STM32G4 devkit
 #define UART_INST       LPUART1
-#define UART_ALT        GPIO_AF8_LPUART1	// Might be GPIO_AF12_LPUART1 instead
+#define UART_ALT        GPIO_AF8_LPUART1    // Might be GPIO_AF12_LPUART1 instead
 #define UART_TX_PORT    GPIOA
 #define UART_TX_PIN     GPIO_PIN_2
 #define UART_RX_PORT    GPIOA
@@ -25,7 +24,6 @@
 
 
 int main() {
-    // Initialization
     HAL_Init();
     clock_init();
 

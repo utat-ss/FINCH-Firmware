@@ -24,7 +24,6 @@
 #endif
 
 int main() {
-    // Initialization
     HAL_Init();
     clock_init();
 
@@ -38,6 +37,7 @@ int main() {
 
     Log log;
     log_init(&log, &uart);
+
     error(&log, "error %d", 1);
     warning(&log, "warning %d", 2);
     info(&log, "info %d", 3);
@@ -64,7 +64,6 @@ int main() {
     debug(&log, "debug %d", 4);
     verbose(&log, "verbose %d", 5);
 
-    // Print repeatedly
     while (1) {
         info(&log, "done");
         HAL_Delay(5000);
