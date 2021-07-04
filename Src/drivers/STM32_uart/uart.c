@@ -324,14 +324,14 @@ void uart_init(UART* uart,
     // Serial monitors often default to 9600 baud, so in case the user has
     // theirs set to 9600, we switch the MCU's UART to 9600, print a warning
     // message, then switch back to the original baud rate
-    if (baud != 9600) {
+    if (baud != UART_BAUD_9600) {
 
         // Abort all ongoing transfers (this function executes in blocking mode)
         HAL_UART_Abort(&uart->handle);
         // Deinitialize the UART peripheral
         HAL_UART_DeInit(&uart->handle);
         // Change baud rate to 9600
-        uart->handle.Init.BaudRate = 9600;
+        uart->handle.Init.BaudRate = UART_BAUD_9600;
         // Reinitialize UART at 9600 baud
         if (HAL_UART_Init(&uart->handle) != HAL_OK) {
             Error_Handler();

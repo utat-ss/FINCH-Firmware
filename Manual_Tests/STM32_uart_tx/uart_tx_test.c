@@ -28,7 +28,7 @@ int main() {
     clock_init();
 
     UART uart;
-    uart_init(&uart, UART_INST, 115200, UART_ALT,
+    uart_init(&uart, UART_INST, UART_BAUD_115200, UART_ALT,
             UART_TX_PORT, UART_TX_PIN, UART_RX_PORT, UART_RX_PIN);
 
     uint8_t buf1[20] = "testing\r\n";
