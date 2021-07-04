@@ -5,8 +5,7 @@
  *      Author: Ketan
  */
 
-#include <drivers/STM32_uart/uart.h>
-
+// log.h includes uart.h
 #include <drivers/STM32_uart/log.h>
 
 UART *g_uart_usart1 = NULL;
@@ -304,11 +303,7 @@ void uart_init(UART* uart,
 	snprintf(buf, sizeof(buf), "Initialized UART\r\n");
 	uart_write(uart, (uint8_t*) buf, strlen(buf));
 
-	if (!g_log_def_initialized) {
-	    log_init(&g_log_def, uart);
-        info(&g_log_def, "Initialized default log");
-        g_log_def_initialized = true;
-	}
+	log_init(&uart->log, uart);
 }
 
 // Initialize UART + RS-485
@@ -331,8 +326,8 @@ void uart_init_with_rs485(UART* uart,
     // initialized before being used
 	uart_set_globals(uart);
 
-	if (g_log_def_initialized) {
-        info(&g_log_def, "Initialized UART + RS-485");
+	if (g_log_def != NULL) {
+        info(g_log_def, "Initialized UART + RS-485");
     }
 }
 
@@ -418,7 +413,6 @@ uint32_t uart_read_uint(UART *uart) {
             uart->rx_buf[count - 1] = '\0';
 
             uint32_t value = 0;
-            // TODO - use log attached to this UART struct?
             // sscanf() returns the number of values successfully matched,
             // so should be 0 (failed) or 1 (succeeded)
 
@@ -436,14 +430,14 @@ uint32_t uart_read_uint(UART *uart) {
             }
             // No match
             else {
-                error(&g_log_def, "Failed to read uint from UART");
+                error(&uart->log, "Failed to read uint from UART");
                 uart_restart_rx_dma(uart);
                 return 0;
             }
         }
     }
 
-    error(&g_log_def, "Timed out trying to read uint from UART");
+    error(&uart->log, "Timed out trying to read uint from UART");
     uart_restart_rx_dma(uart);
     return 0;
 }
@@ -463,7 +457,6 @@ int32_t uart_read_int(UART *uart) {
             uart->rx_buf[count - 1] = '\0';
 
             int32_t value = 0;
-            // TODO - use log attached to this UART struct?
             // sscanf() returns the number of values successfully matched,
             // so should be 0 (failed) or 1 (succeeded)
             if (sscanf(uart->rx_buf, "%ld", &value) > 0) {
@@ -472,14 +465,14 @@ int32_t uart_read_int(UART *uart) {
                 uart_restart_rx_dma(uart);
                 return value;
             } else {
-                error(&g_log_def, "Failed to read int from UART");
+                error(&uart->log, "Failed to read int from UART");
                 uart_restart_rx_dma(uart);
                 return 0;
             }
         }
     }
 
-    error(&g_log_def, "Timed out trying to read int from UART");
+    error(&uart->log, "Timed out trying to read int from UART");
     uart_restart_rx_dma(uart);
     return 0;
 }
@@ -499,7 +492,6 @@ char uart_read_char(UART *uart) {
             uart->rx_buf[count - 1] = '\0';
 
             char value = 0;
-            // TODO - use log attached to this UART struct?
             // sscanf() returns the number of values successfully matched,
             // so should be 0 (failed) or 1 (succeeded)
             if (sscanf(uart->rx_buf, "%c", &value) > 0) {
@@ -508,14 +500,14 @@ char uart_read_char(UART *uart) {
                 uart_restart_rx_dma(uart);
                 return value;
             } else {
-                error(&g_log_def, "Failed to read char from UART");
+                error(&uart->log, "Failed to read char from UART");
                 uart_restart_rx_dma(uart);
                 return 0;
             }
         }
     }
 
-    error(&g_log_def, "Timed out trying to read char from UART");
+    error(&uart->log, "Timed out trying to read char from UART");
     uart_restart_rx_dma(uart);
     return 0;
 }
@@ -626,8 +618,8 @@ void DMA1_Stream1_IRQHandler(void) {
  * if all RX bytes have been received.
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (!g_log_def_initialized) {
+    if (g_log_def == NULL) {
         return;
     }
-    warning(&g_log_def, "UART RX buffer is full");
+    warning(g_log_def, "UART RX buffer is full");
 }

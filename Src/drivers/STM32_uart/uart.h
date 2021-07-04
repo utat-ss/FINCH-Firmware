@@ -18,6 +18,7 @@
 #endif
 
 #include <drivers/STM32_gpio/gpio.h>
+#include <drivers/STM32_uart/common.h>
 
 /*
 There is lots of confusion around UART vs USART, more generically referred to as
@@ -70,37 +71,7 @@ DMA to transfer all of the bytes to the memory buffer. Because we want it to wor
 for any number of RX bytes, we disable FIFO mode for the RX DMA.
  */
 
-#define UART_TX_BUF_SIZE 80
-#define UART_RX_BUF_SIZE 80
-
-// Baud rate is just an integer number, but make it an enum to limit possible
-// baud values to only those that are practically used (to prevent typos)
-typedef enum {
-    UART_BAUD_9600 = 9600,
-    UART_BAUD_115200 = 115200
-} UARTBaud;
-
-// TODO - variable sized buffers?
-typedef struct {
-    // HAL control
-	UART_HandleTypeDef handle;
-    DMA_HandleTypeDef tx_dma_handle;
-    DMA_HandleTypeDef rx_dma_handle;
-
-	// GPIO pins
-	GPIO_ALT tx;
-	GPIO_ALT rx;
-	GPIO_ALT de;
-
-	// Store a buffer of bytes (characters) in this UART struct to be sent by
-	// the TX DMA.
-	// It should be in the UART struct instead of the Log struct because we
-	// expect to have many Log structs for each UART struct, so having a buffer
-	// in each Log struct would be a big waste of memory.
-	char tx_buf[UART_TX_BUF_SIZE];
-	// Buffer for receiving bytes through the RX DMA
-	char rx_buf[UART_RX_BUF_SIZE];
-} UART;
+// See common.h for enum and struct definitions
 
 extern UART *g_uart_usart1;
 extern UART *g_uart_usart2;

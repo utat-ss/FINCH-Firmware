@@ -14,22 +14,9 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef enum {
-	LOG_LEVEL_NONE = 0,
-	LOG_LEVEL_ERROR = 1,
-	LOG_LEVEL_WARNING = 2,
-	LOG_LEVEL_INFO = 3,
-	LOG_LEVEL_DEBUG = 4,
-	LOG_LEVEL_VERBOSE = 5
-} LogLevel;
+// See common.h for enum and struct definitions
 
-typedef struct {
-	UART *uart;
-	LogLevel level;
-} Log;
-
-extern Log g_log_def;
-extern bool g_log_def_initialized;
+extern Log *g_log_def;
 
 void log_init(Log *log, UART *uart);
 void log_set_level(Log *log, LogLevel level);

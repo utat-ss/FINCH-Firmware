@@ -13,8 +13,7 @@
 // This is the "default" Log struct
 // It can be used in places where there is no individual Log available
 // (e.g. interrupt handlers)
-Log g_log_def;
-bool g_log_def_initialized = false;
+Log *g_log_def = NULL;
 
 // Global log level
 // This is not an override, but it can be used to force all Log structs to
@@ -26,6 +25,11 @@ void log_init(Log *log, UART *uart) {
 	// Want a level of info by default
 	log->level = LOG_LEVEL_INFO;
 	info(log, "Initialized individual log");
+
+	if (g_log_def == NULL) {
+	    g_log_def = log;
+        info(g_log_def, "Set default log");
+    }
 }
 
 char* log_get_level_string(LogLevel level) {
@@ -53,7 +57,7 @@ void log_set_level(Log *log, LogLevel level) {
 
 void log_set_global_level(LogLevel level) {
     g_log_global_level = level;
-    info(&g_log_def, "Set global log level to %s", log_get_level_string(level));
+    info(g_log_def, "Set global log level to %s", log_get_level_string(level));
 }
 
 // This function is never meant to be called directly by other code outside this library
@@ -93,7 +97,7 @@ void log_log(Log *log, LogLevel level, const char *format, va_list args) {
         while (log->uart->handle.gState != HAL_UART_STATE_READY) {
             // 100ms timeout (this should never happen)
             if (HAL_GetTick() > start + 100) {
-                // TODO - hard fault or something?
+                Error_Handler();
                 return;
             }
         }
