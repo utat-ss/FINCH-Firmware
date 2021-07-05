@@ -5,17 +5,27 @@
 # having to cd into the build folder
 # It also makes it easier to specify paths to manual tests without having to add
 # .. to go up a directory
-# It uses default CMake configuration parameters (such as the toolchain file
-# and build type) which can be overriden if desired
+# It uses default CMake configuration parameters (such as the toolchain file and
+# build type) which can be overriden if desired
 
-# TODO - test STLink software with H7 MCUs
-# As of January 2021, the STLink software package does not support the H7 series
-# H7 support has been merged into the development branch
-# (https://github.com/stlink-org/stlink/pull/1033), but it will not be available
-# in a release until March 2021 (https://github.com/stlink-org/stlink/milestone/15)
+# Note that support for the STM32H7 MCU series was only added in v1.7.0 (April
+# 2021) of the STLink software package
+# You can check the version of your installed STLink software with
+# `st-info --version`
+# https://github.com/stlink-org/stlink/pull/1033
+# https://github.com/stlink-org/stlink/releases
+
+# If you are using version v1.6.1 or earlier, the output of `st-info --probe`
+# looks something like this:
+#     Found 1 stlink programmers
+#      serial:     303035373030333633343338353131303334333133393339
+#      hla-serial: "\x30\x30\x35\x37\x30\x30\x33\x36\x33\x34\x33\x38\x35\x31\x31\x30\x33\x34\x33\x31\x33\x39\x33\x39"
+#      flash:      0 (pagesize: 0)
+#      sram:       0
+#      chipid:     0x0000
+#      descr:      unknown device
 
 # TODO - try to detect MCU model/series automatically (maybe using st-info?)
-# TODO - allow user to specify which MCU/STLink if multiple are connected
 # https://github.com/stlink-org/stlink/blob/develop/doc/man/st-flash.md
 # https://github.com/stlink-org/stlink/issues/318
 
@@ -58,6 +68,12 @@ ifeq ($(OS),Windows_NT)
 	WINDOWS = 1
 endif
 
+# Serial argument (if specified)
+# i.e. which MCU to upload to
+ifneq ($(SERIAL),)
+	SERIAL_ARG = --serial $(SERIAL)
+endif
+
 # Compile all test programs for each MCU series
 # This command is useful to run before committing or merging code, to at least
 # make sure all programs still compile correctly
@@ -84,13 +100,26 @@ endif
 	cmake --build . --target $(TEST_TARGET) -- -j 1 && \
 	cd ..
 
+# List info about the available MCUs and serial ports
+.PHONY: info
+info:
+	@echo "MCUs (STLink programmers):"
+	st-info --probe
+	@echo
+	@echo "Serial ports:"
+ifeq ($(WINDOWS),1)
+	powershell "[System.IO.Ports.SerialPort]::getportnames()"
+else
+	ls /dev/cu.usbmodem*
+endif
+
 # Compile and upload one test program to MCU
 # Need the --reset option to reset the MCU (to start executing the program)
 # after writing the program to memory, or else the program doesn't start running
 # automatically and you need to press the hardware reset button to start it
 .PHONY: upload
 upload: compile
-	st-flash --reset write $(BUILD_DIR)/$(TEST_TARGET).bin 0x8000000
+	st-flash --reset $(SERIAL_ARG) write $(BUILD_DIR)/$(TEST_TARGET).bin 0x8000000
 
 # Download (read) current firmware on MCU
 # BYTES defines the number of bytes to read (as a hex value, e.g.
@@ -101,12 +130,12 @@ ifeq ($(BYTES),)
 	@echo "ERROR: Parameter BYTES must be defined"
 	exit 1
 endif
-	st-flash read downloaded_fw.bin 0x8000000 $(BYTES)
+	st-flash $(SERIAL_ARG) read downloaded_fw.bin 0x8000000 $(BYTES)
 
 # Erase current firmware on MCU
 .PHONY: erase
 erase:
-	st-flash erase
+	st-flash $(SERIAL_ARG) erase
 
 # Create the build directory and convert the CMake configuration to Makefiles
 # Want to use the -p switch for mkdir so it doesn't give an error if the
