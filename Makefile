@@ -25,9 +25,8 @@
 #      chipid:     0x0000
 #      descr:      unknown device
 
-# TODO - try to detect MCU model/series automatically (maybe using st-info?)
+# Commands for st-flash and multiple connected programmers:
 # https://github.com/stlink-org/stlink/blob/develop/doc/man/st-flash.md
-# https://github.com/stlink-org/stlink/issues/318
 
 # For some commands, must assign the MCU variable when calling Make to specify
 # the MCU series (currently can be "G4" or "H7")
@@ -40,13 +39,6 @@ BUILD = Debug
 BUILD_DIR_BASE = Build
 # Folder for CMake configuration and builds
 BUILD_DIR = $(BUILD_DIR_BASE)-$(MCU)
-
-# Directory path to use for `make clean` command
-ifeq ($(MCU),)
-	CLEAN_PATH = $(BUILD_DIR_BASE)-*
-else
-	CLEAN_PATH = $(BUILD_DIR)
-endif
 
 # Strip trailing slash in the test path if there is one
 # Use both forward slash (/) and backward slash (\) for Windows compatibility
@@ -68,28 +60,48 @@ ifeq ($(OS),Windows_NT)
 	WINDOWS = 1
 endif
 
+# Automatically detect the MCU model and set the MCU variable if there is only
+# one MCU connected
+G4_COUNT = $(shell st-info --probe | grep -c G4)
+H7_COUNT = $(shell st-info --probe | grep -c H7)
+MCU_COUNT = $(shell expr $(G4_COUNT) + $(H7_COUNT))
+# This only overwrites the MCU variable if it was not set manually
+ifeq ($(MCU_COUNT),1)
+	ifeq ($(G4_COUNT),1)
+		MCU = G4
+	endif
+	ifeq ($(H7_COUNT),1)
+		MCU = H7
+	endif
+endif
+
 # Serial argument (if specified)
 # i.e. which MCU to upload to
 ifneq ($(SERIAL),)
 	SERIAL_ARG = --serial $(SERIAL)
 endif
 
-# Compile all test programs for each MCU series
+
+
+
+# -----------------------------------------------------------------------------
+
+# Compile all test programs for all MCU models
 # This command is useful to run before committing or merging code, to at least
 # make sure all programs still compile correctly
 .PHONY: all
 all:
-ifeq ($(MCU),)
-	make all MCU=G4
-	make all MCU=H7
-else
-	make $(BUILD_DIR)
+	make all_mcu MCU=G4
+	make all_mcu MCU=H7
+
+# Compile all test programs for one MCU model
+.PHONY: all_mcu
+all_mcu: $(BUILD_DIR)
 	@cd $(BUILD_DIR) && \
 	cmake --build . -- -j 1 && \
 	cd ..
-endif
 
-# Compile one test program
+# Compile one test program for one MCU model
 .PHONY: compile
 compile: $(BUILD_DIR)
 ifeq ($(TEST),)
@@ -99,6 +111,54 @@ endif
 	@cd $(BUILD_DIR) && \
 	cmake --build . --target $(TEST_TARGET) -- -j 1 && \
 	cd ..
+
+# Create the build directory and convert the CMake configuration to Makefiles
+# Want to use the -p switch for mkdir so it doesn't give an error if the
+# directory already exists
+# mkdir is emulated by New-Item on Windows, but the -p switch doesn't work so we
+# call New-Item directly instead
+# Based on https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/new-item?view=powershell-7.1 (Example 8)
+$(BUILD_DIR):
+ifeq ($(MCU),)
+	@echo "ERROR: Parameter MCU must be defined"
+	exit 1
+endif
+ifeq ($(WINDOWS),1)
+	powershell New-Item -Path $(BUILD_DIR) -ItemType Directory -Force
+else
+	mkdir -p $(BUILD_DIR)
+endif
+	@cd $(BUILD_DIR) && \
+	cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../arm-none-eabi-gcc.cmake -DCMAKE_BUILD_TYPE=$(BUILD) -DMCU_SERIES=$(MCU) .. && \
+	cd ..
+
+# Remove the build directories for all MCU models
+.PHONY: clean
+clean:
+ifeq ($(WINDOWS),1)
+	powershell Remove-Item -Path $(BUILD_DIR_BASE)-* -Recurse -ErrorAction Ignore
+else
+	rm -rf $(BUILD_DIR_BASE)-*
+endif
+
+# Remove the build directory for one MCU model
+# This forces CMake to regenerate the Makefiles next time a program is compiled
+# Similar to the $(BUILD_DIR) target, rm is emulated by Remove-Item on Windows
+# The -f switch does not work, so call Remove-Item directly instead
+.PHONY: clean_mcu
+clean_mcu:
+ifeq ($(MCU),)
+	@echo "ERROR: Parameter MCU must be defined"
+	exit 1
+endif
+ifeq ($(WINDOWS),1)
+	powershell Remove-Item -Path $(BUILD_DIR) -Recurse -ErrorAction Ignore
+else
+	rm -rf $(BUILD_DIR)
+endif
+
+
+
 
 # List info about the available MCUs and serial ports
 .PHONY: info
@@ -137,35 +197,13 @@ endif
 erase:
 	st-flash $(SERIAL_ARG) erase
 
-# Create the build directory and convert the CMake configuration to Makefiles
-# Want to use the -p switch for mkdir so it doesn't give an error if the
-# directory already exists
-# mkdir is emulated by New-Item on Windows, but the -p switch doesn't work so we
-# call New-Item directly instead
-# Based on https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/new-item?view=powershell-7.1
-# (Example 8)
-$(BUILD_DIR):
-ifeq ($(MCU),)
-	@echo "ERROR: Parameter MCU must be defined"
-	exit 1
-endif
-ifeq ($(WINDOWS),1)
-	powershell New-Item -Path $(BUILD_DIR) -ItemType Directory -Force
-else
-	mkdir -p $(BUILD_DIR)
-endif
-	@cd $(BUILD_DIR) && \
-	cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../arm-none-eabi-gcc.cmake -DCMAKE_BUILD_TYPE=$(BUILD) -DMCU_SERIES=$(MCU) .. && \
-	cd ..
 
-# Remove the build directory
-# This forces CMake to regenerate the Makefiles next time a program is compiled
-# Similar to the $(BUILD_DIR) target, rm is emulated by Remove-Item on Windows
-# The -f switch does not work, so call Remove-Item directly instead
-.PHONY: clean
-clean:
-ifeq ($(WINDOWS),1)
-	powershell Remove-Item -Path $(CLEAN_PATH) -Recurse -ErrorAction Ignore
-else
-	rm -rf $(CLEAN_PATH)
-endif
+
+
+# Print variable values for debugging
+.PHONY: variables
+variables:
+	@echo "G4_COUNT: $(G4_COUNT)"
+	@echo "H7_COUNT: $(H7_COUNT)"
+	@echo "MCU_COUNT: $(MCU_COUNT)"
+	@echo "MCU: $(MCU)"
