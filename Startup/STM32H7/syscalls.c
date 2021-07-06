@@ -60,11 +60,15 @@ int _kill(int pid, int sig)
 	return -1;
 }
 
-void _exit (int status)
-{
-	_kill(status, -1);
-	while (1) {}		/* Make sure we hang here */
-}
+// For an unknown reason, if the _exit function is defined, when compiling code
+// using CMake from the command line, it produces the error "multiple definition
+// of '_exit'"
+
+// void _exit (int status)
+// {
+// 	_kill(status, -1);
+// 	while (1) {}		/* Make sure we hang here */
+// }
 
 __attribute__((weak)) int _read(int file, char *ptr, int len)
 {
