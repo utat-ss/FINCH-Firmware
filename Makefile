@@ -82,6 +82,11 @@ ifneq ($(SERIAL),)
 	SERIAL_ARG = --serial $(SERIAL)
 endif
 
+# Default value for FILE variable (for `make download`)
+ifeq ($(FILE),)
+	FILE = downloaded_fw.bin
+endif
+
 
 
 
@@ -182,16 +187,18 @@ endif
 upload: compile
 	st-flash --reset $(SERIAL_ARG) write $(BUILD_DIR)/$(TEST_TARGET).bin 0x8000000
 
-# Download (read) current firmware on MCU
-# BYTES defines the number of bytes to read (as a hex value, e.g.
-# `make download BYTES=0x1000` to read 4096 bytes)
+# Download (read) current firmware from MCU
+# BYTES defines the number of bytes to read, as either a decimal value or a hex
+# value, e.g. `make download BYTES=0x1000` or `make download BYTES=4096` to read
+# 4096 bytes)
+# FILE defaults to downloaded_fw.bin, but can be manually specified
 .PHONY: download
 download:
 ifeq ($(BYTES),)
 	@echo "ERROR: Parameter BYTES must be defined"
 	exit 1
 endif
-	st-flash $(SERIAL_ARG) read downloaded_fw.bin 0x8000000 $(BYTES)
+	st-flash $(SERIAL_ARG) read $(FILE) 0x8000000 $(BYTES)
 
 # Erase current firmware on MCU
 .PHONY: erase

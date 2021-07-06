@@ -61,6 +61,9 @@ mx.scratch
 # CMake build folder
 Build*
 
+# Binary files (e.g. firmware downloaded from MCU)
+*.bin
+
 # Other
 .DS_Store
 .vscode
