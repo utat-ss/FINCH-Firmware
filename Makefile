@@ -98,7 +98,7 @@ all:
 # Compile all test programs for one MCU model
 .PHONY: all_mcu
 all_mcu: $(BUILD_DIR)
-	@cd $(BUILD_DIR) && \
+	cd $(BUILD_DIR) && \
 	cmake --build . -- -j 1 && \
 	cd ..
 
@@ -109,7 +109,7 @@ ifeq ($(TEST),)
 	@echo "ERROR: Parameter TEST must be defined"
 	exit 1
 endif
-	@cd $(BUILD_DIR) && \
+	cd $(BUILD_DIR) && \
 	cmake --build . --target $(TEST_TARGET) -- -j 1 && \
 	cd ..
 
@@ -129,7 +129,7 @@ ifeq ($(WINDOWS),1)
 else
 	mkdir -p $(BUILD_DIR)
 endif
-	@cd $(BUILD_DIR) && \
+	cd $(BUILD_DIR) && \
 	cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../arm-none-eabi-gcc.cmake -DCMAKE_BUILD_TYPE=$(BUILD) -DMCU=$(MCU) .. && \
 	cd ..
 
