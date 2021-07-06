@@ -40,14 +40,22 @@ BUILD_DIR_BASE = Build
 # Folder for CMake configuration and builds
 BUILD_DIR = $(BUILD_DIR_BASE)-$(MCU)
 
+# Strip leading dot and slash in the test path if there is one
 # Strip trailing slash in the test path if there is one
 # Use both forward slash (/) and backward slash (\) for Windows compatibility
 # Need to use a simply expanded variable (:=) instead of a recursively expanded
 # variable (=) or else TEST_TARGET would be recursively defined in terms of
 # itself
 TEST_TARGET := $(TEST)
-TEST_TARGET := $(patsubst %/,%,$(TEST_TARGET))
-TEST_TARGET := $(patsubst %\,%,$(TEST_TARGET))
+TEST_TARGET := $(TEST_TARGET:.%=%)
+# Must be a single forward slash (/) to work
+TEST_TARGET := $(TEST_TARGET:/%=%)
+# Must be a double backslash (\\) to work (not sure why)
+TEST_TARGET := $(TEST_TARGET:\\%=%)
+# Must be a single forward slash (/) to work
+TEST_TARGET := $(TEST_TARGET:%/=%)
+# Must be a single backslash (\) to work (not sure why this is different from the prefix \)
+TEST_TARGET := $(TEST_TARGET:%\=%)
 # Replace every slash (/ or \) with a dash (-) - this is necessary to match our
 # CMake configuration with how it names targets since a target name cannot
 # contain a slash
@@ -60,12 +68,20 @@ ifeq ($(OS),Windows_NT)
 	WINDOWS = 1
 endif
 
+# Detect how many MCUs of each model are connected
+# Might need to make the grep strings "G4" and "H7" more specific in the future
+ifeq ($(WINDOWS),1)
+	G474_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'G4').length")
+	H743_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'H7').length")
+	MCU_COUNT = $(shell powershell $(G474_COUNT) + $(H743_COUNT))
+else
+	G474_COUNT = $(shell st-info --probe | grep -c G4)
+	H743_COUNT = $(shell st-info --probe | grep -c H7)
+	MCU_COUNT = $(shell expr $(G474_COUNT) + $(H743_COUNT))
+endif
+
 # Automatically detect the MCU model and set the MCU variable if there is only
 # one MCU connected
-# Might need to make the grep strings "G4" and "H7" more specific in the future
-G474_COUNT = $(shell st-info --probe | grep -c G4)
-H743_COUNT = $(shell st-info --probe | grep -c H7)
-MCU_COUNT = $(shell expr $(G474_COUNT) + $(H743_COUNT))
 # This only overwrites the MCU variable if it was not set manually
 ifeq ($(MCU_COUNT),1)
 	ifeq ($(G474_COUNT),1)
@@ -171,7 +187,7 @@ endif
 info:
 	@echo "MCUs (STLink programmers):"
 	st-info --probe
-	@echo
+	@echo ""
 	@echo "Serial ports:"
 ifeq ($(WINDOWS),1)
 	powershell "[System.IO.Ports.SerialPort]::getportnames()"
