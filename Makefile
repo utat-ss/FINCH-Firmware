@@ -29,9 +29,9 @@
 # https://github.com/stlink-org/stlink/blob/develop/doc/man/st-flash.md
 
 # For some commands, must assign the MCU variable when calling Make to specify
-# the MCU series (currently can be "G4" or "H7")
-# e.g. make ... MCU=G4
-# e.g. make ... MCU=H7
+# the MCU model (currently can be "G474" or "H743")
+# e.g. make ... MCU=G474
+# e.g. make ... MCU=H743
 
 # Default build type
 BUILD = Debug
@@ -62,16 +62,17 @@ endif
 
 # Automatically detect the MCU model and set the MCU variable if there is only
 # one MCU connected
-G4_COUNT = $(shell st-info --probe | grep -c G4)
-H7_COUNT = $(shell st-info --probe | grep -c H7)
-MCU_COUNT = $(shell expr $(G4_COUNT) + $(H7_COUNT))
+# Might need to make the grep strings "G4" and "H7" more specific in the future
+G474_COUNT = $(shell st-info --probe | grep -c G4)
+H743_COUNT = $(shell st-info --probe | grep -c H7)
+MCU_COUNT = $(shell expr $(G474_COUNT) + $(H743_COUNT))
 # This only overwrites the MCU variable if it was not set manually
 ifeq ($(MCU_COUNT),1)
-	ifeq ($(G4_COUNT),1)
-		MCU = G4
+	ifeq ($(G474_COUNT),1)
+		MCU = G474
 	endif
-	ifeq ($(H7_COUNT),1)
-		MCU = H7
+	ifeq ($(H743_COUNT),1)
+		MCU = H743
 	endif
 endif
 
@@ -91,8 +92,8 @@ endif
 # make sure all programs still compile correctly
 .PHONY: all
 all:
-	make all_mcu MCU=G4
-	make all_mcu MCU=H7
+	make all_mcu MCU=G474
+	make all_mcu MCU=H743
 
 # Compile all test programs for one MCU model
 .PHONY: all_mcu
@@ -129,7 +130,7 @@ else
 	mkdir -p $(BUILD_DIR)
 endif
 	@cd $(BUILD_DIR) && \
-	cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../arm-none-eabi-gcc.cmake -DCMAKE_BUILD_TYPE=$(BUILD) -DMCU_SERIES=$(MCU) .. && \
+	cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../arm-none-eabi-gcc.cmake -DCMAKE_BUILD_TYPE=$(BUILD) -DMCU=$(MCU) .. && \
 	cd ..
 
 # Remove the build directories for all MCU models
@@ -203,7 +204,7 @@ erase:
 # Print variable values for debugging
 .PHONY: variables
 variables:
-	@echo "G4_COUNT: $(G4_COUNT)"
-	@echo "H7_COUNT: $(H7_COUNT)"
+	@echo "G474_COUNT: $(G474_COUNT)"
+	@echo "H743_COUNT: $(H743_COUNT)"
 	@echo "MCU_COUNT: $(MCU_COUNT)"
 	@echo "MCU: $(MCU)"

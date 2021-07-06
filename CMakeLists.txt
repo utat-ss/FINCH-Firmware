@@ -9,10 +9,10 @@ project(Firmware
         DESCRIPTION "FINCH Firmware"
 )
 
-# Make sure MCU series parameter is valid
-if ((${MCU_SERIES} MATCHES "G4") OR (${MCU_SERIES} MATCHES "H7"))
+# Make sure MCU model parameter passed into CMake is valid
+if ((${MCU} MATCHES "G474") OR (${MCU} MATCHES "H743"))
 else()
-        message(FATAL_ERROR "Invalid MCU series: must be G4 or H7")
+        message(FATAL_ERROR "Invalid MCU model: must be G474 or H743")
 endif()
 
 # Enable using C and Assembly source files
@@ -53,7 +53,9 @@ target_sources(${COMMON_TARGET} PRIVATE
 )
 
 # Add source files for the particular MCU series in use
-if (${MCU_SERIES} MATCHES "G4")
+# The ^ matches a string at the beginning (checks what the string starts with)
+# https://cmake.org/cmake/help/v3.7/command/string.html#regex-specification
+if (${MCU} MATCHES "^G4")
         # Recursively find all source (.c and .s) files under the Drivers/STM32G4xx_HAL_Driver directory
         file(GLOB_RECURSE DRIVERS_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32G4xx_HAL_Driver/*.c" "Drivers/STM32G4xx_HAL_Driver/*.s")
         # Recursively find all source (.c and .s) files under the Startup/STM32G4 directory
@@ -64,7 +66,7 @@ if (${MCU_SERIES} MATCHES "G4")
                 ${DRIVERS_G4_SOURCES}
                 ${STARTUP_G4_SOURCES}
         )
-elseif (${MCU_SERIES} MATCHES "H7")
+elseif (${MCU} MATCHES "^H7")
         # Recursively find all source (.c and .s) files under the Drivers/STM32H7xx_HAL_Driver directory
         file(GLOB_RECURSE DRIVERS_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32H7xx_HAL_Driver/*.c" "Drivers/STM32H7xx_HAL_Driver/*.s")
         # Recursively find all source (.c and .s) files under the Startup/STM32H7 directory
@@ -162,29 +164,41 @@ foreach(TARGET IN LISTS COMMON_TARGET TEST_TARGETS)
         )
 
         # Add MCU series-specific settings
-        if (${MCU_SERIES} MATCHES "G4")
+        if (${MCU} MATCHES "^G4")
                 target_include_directories(${TARGET} PRIVATE
                         Drivers/CMSIS/Device/ST/STM32G4xx/Include
                         Drivers/STM32G4xx_HAL_Driver/Inc
                         Startup/STM32G4
                 )
+
                 target_compile_definitions(${TARGET} PRIVATE
                         -DSTM32G4
-                        -DSTM32G474xx
                 )
+                if (${MCU} MATCHES "^G474")
+                        target_compile_definitions(${TARGET} PRIVATE
+                                -DSTM32G474xx
+                        )
+                endif()
+
                 target_compile_options(${TARGET} PRIVATE
                         ${G4_OPTIONS}
                 )
-        elseif (${MCU_SERIES} MATCHES "H7")
+        elseif (${MCU} MATCHES "^H7")
                 target_include_directories(${TARGET} PRIVATE
                         Drivers/CMSIS/Device/ST/STM32H7xx/Include
                         Drivers/STM32H7xx_HAL_Driver/Inc
                         Startup/STM32H7
                 )
+
                 target_compile_definitions(${TARGET} PRIVATE
                         -DSTM32H7
-                        -DSTM32H743xx
                 )
+                if (${MCU} MATCHES "^H743")
+                        target_compile_definitions(${TARGET} PRIVATE
+                                -DSTM32H743xx
+                        )
+                endif()
+
                 target_compile_options(${TARGET} PRIVATE
                         ${H7_OPTIONS}
                 )
@@ -216,16 +230,24 @@ foreach(TARGET IN LISTS TEST_TARGETS)
 
         # Add MCU series-specific settings
         # Specify linker script
-        if (${MCU_SERIES} MATCHES "G4")
+        if (${MCU} MATCHES "^G4")
                 target_link_options(${TARGET} PRIVATE
                         ${G4_OPTIONS}
-                        -T${CMAKE_SOURCE_DIR}/Projects/STM32G474RETX/STM32G474RETX_FLASH.ld
                 )
-        elseif (${MCU_SERIES} MATCHES "H7")
+                if (${MCU} MATCHES "G474")
+                        target_link_options(${TARGET} PRIVATE
+                                -T${CMAKE_SOURCE_DIR}/Projects/STM32G474RETX/STM32G474RETX_FLASH.ld
+                        )
+                endif()
+        elseif (${MCU} MATCHES "^H7")
                 target_link_options(${TARGET} PRIVATE
                         ${H7_OPTIONS}
-                        -T${CMAKE_SOURCE_DIR}/Projects/STM32H743ZITX/STM32H743ZITX_FLASH.ld
                 )
+                if (${MCU} MATCHES "H743")
+                        target_link_options(${TARGET} PRIVATE
+                                -T${CMAKE_SOURCE_DIR}/Projects/STM32H743ZITX/STM32H743ZITX_FLASH.ld
+                        )
+                endif()
         endif()
 
         # Print executable size
