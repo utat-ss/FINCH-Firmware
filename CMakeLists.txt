@@ -21,8 +21,12 @@ enable_language(C ASM)
 set(CMAKE_C_STANDARD 11)
 # Enforce that we must use the C11 standard
 set(CMAKE_C_STANDARD_REQUIRED ON)
-# Don't request compiler-specific extensions
-set(CMAKE_C_EXTENSIONS OFF)
+# Must request GNU compiler-specific extensions (i.e. use gnu11 instead of c11)
+# Described here: https://community.st.com/s/question/0D53W000003N839/build-stm32l071cbt-project-with-stm32cubeide-121-failedsolve
+# If this is off, will get the following error:
+#       .../Firmware/Startup/STM32H7/syscalls.c:41:27: error:expected '=', ',', ';', 'asm' or '__attribute__' before 'asm'
+#       register char * stack_ptr asm("sp");
+set(CMAKE_C_EXTENSIONS ON)
 
 # Create a common library (object library) that compiles all common source files
 # only once rather than repeating compilation for each test target
@@ -32,79 +36,48 @@ set(CMAKE_C_EXTENSIONS OFF)
 set(COMMON_TARGET common)
 add_library(${COMMON_TARGET} OBJECT)
 
-# Specify all common source (.c and .s) files
-# It seems that it is a bad idea to use globbing to find all .c (or other)
-# files, so we will explicitly list all files
-# Source: https://stackoverflow.com/questions/2110795/how-to-use-all-c-files-in-a-directory-with-the-cmake-build-system
+# Normally it is not recommended to glob for all source files, because CMake
+# does not know to regenerate if a file is added or removed
+# https://stackoverflow.com/questions/2110795/how-to-use-all-c-files-in-a-directory-with-the-cmake-build-system
+# https://cmake.org/cmake/help/v3.7/command/file.html
+# But we are going to do it anyway so we don't need to change the source file
+# list every time we add a new file
+# It's very fast to just delete the build folder and recreate it anyways when
+# adding a new file
+
+# Recursively find all source (.c and .s) files under the Src directory
+file(GLOB_RECURSE SRC_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Src/*.c" "Src/*.s")
+# Add Src files to common target
 target_sources(${COMMON_TARGET} PRIVATE
-        Src/drivers/STM32_gpio/gpio.c
-        Src/drivers/STM32G4_clock/clock.c
-        Src/drivers/STM32H7_clock/clock.c
+        ${SRC_SOURCES}
 )
 
-# Add common source files for the particular MCU series in use
+# Add source files for the particular MCU series in use
 if (${MCU_SERIES} MATCHES "G4")
-        target_sources(${COMMON_TARGET} PRIVATE
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_cortex.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dma.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dma_ex.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_exti.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ramfunc.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_gpio.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pwr.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pwr_ex.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc_ex.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim_ex.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart.c
-                Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart_ex.c
+        # Recursively find all source (.c and .s) files under the Drivers/STM32G4xx_HAL_Driver directory
+        file(GLOB_RECURSE DRIVERS_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32G4xx_HAL_Driver/*.c" "Drivers/STM32G4xx_HAL_Driver/*.s")
+        # Recursively find all source (.c and .s) files under the Startup/STM32G4 directory
+        file(GLOB_RECURSE STARTUP_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Startup/STM32G4/*.c" "Startup/STM32G4/*.s")
 
-                Startup/STM32G4/startup_stm32g474retx.s
-                Startup/STM32G4/stm32g4_startup.c
-                Startup/STM32G4/stm32g4xx_it.c
-                Startup/STM32G4/system_stm32g4xx.c
+        # Add G4 source files to common target
+        target_sources(${COMMON_TARGET} PRIVATE
+                ${DRIVERS_G4_SOURCES}
+                ${STARTUP_G4_SOURCES}
         )
 elseif (${MCU_SERIES} MATCHES "H7")
-        target_sources(${COMMON_TARGET} PRIVATE
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma_ex.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth_ex.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_exti.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash_ex.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_gpio.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_hsem.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c_ex.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_mdma.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd_ex.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr_ex.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c
-                Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_usb.c
+        # Recursively find all source (.c and .s) files under the Drivers/STM32H7xx_HAL_Driver directory
+        file(GLOB_RECURSE DRIVERS_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32H7xx_HAL_Driver/*.c" "Drivers/STM32H7xx_HAL_Driver/*.s")
+        # Recursively find all source (.c and .s) files under the Startup/STM32H7 directory
+        file(GLOB_RECURSE STARTUP_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Startup/STM32H7/*.c" "Startup/STM32H7/*.s")
 
-                Startup/STM32H7/startup_stm32h743zitx.s
-                Startup/STM32H7/stm32h7_startup.c
-                Startup/STM32H7/stm32h7xx_it.c
-                Startup/STM32H7/system_stm32h7xx.c
+        # Add H7 source files to common target
+        target_sources(${COMMON_TARGET} PRIVATE
+                ${DRIVERS_H7_SOURCES}
+                ${STARTUP_H7_SOURCES}
         )
 endif()
 
 # Recursively find all test source (.c) files under the Manual_Tests directory
-# https://stackoverflow.com/questions/2110795/how-to-use-all-c-files-in-a-directory-with-the-cmake-build-system/2110796
 file(GLOB_RECURSE TEST_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Manual_Tests/*.c")
 
 # Loop through all test source files
@@ -114,8 +87,8 @@ foreach(TEST_SOURCE IN LISTS TEST_SOURCES)
         # Append the parent directory path to the list of test directories
         list(APPEND TEST_DIRS ${TEST_DIR})
 endforeach()
-# In case there are multiple .c files in any test directory, remove duplicated
-# test directories
+# In case there are multiple .c files in any one test directory, remove
+# duplicated test directories
 list(REMOVE_DUPLICATES TEST_DIRS)
 
 # Loop through all test directories
@@ -138,7 +111,8 @@ foreach(TEST_DIR IN LISTS TEST_DIRS)
         add_executable(${TEST_TARGET} $<TARGET_OBJECTS:${COMMON_TARGET}> ${SOURCES})
 endforeach()
 
-# Save common options between compiler and linker so we don't have to repeat them
+# Save common options between the compiler and linker in variables so we don't
+# have to repeat them for both
 set(OPTIONS
         -mfloat-abi=hard
         -mthumb
@@ -241,6 +215,7 @@ foreach(TARGET IN LISTS TEST_TARGETS)
         )
 
         # Add MCU series-specific settings
+        # Specify linker script
         if (${MCU_SERIES} MATCHES "G4")
                 target_link_options(${TARGET} PRIVATE
                         ${G4_OPTIONS}
