@@ -1,11 +1,8 @@
 /*
- * stm32h7_startup.c
- *
- *  Note that a lot of the files in the Startup folder are directly copied from the
- *  generated files. The files in this folder are needed for the devkit debugger
+ * startup.c
  */
 
-#include "stm32h7_startup.h"
+#include "startup.h"
 
 void Error_Handler(void)
 {

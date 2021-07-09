@@ -5,8 +5,8 @@
  *      Author: brytni
  */
 
-#ifndef DRIVERS_STM32_GPIO_GPIO_H_
-#define DRIVERS_STM32_GPIO_GPIO_H_
+#ifndef COMMON_STM32_GPIO_GPIO_H_
+#define COMMON_STM32_GPIO_GPIO_H_
 
 #include <stdint.h>
 
@@ -48,4 +48,4 @@ void gpio_set_value(GPIO_OUTPUT gpio, GPIO_PinState state);
 void gpio_toggle(GPIO_OUTPUT gpio);
 GPIO_PinState gpio_read(GPIO_INPUT gpio);
 
-#endif /* DRIVERS_STM32_GPIO_GPIO_H_ */
+#endif /* COMMON_STM32_GPIO_GPIO_H_ */

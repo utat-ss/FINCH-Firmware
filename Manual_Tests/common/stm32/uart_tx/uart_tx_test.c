@@ -1,8 +1,8 @@
-#include <drivers/STM32_uart/log.h>
+#include <common/stm32/mcu/init.h>
+#include <common/stm32/uart/log.h>
 #include <string.h>
 
 #ifdef STM32H743xx
-#include <drivers/STM32H7_clock/clock.h>
 // Declare pin variables for STM32H7 devkit
 #define UART_INST 		USART3
 #define UART_ALT  		GPIO_AF7_USART3
@@ -13,7 +13,6 @@
 #endif
 
 #ifdef STM32G474xx
-#include <drivers/STM32G4_clock/clock.h>
 // Declare pin variables for STM32G4 devkit
 #define UART_INST       LPUART1
 #define UART_ALT        GPIO_AF8_LPUART1	// Might be GPIO_AF12_LPUART1 instead

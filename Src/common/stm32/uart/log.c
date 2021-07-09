@@ -5,7 +5,7 @@
  *      Author: bruno
  */
 
-#include <drivers/STM32_uart/log.h>
+#include <common/stm32/uart/log.h>
 
 // Code with variable arguments is based on
 // https://github.com/HeronMkII/lib-common/blob/master/src/uart/log.c

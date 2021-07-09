@@ -6,7 +6,7 @@
  */
 
 // log.h includes uart.h
-#include <drivers/STM32_uart/log.h>
+#include <common/stm32/uart/log.h>
 
 // Pointer to each specific UART peripheral (if used) - needed for use in ISRs
 UART *g_uart_usart1 = NULL;

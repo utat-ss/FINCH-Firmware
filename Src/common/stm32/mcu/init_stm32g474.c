@@ -1,5 +1,5 @@
 /*
- * clock.c
+ * init_stm32g474.c
  *
  *  Created on: Aug. 9, 2020
  *      Author: brytni
@@ -7,9 +7,10 @@
  *  Copied over clock configuration
  */
 
-#include "clock.h"
+#include "init.h"
 
 #ifdef STM32G474xx
+
 void clock_init(void) {
 	SystemClock_Config();
 	GPIOClock_Config();

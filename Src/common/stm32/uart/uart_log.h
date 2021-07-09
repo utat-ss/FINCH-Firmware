@@ -5,8 +5,8 @@
  *      Author: bruno
  */
 
-#ifndef DRIVERS_STM32_UART_COMMON_H_
-#define DRIVERS_STM32_UART_COMMON_H_
+#ifndef COMMON_STM32_UART_UART_LOG_H_
+#define COMMON_STM32_UART_UART_LOG_H_
 
 /*
  * Normally these definitions would be separated into uart.h and log.h, but
@@ -79,4 +79,4 @@ typedef struct UARTStruct {
 
 // -----------------------------------------------------------------------------
 
-#endif /* DRIVERS_STM32_UART_COMMON_H_ */
+#endif /* COMMON_STM32_UART_UART_LOG_H_ */

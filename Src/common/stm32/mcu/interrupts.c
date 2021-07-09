@@ -1,7 +1,7 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    stm32h7xx_it.c
+  * @file    interrupts.c (formerly stm32g4xx_it.c/stm32h7xx_it.c)
   * @brief   Interrupt Service Routines.
   ******************************************************************************
   * @attention
@@ -19,13 +19,10 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32h7xx_it.h"
+#include "interrupts.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
-
-
-#include "stm32h7_startup.h"
+#include "startup.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

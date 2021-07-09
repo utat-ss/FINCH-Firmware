@@ -1,5 +1,5 @@
 /*
- * clock.c
+ * init_stm32h743.c
  *
  *  Created on: Aug. 9, 2020
  *      Author: brytni
@@ -7,9 +7,10 @@
  *  Copied over clock configuration
  */
 
-#include "clock.h"
+#include "init.h"
 
 #ifdef STM32H743xx
+
 void clock_init(void) {
 	SystemClock_Config();
 	GPIOClock_Config();
@@ -103,4 +104,5 @@ void GPIOClock_Config(void) {
   __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
 }
+
 #endif

@@ -5,21 +5,20 @@
  *      Author: Ketan
  */
 
-#ifndef DRIVERS_STM32_UART_UART_H_
-#define DRIVERS_STM32_UART_UART_H_
+#ifndef COMMON_STM32_UART_UART_H_
+#define COMMON_STM32_UART_UART_H_
 
 #ifdef STM32G474xx
 #include <stm32g4xx_hal.h>
-#include <stm32g4_startup.h>
 #endif
 
 #ifdef STM32H743xx
 #include <stm32h7xx_hal.h>
-#include <stm32h7_startup.h>
 #endif
 
-#include <drivers/STM32_gpio/gpio.h>
-#include <drivers/STM32_uart/common.h>
+#include <common/stm32/gpio/gpio.h>
+#include <common/stm32/mcu/startup.h>
+#include <common/stm32/uart/uart_log.h>
 
 /*
 There is lots of confusion around UART vs USART, more generically referred to as
@@ -121,4 +120,4 @@ uint32_t uart_read_uint(UART *uart);
 int32_t uart_read_int(UART *uart);
 char uart_read_char(UART *uart);
 
-#endif /* DRIVERS_STM32_UART_UART_H_ */
+#endif /* COMMON_STM32_UART_UART_H_ */

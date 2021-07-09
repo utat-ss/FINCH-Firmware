@@ -5,10 +5,10 @@
  *      Author: bruno
  */
 
-#ifndef DRIVERS_STM32_UART_LOG_H_
-#define DRIVERS_STM32_UART_LOG_H_
+#ifndef COMMON_STM32_UART_LOG_H_
+#define COMMON_STM32_UART_LOG_H_
 
-#include <drivers/STM32_uart/uart.h>
+#include <common/stm32/uart/uart.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -49,4 +49,4 @@ void info(Log *log, char *format, ...);
 void debug(Log *log, char *format, ...);
 void verbose(Log *log, char *format, ...);
 
-#endif /* DRIVERS_STM32_UART_LOG_H_ */
+#endif /* COMMON_STM32_UART_LOG_H_ */

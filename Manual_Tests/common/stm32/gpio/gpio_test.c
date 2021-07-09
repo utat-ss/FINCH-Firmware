@@ -9,10 +9,10 @@
  *  the light (red for H7, green for G4) stop blinking
  */
 
-#include <drivers/STM32_gpio/gpio.h>
+#include <common/stm32/gpio/gpio.h>
+#include <common/stm32/mcu/init.h>
 
 #ifdef STM32H743xx
-#include <drivers/STM32H7_clock/clock.h>
 // Declare pin variables for STM32H7 devkit
 #define BLUE_BUTTON_PIN GPIO_PIN_13
 #define BLUE_BUTTON_PORT GPIOC
@@ -21,7 +21,6 @@
 #endif
 
 #ifdef STM32G474xx
-#include <drivers/STM32G4_clock/clock.h>
 // Declare pin variables for STM32G4 devkit
 #define BLUE_BUTTON_PIN GPIO_PIN_13
 #define BLUE_BUTTON_PORT GPIOC
