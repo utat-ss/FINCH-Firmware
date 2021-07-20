@@ -115,6 +115,8 @@ endforeach()
 
 # Save common options between the compiler and linker in variables so we don't
 # have to repeat them for both
+# To see settings used in the IDE project and their descriptions/explanations,
+# under IDE project properties, go to C/C++ Build > Settings > Tool Settings
 set(OPTIONS
         -mfloat-abi=hard
         -mthumb
@@ -212,23 +214,27 @@ endforeach()
 # These settings only apply to test targets (because they are linked and produce
 # a final binary)
 foreach(TARGET IN LISTS TEST_TARGETS)
-        # Add linker script and linker options
+        # Add linker options
         target_link_options(${TARGET} PRIVATE
                 ${OPTIONS}
                 
-                -lc
-                -lm
-                -lnosys
-
                 -static
 
-                # Map file provides linker info, symbols
-                -Wl,-Map=${TARGET}.map,--cref
+                # Generate map file, which provides linker info and symbols
+                -Wl,-Map=${TARGET}.map
                 -Wl,--gc-sections
+
+                # Use C math library
                 # end-group must come after start-group or else we get the
                 # linker error: "group ended before it began"
                 -Wl,--start-group
+                -lc
+                -lm
                 -Wl,--end-group
+
+                # Enable printf-style formatting/printing of floating-point
+                # numbers
+                -u_printf_float
         )
 
         # Add MCU series-specific settings
