@@ -70,14 +70,21 @@ endif
 
 # Detect how many MCUs of each model are connected
 # Might need to make the grep strings "G4" and "H7" more specific in the future
-ifeq ($(WINDOWS),1)
-	G474_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'G4').length")
-	H743_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'H7').length")
-	MCU_COUNT = $(shell powershell $(G474_COUNT) + $(H743_COUNT))
-else
-	G474_COUNT = $(shell st-info --probe | grep -c G4)
-	H743_COUNT = $(shell st-info --probe | grep -c H7)
-	MCU_COUNT = $(shell expr $(G474_COUNT) + $(H743_COUNT))
+# Note that running any sort of `make` command (e.g. `make clean`) will cause
+# these `st-info --probe` commands to be executed, resetting the MCU and
+# restarting its current program
+# Can set DETECT=0 when calling `make` to skip the probe command and auto MCU
+# detection, preventing the MCU from resetting and restarting its program
+ifneq ($(DETECT),0)
+	ifeq ($(WINDOWS),1)
+		G474_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'G4').length")
+		H743_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'H7').length")
+		MCU_COUNT = $(shell powershell $(G474_COUNT) + $(H743_COUNT))
+	else
+		G474_COUNT = $(shell st-info --probe | grep -c G4)
+		H743_COUNT = $(shell st-info --probe | grep -c H7)
+		MCU_COUNT = $(shell expr $(G474_COUNT) + $(H743_COUNT))
+	endif
 endif
 
 # Automatically detect the MCU model and set the MCU variable if there is only
