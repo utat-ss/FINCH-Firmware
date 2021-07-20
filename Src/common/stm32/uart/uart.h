@@ -17,7 +17,6 @@
 #endif
 
 #include <common/stm32/gpio/gpio.h>
-#include <common/stm32/mcu/startup.h>
 #include <common/stm32/uart/uart_log.h>
 
 /*

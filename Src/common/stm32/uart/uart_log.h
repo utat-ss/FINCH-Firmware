@@ -42,7 +42,9 @@ typedef struct {
 
 // -----------------------------------------------------------------------------
 
-#define UART_TX_BUF_SIZE 80
+// For TX, a buffer size of 80 is not sufficient for printing out error messages
+// from assert_failed() with long file paths, so 160 should be sufficient
+#define UART_TX_BUF_SIZE 160
 #define UART_RX_BUF_SIZE 80
 
 // Baud rate is just an integer number, but make it an enum to limit possible

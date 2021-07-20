@@ -8,6 +8,7 @@
 #ifndef COMMON_STM32_UART_LOG_H_
 #define COMMON_STM32_UART_LOG_H_
 
+#include <common/stm32/mcu/errors.h>
 #include <common/stm32/uart/uart.h>
 #include <stdarg.h>
 #include <stdbool.h>
