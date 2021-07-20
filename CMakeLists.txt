@@ -24,17 +24,17 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 # Must request GNU compiler-specific extensions (i.e. use gnu11 instead of c11)
 # Described here: https://community.st.com/s/question/0D53W000003N839/build-stm32l071cbt-project-with-stm32cubeide-121-failedsolve
 # If this is off, will get the following error:
-#       .../Firmware/Startup/STM32H7/syscalls.c:41:27: error:expected '=', ',', ';', 'asm' or '__attribute__' before 'asm'
+#       .../Firmware/System/STM32H7/syscalls.c:41:27: error:expected '=', ',', ';', 'asm' or '__attribute__' before 'asm'
 #       register char * stack_ptr asm("sp");
 set(CMAKE_C_EXTENSIONS ON)
 
-# Create a common library (object library) that compiles all common source files
+# Create a shared library (object library) that compiles all library source files
 # only once rather than repeating compilation for each test target
 # https://stackoverflow.com/questions/29634101/cmake-how-to-define-target-without-linking-compilation-only
 # https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#object-libraries
 # https://cmake.org/cmake/help/latest/command/add_library.html
-set(COMMON_TARGET common)
-add_library(${COMMON_TARGET} OBJECT)
+set(LIBRARIES_TARGET libraries)
+add_library(${LIBRARIES_TARGET} OBJECT)
 
 # Normally it is not recommended to glob for all source files, because CMake
 # does not know to regenerate if a file is added or removed
@@ -47,8 +47,8 @@ add_library(${COMMON_TARGET} OBJECT)
 
 # Recursively find all source (.c and .s) files under the Src directory
 file(GLOB_RECURSE SRC_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Src/*.c" "Src/*.s")
-# Add Src files to common target
-target_sources(${COMMON_TARGET} PRIVATE
+# Add Src files to libraries target
+target_sources(${LIBRARIES_TARGET} PRIVATE
         ${SRC_SOURCES}
 )
 
@@ -58,24 +58,24 @@ target_sources(${COMMON_TARGET} PRIVATE
 if (${MCU} MATCHES "^G4")
         # Recursively find all source (.c and .s) files under the Drivers/STM32G4xx_HAL_Driver directory
         file(GLOB_RECURSE DRIVERS_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32G4xx_HAL_Driver/*.c" "Drivers/STM32G4xx_HAL_Driver/*.s")
-        # Recursively find all source (.c and .s) files under the Startup/STM32G4 directory
-        file(GLOB_RECURSE STARTUP_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Startup/STM32G4/*.c" "Startup/STM32G4/*.s")
+        # Recursively find all source (.c and .s) files under the System/STM32G4 directory
+        file(GLOB_RECURSE SYSTEM_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "System/STM32G4/*.c" "System/STM32G4/*.s")
 
-        # Add G4 source files to common target
-        target_sources(${COMMON_TARGET} PRIVATE
+        # Add G4 source files to libraries target
+        target_sources(${LIBRARIES_TARGET} PRIVATE
                 ${DRIVERS_G4_SOURCES}
-                ${STARTUP_G4_SOURCES}
+                ${SYSTEM_G4_SOURCES}
         )
 elseif (${MCU} MATCHES "^H7")
         # Recursively find all source (.c and .s) files under the Drivers/STM32H7xx_HAL_Driver directory
         file(GLOB_RECURSE DRIVERS_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32H7xx_HAL_Driver/*.c" "Drivers/STM32H7xx_HAL_Driver/*.s")
-        # Recursively find all source (.c and .s) files under the Startup/STM32H7 directory
-        file(GLOB_RECURSE STARTUP_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Startup/STM32H7/*.c" "Startup/STM32H7/*.s")
+        # Recursively find all source (.c and .s) files under the System/STM32H7 directory
+        file(GLOB_RECURSE SYSTEM_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "System/STM32H7/*.c" "System/STM32H7/*.s")
 
-        # Add H7 source files to common target
-        target_sources(${COMMON_TARGET} PRIVATE
+        # Add H7 source files to libraries target
+        target_sources(${LIBRARIES_TARGET} PRIVATE
                 ${DRIVERS_H7_SOURCES}
-                ${STARTUP_H7_SOURCES}
+                ${SYSTEM_H7_SOURCES}
         )
 endif()
 
@@ -108,9 +108,9 @@ foreach(TEST_DIR IN LISTS TEST_DIRS)
         file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "${TEST_DIR}/*.c")
 
         # Add a new executable target for this test
-        # Combine object files compiled from the common target with the test
+        # Combine object files compiled from the libraries target with the test
         # sources specifically for this test
-        add_executable(${TEST_TARGET} $<TARGET_OBJECTS:${COMMON_TARGET}> ${SOURCES})
+        add_executable(${TEST_TARGET} $<TARGET_OBJECTS:${LIBRARIES_TARGET}> ${SOURCES})
 endforeach()
 
 # Save common options between the compiler and linker in variables so we don't
@@ -129,9 +129,9 @@ set(H7_OPTIONS
         -mfpu=fpv5-d16
 )
 
-# Loop through all targets (both common and tests since these settings apply to
-# both)
-foreach(TARGET IN LISTS COMMON_TARGET TEST_TARGETS)
+# Loop through all targets (both libraries and tests since these settings apply
+# to both)
+foreach(TARGET IN LISTS LIBRARIES_TARGET TEST_TARGETS)
         # Specify all header (.h) file directories
         # Similar to source files, explicitly list all files rather than globbing 
         target_include_directories(${TARGET} PRIVATE
@@ -168,7 +168,7 @@ foreach(TARGET IN LISTS COMMON_TARGET TEST_TARGETS)
                 target_include_directories(${TARGET} PRIVATE
                         Drivers/CMSIS/Device/ST/STM32G4xx/Include
                         Drivers/STM32G4xx_HAL_Driver/Inc
-                        Startup/STM32G4
+                        System/STM32G4
                 )
 
                 target_compile_definitions(${TARGET} PRIVATE
@@ -187,7 +187,7 @@ foreach(TARGET IN LISTS COMMON_TARGET TEST_TARGETS)
                 target_include_directories(${TARGET} PRIVATE
                         Drivers/CMSIS/Device/ST/STM32H7xx/Include
                         Drivers/STM32H7xx_HAL_Driver/Inc
-                        Startup/STM32H7
+                        System/STM32H7
                 )
 
                 target_compile_definitions(${TARGET} PRIVATE
