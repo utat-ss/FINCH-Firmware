@@ -139,9 +139,12 @@ foreach(TARGET IN LISTS LIBRARIES_TARGET TEST_TARGETS)
                 Src
         )
 
-        # Specify compiler definitions (macros)
+        # Specify compiler definitions (macros/symbols)
         target_compile_definitions(${TARGET} PRIVATE
-                -DDEBUG
+                # Define USE_FULL_ASSERT here instead of uncommenting the line
+                # in stm32g4xx_hal_conf.h (or similar files) to guarantee all
+                # files will see it, whether or not they included the header file
+                -DUSE_FULL_ASSERT
                 -DUSE_HAL_DRIVER
         )
 
