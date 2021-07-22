@@ -62,6 +62,29 @@ void log_set_global_level(LogLevel level) {
 }
 
 /*
+ * Calls strncat() with the TX buffer as the destination, calculating the
+ * correct maximum number of characters to copy.
+ */
+void log_strncat_tx(Log *log, const char *source) {
+	// Note that the third argument to strncat() is NOT the total size of
+	// the destination buffer, but rather it is the maximum number of
+	// characters (NOT including the null character) to copy from the source
+	// to the destination
+
+	// To calculate that number, take the buffer size, subtract 1 (for the
+	// new null character), then subtract the length of the string already
+	// in the buffer (not including the existing null character)
+	size_t count = (sizeof(log->uart->tx_buf) - 1) - strlen(log->uart->tx_buf);
+
+	// Note size_t is an unsigned integer
+	// If the TX buffer is full, i.e.
+	// strlen(log->uart->tx_buf) = sizeof(log->uart->tx_buf) - 1,
+	// count will evaluate to 0 so we shouldn't have to worry about underflow
+
+	strncat(log->uart->tx_buf, source, count);
+}
+
+/*
  * This function is never meant to be called directly by other code outside this
  * library
  * Can't just name the function `log` because that function exists in the math
@@ -113,21 +136,20 @@ void log_log(Log *log, LogLevel level, const char *format, va_list args) {
 		        "%lums: ", HAL_GetTick());
 
 		// Add the string for the message's log level
-		char *level_str = log_get_level_string(level);
-		strncat(log->uart->tx_buf, level_str, sizeof(log->uart->tx_buf));
+		log_strncat_tx(log, log_get_level_string(level));
 
 		// Add a colon and space after the message's log level
-		strncat(log->uart->tx_buf, ": ", sizeof(log->uart->tx_buf));
+		log_strncat_tx(log, ": ");
 
 		// Add the main string
-		strncat(log->uart->tx_buf, main_buf, sizeof(log->uart->tx_buf));
+		log_strncat_tx(log, main_buf);
 
 		// Add a newline after the message
 		// \r is also called CR, while \n is also called LF
 		// Normally we would only need \n, but we choose to include \r as well
 		// because if you only use \n, some serial monitors (viewers) go to the
 		// next line but do not reset the cursor all the way to the left
-		strncat(log->uart->tx_buf, "\r\n", sizeof(log->uart->tx_buf));
+		log_strncat_tx(log, "\r\n");
 
 		// Now that the actual characters/bytes we want to send over UART are
 		// ready in `log->uart->buf`, send them over UART
