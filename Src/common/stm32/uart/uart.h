@@ -86,7 +86,7 @@ https://stackoverflow.com/questions/51323589/are-all-ram-sections-used-in-this-l
 https://electronics.stackexchange.com/questions/393868/stm32f4-dma-transfer-error-with-adc
  */
 
-// See common.h for enum and struct definitions
+// See uart_log.h for enum and struct definitions
 
 extern UART *g_uart_usart1;
 extern UART *g_uart_usart2;
@@ -100,11 +100,11 @@ extern UART *g_uart_uart8;
 extern UART *g_uart_def;
 
 void uart_init(UART* uart,
-        USART_TypeDef *instance, UARTBaud baud, uint8_t alt,
+        USART_TypeDef *instance, UARTBaud baud, uint8_t alternate,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin);
 void uart_init_with_rs485(UART* uart,
-        USART_TypeDef *instance, UARTBaud baud, uint8_t alt,
+        USART_TypeDef *instance, UARTBaud baud, uint8_t alternate,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin,
 		GPIO_TypeDef *de_port, uint16_t de_pin);

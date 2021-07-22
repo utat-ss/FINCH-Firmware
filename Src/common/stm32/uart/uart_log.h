@@ -62,9 +62,9 @@ typedef struct UARTStruct {
     DMA_HandleTypeDef rx_dma_handle;
 
     // GPIO pins
-    GPIO_ALT tx_gpio;
-    GPIO_ALT rx_gpio;
-    GPIO_ALT de_gpio;
+    GPIOAltFunc tx_gpio;
+    GPIOAltFunc rx_gpio;
+    GPIOAltFunc de_gpio;
 
     // Store a buffer of bytes (characters) in this UART struct to be sent by
     // the TX DMA.

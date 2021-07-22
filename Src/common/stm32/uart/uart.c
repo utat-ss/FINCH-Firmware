@@ -25,7 +25,7 @@ UART *g_uart_def = NULL;
  * alt - e.g. GPIO_AF7_USART3 for an instance of USART3
  */
 void uart_init_base(UART* uart,
-        USART_TypeDef *instance, UARTBaud baud, uint8_t alt,
+        USART_TypeDef *instance, UARTBaud baud, uint8_t alternate,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin) {
 
@@ -161,10 +161,14 @@ void uart_init_base(UART* uart,
 	}
 #endif
 
+	// Low GPIO speed on the H743 MCU supports up to 12MHz but UART can operate
+	// up to 12.5Mbit/s, so use medium GPIO speed to be safe
     // TX pin init
-    uart->tx_gpio = gpio_init_alt(tx_port, tx_pin, alt);
+    gpio_init_alt_func_pp(&uart->tx_gpio, tx_port, tx_pin, alternate,
+    		GPIO_NOPULL, GPIO_SPEED_FREQ_MEDIUM);
     // RX pin init
-    uart->rx_gpio = gpio_init_alt(rx_port, rx_pin, alt);
+    gpio_init_alt_func_pp(&uart->rx_gpio, rx_port, rx_pin, alternate,
+    		GPIO_NOPULL, GPIO_SPEED_FREQ_MEDIUM);
 
 	// DMA priorities: TX low, RX medium
 	// UART should be relatively low priority compared to other peripherals that
@@ -304,11 +308,11 @@ void uart_set_globals(UART *uart) {
 
 // Initialize normal UART
 void uart_init(UART* uart,
-        USART_TypeDef *instance, UARTBaud baud, uint8_t alt,
+        USART_TypeDef *instance, UARTBaud baud, uint8_t alternate,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin) {
 
-	uart_init_base(uart, instance, baud, alt, tx_port, tx_pin, rx_port, rx_pin);
+	uart_init_base(uart, instance, baud, alternate, tx_port, tx_pin, rx_port, rx_pin);
 
 	if (HAL_UART_Init(&uart->handle) != HAL_OK) {
 		Error_Handler();
@@ -369,15 +373,16 @@ void uart_init(UART* uart,
 
 // Initialize UART + RS-485
 void uart_init_with_rs485(UART* uart,
-        USART_TypeDef *instance, UARTBaud baud, uint8_t alt,
+        USART_TypeDef *instance, UARTBaud baud, uint8_t alternate,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin,
 		GPIO_TypeDef *de_port, uint16_t de_pin) {
 
-	uart_init_base(uart, instance, baud, alt, tx_port, tx_pin, rx_port, rx_pin);
+	uart_init_base(uart, instance, baud, alternate, tx_port, tx_pin, rx_port, rx_pin);
 
 	// RS-485 DE pin init
-	uart->de_gpio = gpio_init_alt(de_port, de_pin, alt);
+	gpio_init_alt_func_pp(&uart->de_gpio, de_port, de_pin, alternate,
+			GPIO_NOPULL, GPIO_SPEED_FREQ_MEDIUM);
 
 	if (HAL_RS485Ex_Init(&uart->handle, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK) {
 		Error_Handler();

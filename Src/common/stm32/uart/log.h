@@ -34,7 +34,7 @@
  * messages that are INFO, WARNING, or ERROR are displayed over UART.
  */
 
-// See common.h for enum and struct definitions
+// See uart_log.h for enum and struct definitions
 
 extern Log *g_log_def;
 

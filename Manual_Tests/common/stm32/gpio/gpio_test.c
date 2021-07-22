@@ -34,18 +34,20 @@ int main() {
 	clock_init();
 
 	// Create GPIO instances
-	GPIO_INPUT blue_button = gpio_init_input(BLUE_BUTTON_PORT, BLUE_BUTTON_PIN);
-	GPIO_OUTPUT led_light = gpio_init_output(LED_PORT, LED_PIN);
+	GPIOInput blue_button;
+	gpio_init_input(&blue_button, BLUE_BUTTON_PORT, BLUE_BUTTON_PIN, GPIO_NOPULL);
+	GPIOOutput led_light;
+	gpio_init_output_pp(&led_light, LED_PORT, LED_PIN, GPIO_PIN_RESET);
 
 	// Blink light
 	while (1) {
 		// If button not pressed, blink light
-		if (gpio_read(blue_button) == GPIO_PIN_RESET) {
-			gpio_set_high(led_light);
+		if (gpio_read(&blue_button) == GPIO_PIN_RESET) {
+			gpio_set_high(&led_light);
 			HAL_Delay(100);
 		}
-		gpio_set_low(led_light);
+		gpio_set_low(&led_light);
 		HAL_Delay(100);
 	}
-	return 1;
+	return 0;
 }

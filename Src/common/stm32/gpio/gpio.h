@@ -18,34 +18,40 @@
 #include <stm32h7xx_hal.h>
 #endif
 
-typedef struct {
-	GPIO_TypeDef *port;
-	uint16_t pin;
-} GPIO_INPUT;
+// Don't need to save the GPIO_InitTypeDef struct in our GPIO structs because it
+// is only used for HAL_GPIO_Init()
+// All other HAL GPIO functions only require the GPIO_TypeDef and the pin
 
 typedef struct {
 	GPIO_TypeDef *port;
-	uint16_t mode;
 	uint16_t pin;
-} GPIO_OUTPUT;
+} GPIOInput;
 
 typedef struct {
 	GPIO_TypeDef *port;
-	uint16_t mode;
 	uint16_t pin;
-	uint8_t alternate;
-} GPIO_ALT;
+} GPIOOutput;
+
+typedef struct {
+	GPIO_TypeDef *port;
+	uint16_t pin;
+} GPIOAltFunc;
 
 /* Functions */
-GPIO_OUTPUT gpio_init_output(GPIO_TypeDef *port, uint16_t pin);
-GPIO_OUTPUT gpio_init_output_od(GPIO_TypeDef *port, uint16_t pin, uint32_t pull);
-GPIO_ALT gpio_init_alt(GPIO_TypeDef *port, uint16_t pin, uint8_t alt);
-GPIO_ALT gpio_init_alt_od(GPIO_TypeDef *port, uint16_t pin, uint32_t pull, uint8_t alt);
-GPIO_INPUT gpio_init_input(GPIO_TypeDef *port, uint16_t pin);
-void gpio_set_high(GPIO_OUTPUT gpio);
-void gpio_set_low(GPIO_OUTPUT gpio);
-void gpio_set_value(GPIO_OUTPUT gpio, GPIO_PinState state);
-void gpio_toggle(GPIO_OUTPUT gpio);
-GPIO_PinState gpio_read(GPIO_INPUT gpio);
+void gpio_init_output_pp(GPIOOutput *output, GPIO_TypeDef *port, uint16_t pin,
+		GPIO_PinState state);
+void gpio_init_output_od(GPIOOutput *output, GPIO_TypeDef *port, uint16_t pin, uint32_t pull,
+		GPIO_PinState state);
+void gpio_init_alt_func_pp(GPIOAltFunc *alt_func, GPIO_TypeDef *port,
+		uint16_t pin, uint8_t alternate, uint32_t pull, uint32_t speed);
+void gpio_init_alt_func_od(GPIOAltFunc *alt_func, GPIO_TypeDef *port,
+		uint16_t pin, uint8_t alternate, uint32_t pull, uint32_t speed);
+void gpio_init_input(GPIOInput *input, GPIO_TypeDef *port, uint16_t pin,
+		uint32_t pull);
+void gpio_set_high(GPIOOutput *gpio);
+void gpio_set_low(GPIOOutput *gpio);
+void gpio_set(GPIOOutput *gpio, GPIO_PinState state);
+void gpio_toggle(GPIOOutput *gpio);
+GPIO_PinState gpio_read(GPIOInput *gpio);
 
 #endif /* COMMON_STM32_GPIO_GPIO_H_ */
