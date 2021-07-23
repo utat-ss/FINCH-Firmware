@@ -83,7 +83,6 @@ static void DMA_MultiBufferSetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddres
   * @{
   */
 
-
 /** @addtogroup DMAEx_Exported_Functions_Group1
   *
 @verbatim
@@ -106,7 +105,6 @@ static void DMA_MultiBufferSetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddres
 @endverbatim
   * @{
   */
-
 
 /**
   * @brief  Starts the multi_buffer DMA Transfer.
@@ -138,7 +136,7 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart(DMA_HandleTypeDef *hdma, uint32_t S
     /* Process Locked */
     __HAL_LOCK(hdma);
 
-    if(HAL_DMA_STATE_READY == hdma->State)
+    if (HAL_DMA_STATE_READY == hdma->State)
     {
       /* Change DMA peripheral state */
       hdma->State = HAL_DMA_STATE_BUSY;
@@ -146,13 +144,13 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart(DMA_HandleTypeDef *hdma, uint32_t S
       /* Initialize the error code */
       hdma->ErrorCode = HAL_DMA_ERROR_NONE;
 
-      if(IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
+      if (IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
       {
         /* Enable the Double buffer mode */
-        ((DMA_Stream_TypeDef   *)hdma->Instance)->CR |= DMA_SxCR_DBM;
+        ((DMA_Stream_TypeDef *)hdma->Instance)->CR |= DMA_SxCR_DBM;
 
         /* Configure DMA Stream destination address */
-        ((DMA_Stream_TypeDef   *)hdma->Instance)->M1AR = SecondMemAddress;
+        ((DMA_Stream_TypeDef *)hdma->Instance)->M1AR = SecondMemAddress;
 
         /* Calculate the interrupt clear flag register (IFCR) base address  */
         ifcRegister_Base = (uint32_t *)((uint32_t)(hdma->StreamBaseAddress + 8U));
@@ -163,10 +161,10 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart(DMA_HandleTypeDef *hdma, uint32_t S
       else /* BDMA instance(s) */
       {
         /* Enable the Double buffer mode */
-        ((BDMA_Channel_TypeDef   *)hdma->Instance)->CCR |= (BDMA_CCR_DBM | BDMA_CCR_CIRC);
+        ((BDMA_Channel_TypeDef *)hdma->Instance)->CCR |= (BDMA_CCR_DBM | BDMA_CCR_CIRC);
 
         /* Configure DMA Stream destination address */
-        ((BDMA_Channel_TypeDef   *)hdma->Instance)->CM1AR = SecondMemAddress;
+        ((BDMA_Channel_TypeDef *)hdma->Instance)->CM1AR = SecondMemAddress;
 
         /* Calculate the interrupt clear flag register (IFCR) base address  */
         ifcRegister_Base = (uint32_t *)((uint32_t)(hdma->StreamBaseAddress + 4U));
@@ -175,7 +173,7 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart(DMA_HandleTypeDef *hdma, uint32_t S
         *ifcRegister_Base = (BDMA_ISR_GIF0) << (hdma->StreamIndex & 0x1FU);
       }
 
-      if(IS_DMA_DMAMUX_ALL_INSTANCE(hdma->Instance) != 0U) /* No DMAMUX available for BDMA1 */
+      if (IS_DMA_DMAMUX_ALL_INSTANCE(hdma->Instance) != 0U) /* No DMAMUX available for BDMA1 */
       {
         /* Configure the source, destination address and the data length */
         DMA_MultiBufferSetConfig(hdma, SrcAddress, DstAddress, DataLength);
@@ -183,7 +181,7 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart(DMA_HandleTypeDef *hdma, uint32_t S
         /* Clear the DMAMUX synchro overrun flag */
         hdma->DMAmuxChannelStatus->CFR = hdma->DMAmuxChannelStatusMask;
 
-        if(hdma->DMAmuxRequestGen != 0U)
+        if (hdma->DMAmuxRequestGen != 0U)
         {
           /* Clear the DMAMUX request generator overrun flag */
           hdma->DMAmuxRequestGenStatus->RGCFR = hdma->DMAmuxRequestGenStatusMask;
@@ -225,7 +223,7 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart_IT(DMA_HandleTypeDef *hdma, uint32_
   assert_param(IS_DMA_ALL_INSTANCE(hdma->Instance));
 
   /* Memory-to-memory transfer not supported in double buffering mode */
-  if(hdma->Init.Direction == DMA_MEMORY_TO_MEMORY)
+  if (hdma->Init.Direction == DMA_MEMORY_TO_MEMORY)
   {
     hdma->ErrorCode = HAL_DMA_ERROR_NOT_SUPPORTED;
     return HAL_ERROR;
@@ -234,7 +232,7 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart_IT(DMA_HandleTypeDef *hdma, uint32_
   /* Process locked */
   __HAL_LOCK(hdma);
 
-  if(HAL_DMA_STATE_READY == hdma->State)
+  if (HAL_DMA_STATE_READY == hdma->State)
   {
     /* Change DMA peripheral state */
     hdma->State = HAL_DMA_STATE_BUSY;
@@ -242,13 +240,13 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart_IT(DMA_HandleTypeDef *hdma, uint32_
     /* Initialize the error code */
     hdma->ErrorCode = HAL_DMA_ERROR_NONE;
 
-    if(IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
+    if (IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
     {
       /* Enable the Double buffer mode */
-      ((DMA_Stream_TypeDef   *)hdma->Instance)->CR |= DMA_SxCR_DBM;
+      ((DMA_Stream_TypeDef *)hdma->Instance)->CR |= DMA_SxCR_DBM;
 
       /* Configure DMA Stream destination address */
-      ((DMA_Stream_TypeDef   *)hdma->Instance)->M1AR = SecondMemAddress;
+      ((DMA_Stream_TypeDef *)hdma->Instance)->M1AR = SecondMemAddress;
 
       /* Calculate the interrupt clear flag register (IFCR) base address  */
       ifcRegister_Base = (uint32_t *)((uint32_t)(hdma->StreamBaseAddress + 8U));
@@ -259,10 +257,10 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart_IT(DMA_HandleTypeDef *hdma, uint32_
     else /* BDMA instance(s) */
     {
       /* Enable the Double buffer mode */
-      ((BDMA_Channel_TypeDef   *)hdma->Instance)->CCR |= (BDMA_CCR_DBM | BDMA_CCR_CIRC);
+      ((BDMA_Channel_TypeDef *)hdma->Instance)->CCR |= (BDMA_CCR_DBM | BDMA_CCR_CIRC);
 
       /* Configure DMA Stream destination address */
-      ((BDMA_Channel_TypeDef   *)hdma->Instance)->CM1AR = SecondMemAddress;
+      ((BDMA_Channel_TypeDef *)hdma->Instance)->CM1AR = SecondMemAddress;
 
       /* Calculate the interrupt clear flag register (IFCR) base address  */
       ifcRegister_Base = (uint32_t *)((uint32_t)(hdma->StreamBaseAddress + 4U));
@@ -274,52 +272,52 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart_IT(DMA_HandleTypeDef *hdma, uint32_
     /* Configure the source, destination address and the data length */
     DMA_MultiBufferSetConfig(hdma, SrcAddress, DstAddress, DataLength);
 
-    if(IS_DMA_DMAMUX_ALL_INSTANCE(hdma->Instance) != 0U) /* No DMAMUX available for BDMA1 */
+    if (IS_DMA_DMAMUX_ALL_INSTANCE(hdma->Instance) != 0U) /* No DMAMUX available for BDMA1 */
     {
       /* Clear the DMAMUX synchro overrun flag */
       hdma->DMAmuxChannelStatus->CFR = hdma->DMAmuxChannelStatusMask;
 
-      if(hdma->DMAmuxRequestGen != 0U)
+      if (hdma->DMAmuxRequestGen != 0U)
       {
         /* Clear the DMAMUX request generator overrun flag */
         hdma->DMAmuxRequestGenStatus->RGCFR = hdma->DMAmuxRequestGenStatusMask;
       }
     }
 
-    if(IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
+    if (IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
     {
       /* Enable Common interrupts*/
-      MODIFY_REG(((DMA_Stream_TypeDef   *)hdma->Instance)->CR, (DMA_IT_TC | DMA_IT_TE | DMA_IT_DME | DMA_IT_HT), (DMA_IT_TC | DMA_IT_TE | DMA_IT_DME));
-      ((DMA_Stream_TypeDef   *)hdma->Instance)->FCR |= DMA_IT_FE;
+      MODIFY_REG(((DMA_Stream_TypeDef *)hdma->Instance)->CR, (DMA_IT_TC | DMA_IT_TE | DMA_IT_DME | DMA_IT_HT), (DMA_IT_TC | DMA_IT_TE | DMA_IT_DME));
+      ((DMA_Stream_TypeDef *)hdma->Instance)->FCR |= DMA_IT_FE;
 
-      if((hdma->XferHalfCpltCallback != NULL) || (hdma->XferM1HalfCpltCallback != NULL))
+      if ((hdma->XferHalfCpltCallback != NULL) || (hdma->XferM1HalfCpltCallback != NULL))
       {
         /*Enable Half Transfer IT if corresponding Callback is set*/
-        ((DMA_Stream_TypeDef   *)hdma->Instance)->CR  |= DMA_IT_HT;
+        ((DMA_Stream_TypeDef *)hdma->Instance)->CR |= DMA_IT_HT;
       }
     }
     else /* BDMA instance(s) */
     {
       /* Enable Common interrupts*/
-      MODIFY_REG(((BDMA_Channel_TypeDef   *)hdma->Instance)->CCR, (BDMA_CCR_TCIE | BDMA_CCR_HTIE | BDMA_CCR_TEIE), (BDMA_CCR_TCIE | BDMA_CCR_TEIE));
+      MODIFY_REG(((BDMA_Channel_TypeDef *)hdma->Instance)->CCR, (BDMA_CCR_TCIE | BDMA_CCR_HTIE | BDMA_CCR_TEIE), (BDMA_CCR_TCIE | BDMA_CCR_TEIE));
 
-      if((hdma->XferHalfCpltCallback != NULL) || (hdma->XferM1HalfCpltCallback != NULL))
+      if ((hdma->XferHalfCpltCallback != NULL) || (hdma->XferM1HalfCpltCallback != NULL))
       {
         /*Enable Half Transfer IT if corresponding Callback is set*/
-        ((BDMA_Channel_TypeDef   *)hdma->Instance)->CCR  |= BDMA_CCR_HTIE;
+        ((BDMA_Channel_TypeDef *)hdma->Instance)->CCR |= BDMA_CCR_HTIE;
       }
     }
 
-    if(IS_DMA_DMAMUX_ALL_INSTANCE(hdma->Instance) != 0U) /* No DMAMUX available for BDMA1 */
+    if (IS_DMA_DMAMUX_ALL_INSTANCE(hdma->Instance) != 0U) /* No DMAMUX available for BDMA1 */
     {
       /* Check if DMAMUX Synchronization is enabled*/
-      if((hdma->DMAmuxChannel->CCR & DMAMUX_CxCR_SE) != 0U)
+      if ((hdma->DMAmuxChannel->CCR & DMAMUX_CxCR_SE) != 0U)
       {
         /* Enable DMAMUX sync overrun IT*/
         hdma->DMAmuxChannel->CCR |= DMAMUX_CxCR_SOIE;
       }
 
-      if(hdma->DMAmuxRequestGen != 0U)
+      if (hdma->DMAmuxRequestGen != 0U)
       {
         /* if using DMAMUX request generator, enable the DMAMUX request generator overrun IT*/
         /* enable the request gen overrun IT*/
@@ -357,30 +355,30 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart_IT(DMA_HandleTypeDef *hdma, uint32_
   */
 HAL_StatusTypeDef HAL_DMAEx_ChangeMemory(DMA_HandleTypeDef *hdma, uint32_t Address, HAL_DMA_MemoryTypeDef memory)
 {
-  if(IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
+  if (IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
   {
-    if(memory == MEMORY0)
+    if (memory == MEMORY0)
     {
       /* change the memory0 address */
-      ((DMA_Stream_TypeDef   *)hdma->Instance)->M0AR = Address;
+      ((DMA_Stream_TypeDef *)hdma->Instance)->M0AR = Address;
     }
     else
     {
       /* change the memory1 address */
-      ((DMA_Stream_TypeDef   *)hdma->Instance)->M1AR = Address;
+      ((DMA_Stream_TypeDef *)hdma->Instance)->M1AR = Address;
     }
   }
   else /* BDMA instance(s) */
   {
-    if(memory == MEMORY0)
+    if (memory == MEMORY0)
     {
       /* change the memory0 address */
-      ((BDMA_Channel_TypeDef   *)hdma->Instance)->CM0AR = Address;
+      ((BDMA_Channel_TypeDef *)hdma->Instance)->CM0AR = Address;
     }
     else
     {
       /* change the memory1 address */
-      ((BDMA_Channel_TypeDef   *)hdma->Instance)->CM1AR = Address;
+      ((BDMA_Channel_TypeDef *)hdma->Instance)->CM1AR = Address;
     }
   }
 
@@ -405,11 +403,11 @@ HAL_StatusTypeDef HAL_DMAEx_ConfigMuxSync(DMA_HandleTypeDef *hdma, HAL_DMA_MuxSy
   assert_param(IS_DMAMUX_SYNC_EVENT(pSyncConfig->EventEnable));
   assert_param(IS_DMAMUX_SYNC_REQUEST_NUMBER(pSyncConfig->RequestNumber));
 
-  if(pSyncConfig->SyncEnable == ENABLE)
+  if (pSyncConfig->SyncEnable == ENABLE)
   {
     assert_param(IS_DMAMUX_SYNC_POLARITY(pSyncConfig->SyncPolarity));
 
-    if(IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
+    if (IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
     {
       assert_param(IS_DMA_DMAMUX_SYNC_SIGNAL_ID(pSyncConfig->SyncSignalID));
     }
@@ -422,23 +420,23 @@ HAL_StatusTypeDef HAL_DMAEx_ConfigMuxSync(DMA_HandleTypeDef *hdma, HAL_DMA_MuxSy
   }
 
   /*Check if the DMA state is ready */
-  if(hdma->State == HAL_DMA_STATE_READY)
+  if (hdma->State == HAL_DMA_STATE_READY)
   {
     /* Process Locked */
     __HAL_LOCK(hdma);
 
     /* Disable the synchronization and event generation before applying a new config */
-    CLEAR_BIT(hdma->DMAmuxChannel->CCR,(DMAMUX_CxCR_SE | DMAMUX_CxCR_EGE));
+    CLEAR_BIT(hdma->DMAmuxChannel->CCR, (DMAMUX_CxCR_SE | DMAMUX_CxCR_EGE));
 
     /* Set the new synchronization parameters (and keep the request ID filled during the Init)*/
-    MODIFY_REG( hdma->DMAmuxChannel->CCR, \
-               (~DMAMUX_CxCR_DMAREQ_ID) , \
-               (syncSignalID << DMAMUX_CxCR_SYNC_ID_Pos)       | \
-               ((pSyncConfig->RequestNumber - 1U) << DMAMUX_CxCR_NBREQ_Pos) | \
-               syncPolarity | ((uint32_t)pSyncConfig->SyncEnable << DMAMUX_CxCR_SE_Pos)    | \
-               ((uint32_t)pSyncConfig->EventEnable << DMAMUX_CxCR_EGE_Pos));
+    MODIFY_REG(hdma->DMAmuxChannel->CCR,
+               (~DMAMUX_CxCR_DMAREQ_ID),
+               (syncSignalID << DMAMUX_CxCR_SYNC_ID_Pos) |
+                   ((pSyncConfig->RequestNumber - 1U) << DMAMUX_CxCR_NBREQ_Pos) |
+                   syncPolarity | ((uint32_t)pSyncConfig->SyncEnable << DMAMUX_CxCR_SE_Pos) |
+                   ((uint32_t)pSyncConfig->EventEnable << DMAMUX_CxCR_EGE_Pos));
 
-      /* Process Locked */
+    /* Process Locked */
     __HAL_UNLOCK(hdma);
 
     return HAL_OK;
@@ -462,7 +460,7 @@ HAL_StatusTypeDef HAL_DMAEx_ConfigMuxSync(DMA_HandleTypeDef *hdma, HAL_DMA_MuxSy
   *
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_DMAEx_ConfigMuxRequestGenerator (DMA_HandleTypeDef *hdma, HAL_DMA_MuxRequestGeneratorConfigTypeDef *pRequestGeneratorConfig)
+HAL_StatusTypeDef HAL_DMAEx_ConfigMuxRequestGenerator(DMA_HandleTypeDef *hdma, HAL_DMA_MuxRequestGeneratorConfigTypeDef *pRequestGeneratorConfig)
 {
   HAL_StatusTypeDef status;
   HAL_DMA_StateTypeDef temp_state = hdma->State;
@@ -470,7 +468,7 @@ HAL_StatusTypeDef HAL_DMAEx_ConfigMuxRequestGenerator (DMA_HandleTypeDef *hdma, 
   /* Check the parameters */
   assert_param(IS_DMA_DMAMUX_ALL_INSTANCE(hdma->Instance));
 
-  if(IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
+  if (IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
   {
     assert_param(IS_DMA_DMAMUX_REQUEST_GEN_SIGNAL_ID(pRequestGeneratorConfig->SignalID));
   }
@@ -479,14 +477,13 @@ HAL_StatusTypeDef HAL_DMAEx_ConfigMuxRequestGenerator (DMA_HandleTypeDef *hdma, 
     assert_param(IS_BDMA_DMAMUX_REQUEST_GEN_SIGNAL_ID(pRequestGeneratorConfig->SignalID));
   }
 
-
   assert_param(IS_DMAMUX_REQUEST_GEN_POLARITY(pRequestGeneratorConfig->Polarity));
   assert_param(IS_DMAMUX_REQUEST_GEN_REQUEST_NUMBER(pRequestGeneratorConfig->RequestNumber));
 
   /* check if the DMA state is ready
      and DMA is using a DMAMUX request generator block
   */
-  if(hdma->DMAmuxRequestGen == 0U)
+  if (hdma->DMAmuxRequestGen == 0U)
   {
     /* Set the error code to busy */
     hdma->ErrorCode = HAL_DMA_ERROR_PARAM;
@@ -494,7 +491,7 @@ HAL_StatusTypeDef HAL_DMAEx_ConfigMuxRequestGenerator (DMA_HandleTypeDef *hdma, 
     /* error status */
     status = HAL_ERROR;
   }
-  else if(((hdma->DMAmuxRequestGen->RGCR & DMAMUX_RGxCR_GE) == 0U) && (temp_state == HAL_DMA_STATE_READY))
+  else if (((hdma->DMAmuxRequestGen->RGCR & DMAMUX_RGxCR_GE) == 0U) && (temp_state == HAL_DMA_STATE_READY))
   {
     /* RequestGenerator must be disable prior to the configuration i.e GE bit is 0 */
 
@@ -502,9 +499,9 @@ HAL_StatusTypeDef HAL_DMAEx_ConfigMuxRequestGenerator (DMA_HandleTypeDef *hdma, 
     __HAL_LOCK(hdma);
 
     /* Set the request generator new parameters */
-    hdma->DMAmuxRequestGen->RGCR = pRequestGeneratorConfig->SignalID | \
-                                  ((pRequestGeneratorConfig->RequestNumber - 1U) << DMAMUX_RGxCR_GNBREQ_Pos)| \
-                                  pRequestGeneratorConfig->Polarity;
+    hdma->DMAmuxRequestGen->RGCR = pRequestGeneratorConfig->SignalID |
+                                   ((pRequestGeneratorConfig->RequestNumber - 1U) << DMAMUX_RGxCR_GNBREQ_Pos) |
+                                   pRequestGeneratorConfig->Polarity;
     /* Process Locked */
     __HAL_UNLOCK(hdma);
 
@@ -528,24 +525,24 @@ HAL_StatusTypeDef HAL_DMAEx_ConfigMuxRequestGenerator (DMA_HandleTypeDef *hdma, 
   *                     the configuration information for the specified DMA Stream.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_DMAEx_EnableMuxRequestGenerator (DMA_HandleTypeDef *hdma)
+HAL_StatusTypeDef HAL_DMAEx_EnableMuxRequestGenerator(DMA_HandleTypeDef *hdma)
 {
   /* Check the parameters */
   assert_param(IS_DMA_DMAMUX_ALL_INSTANCE(hdma->Instance));
 
   /* check if the DMA state is ready
      and DMA is using a DMAMUX request generator block */
-  if((hdma->State != HAL_DMA_STATE_RESET) && (hdma->DMAmuxRequestGen != 0U))
+  if ((hdma->State != HAL_DMA_STATE_RESET) && (hdma->DMAmuxRequestGen != 0U))
   {
     /* Enable the request generator*/
     hdma->DMAmuxRequestGen->RGCR |= DMAMUX_RGxCR_GE;
 
-   return HAL_OK;
- }
- else
- {
-   return HAL_ERROR;
- }
+    return HAL_OK;
+  }
+  else
+  {
+    return HAL_ERROR;
+  }
 }
 
 /**
@@ -554,24 +551,24 @@ HAL_StatusTypeDef HAL_DMAEx_EnableMuxRequestGenerator (DMA_HandleTypeDef *hdma)
   *                     the configuration information for the specified DMA Stream.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_DMAEx_DisableMuxRequestGenerator (DMA_HandleTypeDef *hdma)
+HAL_StatusTypeDef HAL_DMAEx_DisableMuxRequestGenerator(DMA_HandleTypeDef *hdma)
 {
   /* Check the parameters */
   assert_param(IS_DMA_DMAMUX_ALL_INSTANCE(hdma->Instance));
 
   /* check if the DMA state is ready
      and DMA is using a DMAMUX request generator block */
-  if((hdma->State != HAL_DMA_STATE_RESET) && (hdma->DMAmuxRequestGen != 0U))
+  if ((hdma->State != HAL_DMA_STATE_RESET) && (hdma->DMAmuxRequestGen != 0U))
   {
     /* Disable the request generator*/
     hdma->DMAmuxRequestGen->RGCR &= ~DMAMUX_RGxCR_GE;
 
-   return HAL_OK;
- }
- else
- {
-   return HAL_ERROR;
- }
+    return HAL_OK;
+  }
+  else
+  {
+    return HAL_ERROR;
+  }
 }
 
 /**
@@ -583,7 +580,7 @@ HAL_StatusTypeDef HAL_DMAEx_DisableMuxRequestGenerator (DMA_HandleTypeDef *hdma)
 void HAL_DMAEx_MUX_IRQHandler(DMA_HandleTypeDef *hdma)
 {
   /* Check for DMAMUX Synchronization overrun */
-  if((hdma->DMAmuxChannelStatus->CSR & hdma->DMAmuxChannelStatusMask) != 0U)
+  if ((hdma->DMAmuxChannelStatus->CSR & hdma->DMAmuxChannelStatusMask) != 0U)
   {
     /* Disable the synchro overrun interrupt */
     hdma->DMAmuxChannel->CCR &= ~DMAMUX_CxCR_SOIE;
@@ -594,17 +591,17 @@ void HAL_DMAEx_MUX_IRQHandler(DMA_HandleTypeDef *hdma)
     /* Update error code */
     hdma->ErrorCode |= HAL_DMA_ERROR_SYNC;
 
-    if(hdma->XferErrorCallback != NULL)
+    if (hdma->XferErrorCallback != NULL)
     {
       /* Transfer error callback */
       hdma->XferErrorCallback(hdma);
     }
   }
 
-  if(hdma->DMAmuxRequestGen != 0)
+  if (hdma->DMAmuxRequestGen != 0)
   {
-   /* if using a DMAMUX request generator block Check for DMAMUX request generator overrun */
-    if((hdma->DMAmuxRequestGenStatus->RGSR & hdma->DMAmuxRequestGenStatusMask) != 0U)
+    /* if using a DMAMUX request generator block Check for DMAMUX request generator overrun */
+    if ((hdma->DMAmuxRequestGenStatus->RGSR & hdma->DMAmuxRequestGenStatusMask) != 0U)
     {
       /* Disable the request gen overrun interrupt */
       hdma->DMAmuxRequestGen->RGCR &= ~DMAMUX_RGxCR_OIE;
@@ -615,7 +612,7 @@ void HAL_DMAEx_MUX_IRQHandler(DMA_HandleTypeDef *hdma)
       /* Update error code */
       hdma->ErrorCode |= HAL_DMA_ERROR_REQGEN;
 
-      if(hdma->XferErrorCallback != NULL)
+      if (hdma->XferErrorCallback != NULL)
       {
         /* Transfer error callback */
         hdma->XferErrorCallback(hdma);
@@ -623,7 +620,6 @@ void HAL_DMAEx_MUX_IRQHandler(DMA_HandleTypeDef *hdma)
     }
   }
 }
-
 
 /**
   * @}
@@ -648,52 +644,52 @@ void HAL_DMAEx_MUX_IRQHandler(DMA_HandleTypeDef *hdma)
   */
 static void DMA_MultiBufferSetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength)
 {
-  if(IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
+  if (IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
   {
     /* Configure DMA Stream data length */
-    ((DMA_Stream_TypeDef   *)hdma->Instance)->NDTR = DataLength;
+    ((DMA_Stream_TypeDef *)hdma->Instance)->NDTR = DataLength;
 
     /* Peripheral to Memory */
-    if((hdma->Init.Direction) == DMA_MEMORY_TO_PERIPH)
+    if ((hdma->Init.Direction) == DMA_MEMORY_TO_PERIPH)
     {
       /* Configure DMA Stream destination address */
-      ((DMA_Stream_TypeDef   *)hdma->Instance)->PAR = DstAddress;
+      ((DMA_Stream_TypeDef *)hdma->Instance)->PAR = DstAddress;
 
       /* Configure DMA Stream source address */
-      ((DMA_Stream_TypeDef   *)hdma->Instance)->M0AR = SrcAddress;
+      ((DMA_Stream_TypeDef *)hdma->Instance)->M0AR = SrcAddress;
     }
     /* Memory to Peripheral */
     else
     {
       /* Configure DMA Stream source address */
-      ((DMA_Stream_TypeDef   *)hdma->Instance)->PAR = SrcAddress;
+      ((DMA_Stream_TypeDef *)hdma->Instance)->PAR = SrcAddress;
 
       /* Configure DMA Stream destination address */
-      ((DMA_Stream_TypeDef   *)hdma->Instance)->M0AR = DstAddress;
+      ((DMA_Stream_TypeDef *)hdma->Instance)->M0AR = DstAddress;
     }
   }
   else /* BDMA instance(s) */
   {
     /* Configure DMA Stream data length */
-    ((BDMA_Channel_TypeDef   *)hdma->Instance)->CNDTR = DataLength;
+    ((BDMA_Channel_TypeDef *)hdma->Instance)->CNDTR = DataLength;
 
     /* Peripheral to Memory */
-    if((hdma->Init.Direction) == DMA_MEMORY_TO_PERIPH)
+    if ((hdma->Init.Direction) == DMA_MEMORY_TO_PERIPH)
     {
       /* Configure DMA Stream destination address */
-      ((BDMA_Channel_TypeDef   *)hdma->Instance)->CPAR = DstAddress;
+      ((BDMA_Channel_TypeDef *)hdma->Instance)->CPAR = DstAddress;
 
       /* Configure DMA Stream source address */
-      ((BDMA_Channel_TypeDef   *)hdma->Instance)->CM0AR = SrcAddress;
+      ((BDMA_Channel_TypeDef *)hdma->Instance)->CM0AR = SrcAddress;
     }
     /* Memory to Peripheral */
     else
     {
       /* Configure DMA Stream source address */
-      ((BDMA_Channel_TypeDef   *)hdma->Instance)->CPAR = SrcAddress;
+      ((BDMA_Channel_TypeDef *)hdma->Instance)->CPAR = SrcAddress;
 
       /* Configure DMA Stream destination address */
-      ((BDMA_Channel_TypeDef   *)hdma->Instance)->CM0AR = DstAddress;
+      ((BDMA_Channel_TypeDef *)hdma->Instance)->CM0AR = DstAddress;
     }
   }
 }
