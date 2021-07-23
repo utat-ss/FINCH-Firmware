@@ -39,6 +39,13 @@ int main() {
 	GPIOOutput led_light;
 	gpio_init_output_pp(&led_light, LED_PORT, LED_PIN, GPIO_PIN_RESET);
 
+	// Uncomment to test waiting for an input state
+//	gpio_wait_for_high(&blue_button, 10000);
+//	gpio_set_high(&led_light);
+//	HAL_Delay(500);
+//	gpio_set_low(&led_light);
+//	HAL_Delay(500);
+
 	// Blink light
 	while (1) {
 		// If button not pressed, blink light

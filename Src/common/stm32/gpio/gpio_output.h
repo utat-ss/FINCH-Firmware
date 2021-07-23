@@ -26,9 +26,9 @@ void gpio_init_output_pp(GPIOOutput *output, GPIO_TypeDef *port, uint16_t pin,
 void gpio_init_output_od(GPIOOutput *output, GPIO_TypeDef *port, uint16_t pin, uint32_t pull,
 		GPIO_PinState state);
 
+void gpio_set(GPIOOutput *gpio, GPIO_PinState state);
 void gpio_set_low(GPIOOutput *gpio);
 void gpio_set_high(GPIOOutput *gpio);
-void gpio_set(GPIOOutput *gpio, GPIO_PinState state);
 void gpio_toggle(GPIOOutput *gpio);
 
 #endif /* COMMON_STM32_GPIO_GPIO_OUTPUT_H_ */

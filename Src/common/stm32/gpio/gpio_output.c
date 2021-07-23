@@ -68,6 +68,16 @@ void gpio_init_output_od(GPIOOutput *output, GPIO_TypeDef *port, uint16_t pin,
 }
 
 /*
+Set an output pin to a certain value
+@param GPIOOutput *gpio - the pin's GPIOOutput struct
+@param GPIO_PinState state - the pin's GPIO_PinState; value can be either
+							 GPIO_PIN_RESET or GPIO_PIN_SET
+*/
+void gpio_set(GPIOOutput *gpio, GPIO_PinState state) {
+	HAL_GPIO_WritePin(gpio->port, gpio->pin, state);
+}
+
+/*
 Set an output pin to low
 @param GPIOOutput *gpio - the pin's GPIOOutput struct
 */
@@ -81,16 +91,6 @@ Set an output pin to high or high impedance
 */
 void gpio_set_high(GPIOOutput *gpio) {
 	gpio_set(gpio, GPIO_PIN_SET);
-}
-
-/*
-Set an output pin to a certain value
-@param GPIOOutput *gpio - the pin's GPIOOutput struct
-@param GPIO_PinState state - the pin's GPIO_PinState; value can be either
-							 GPIO_PIN_RESET or GPIO_PIN_SET
-*/
-void gpio_set(GPIOOutput *gpio, GPIO_PinState state) {
-	HAL_GPIO_WritePin(gpio->port, gpio->pin, state);
 }
 
 /*
