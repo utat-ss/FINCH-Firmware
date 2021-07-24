@@ -8,14 +8,6 @@
 #ifndef COMMON_STM32_UART_UART_H_
 #define COMMON_STM32_UART_UART_H_
 
-#ifdef STM32G474xx
-#include <stm32g4xx_hal.h>
-#endif
-
-#ifdef STM32H743xx
-#include <stm32h7xx_hal.h>
-#endif
-
 #include <common/stm32/gpio/gpio.h>
 #include <common/stm32/uart/uart_log.h>
 

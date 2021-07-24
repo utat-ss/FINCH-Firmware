@@ -15,7 +15,7 @@ Push-pull pin output values are high or low.
 @param GPIO_TypeDef *port - the gpio port the pin is on
 @param uint16_t pin - the pin number
 @param GPIO_PinState state - default state to set the pin to; value can be either
-							 GPIO_PIN_RESET or GPIO_PIN_SET
+							 GPIO_PIN_RESET (low) or GPIO_PIN_SET (high)
 */
 void gpio_init_output_pp(GPIOOutput *output, GPIO_TypeDef *port, uint16_t pin,
 		GPIO_PinState state) {
@@ -46,7 +46,7 @@ Open drain pin output values are high impedance or low.
 @param uint32_t pull - the internal pull-up/down gpio resistor state;
 					   possible values are GPIO_NOPULL, GPIO_PULLUP, GPIO_PULLDOWN
 @param GPIO_PinState state - default state to set the pin to; value can be either
-							 GPIO_PIN_RESET or GPIO_PIN_SET
+							 GPIO_PIN_RESET (low) or GPIO_PIN_SET (high impedance)
 */
 void gpio_init_output_od(GPIOOutput *output, GPIO_TypeDef *port, uint16_t pin,
 		uint32_t pull, GPIO_PinState state) {

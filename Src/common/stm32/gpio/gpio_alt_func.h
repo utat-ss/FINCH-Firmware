@@ -8,13 +8,7 @@
 #ifndef COMMON_STM32_GPIO_GPIO_ALT_FUNC_H_
 #define COMMON_STM32_GPIO_GPIO_ALT_FUNC_H_
 
-// TODO
-#ifdef STM32G474xx
-#include <stm32g4xx_hal.h>
-#endif
-#ifdef STM32H743xx
-#include <stm32h7xx_hal.h>
-#endif
+#include <common/stm32/mcu/hal.h>
 
 typedef struct {
 	GPIO_TypeDef *port;
