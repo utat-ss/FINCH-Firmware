@@ -11,11 +11,6 @@
 
 #ifdef STM32H743xx
 
-void clock_init(void) {
-	SystemClock_Config();
-	GPIOClock_Config();
-}
-
 /**
   * @brief System Clock Configuration
   * @retval None
@@ -85,24 +80,6 @@ void SystemClock_Config(void)
   /** Enable USB Voltage detector
   */
   HAL_PWREx_EnableUSBVoltageDetector();
-}
-
-/**
-  * @brief GPIO Clock Configuration
-  * @retval None
-  */
-void GPIOClock_Config(void) {
-	// Need to use #ifdef here for just the H7 because
-	// __HAL_RCC_GPIOH_CLK_ENABLE() is not defined in the G4 HAL
-
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOG_CLK_ENABLE();
-  __HAL_RCC_GPIOE_CLK_ENABLE();
 }
 
 #endif

@@ -1,4 +1,4 @@
-#include <common/stm32/mcu/init.h>
+#include <common/stm32/mcu/mcu.h>
 #include <common/stm32/uart/log.h>
 #include <string.h>
 
@@ -23,8 +23,8 @@
 #endif
 
 int main() {
-    HAL_Init();
-    clock_init();
+    MCU mcu;
+    mcu_init(&mcu);
 
     UART uart;
     uart_init(&uart, UART_INST, UART_BAUD_115200, UART_ALT,

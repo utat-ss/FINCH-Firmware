@@ -10,7 +10,6 @@
 
 #include <common/stm32/mcu/errors.h>
 
-void clock_init(void);
 void SystemClock_Config(void);
 void GPIOClock_Config(void);
 

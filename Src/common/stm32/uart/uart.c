@@ -29,9 +29,6 @@ void uart_init_base(UART* uart,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin) {
 
-    // TODO - move to HAL_MspInit()??
-	__HAL_RCC_SYSCFG_CLK_ENABLE();
-
 	// Set up UART handle
 	uart->handle.Instance = instance;
 	uart->handle.Init.BaudRate = baud;
