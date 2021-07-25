@@ -73,7 +73,3 @@ MCUModel mcu_get_model_for_board(MCUBoard board) {
 
 	return MCU_MODEL_NONE;
 }
-
-MCUModel mcu_get_model() {
-	return mcu_get_model_for_board(mcu_get_board());
-}

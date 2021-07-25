@@ -65,6 +65,5 @@ uint32_t mcu_get_rev_id();
 MCUUID mcu_get_uid();
 MCUBoard mcu_get_board();
 MCUModel mcu_get_model_for_board(MCUBoard board);
-MCUModel mcu_get_model();
 
 #endif /* COMMON_STM32_MCU_MCU_H_ */

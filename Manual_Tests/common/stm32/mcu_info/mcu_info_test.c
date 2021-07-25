@@ -1,33 +1,34 @@
 #include <common/stm32/mcu/mcu.h>
 #include <common/stm32/uart/log.h>
-
-#ifdef STM32H743xx
-// Declare pin variables for STM32H7 devkit
-#define UART_INST 		USART3
-#define UART_ALT  		GPIO_AF7_USART3
-#define UART_TX_PORT    GPIOD
-#define UART_TX_PIN     GPIO_PIN_8
-#define UART_RX_PORT    GPIOD
-#define UART_RX_PIN     GPIO_PIN_9
-#endif
-
-#ifdef STM32G474xx
-// Declare pin variables for STM32G4 devkit
-#define UART_INST       LPUART1
-#define UART_ALT        GPIO_AF8_LPUART1	// Might be GPIO_AF12_LPUART1 instead
-#define UART_TX_PORT    GPIOA
-#define UART_TX_PIN     GPIO_PIN_2
-#define UART_RX_PORT    GPIOA
-#define UART_RX_PIN     GPIO_PIN_3
-#endif
+#include <nucleo_g474re/nucleo_g474re.h>
+#include <nucleo_h743zi2/nucleo_h743zi2.h>
 
 int main() {
+	// Try to automatically detect board based on MCU UID
+	MCUBoard board = mcu_get_board();
+
+	// If the UID is not matched, try to guess the board based on the device ID
+	if (board == MCU_BOARD_NONE) {
+		MCUDevID dev_id = mcu_get_dev_id();
+
+		if (dev_id == MCU_DEV_ID_STM32G471_473_474_483_484) {
+			board = MCU_BOARD_NUCLEO_G474RE;
+		}
+		else if (dev_id == MCU_DEV_ID_STM32H742_743_753_750) {
+			board = MCU_BOARD_NUCLEO_H743ZI2;
+		}
+	}
+
     MCU mcu;
-    mcu_init(&mcu, MCU_BOARD_NONE);
+    mcu_init(&mcu, board);
 
     UART uart;
-    uart_init(&uart, UART_INST, UART_BAUD_115200, UART_ALT,
-            UART_TX_PORT, UART_TX_PIN, UART_RX_PORT, UART_RX_PIN);
+    if (board == MCU_BOARD_NUCLEO_G474RE) {
+    	g474re_init_uart(&uart);
+    } else if (board == MCU_BOARD_NUCLEO_H743ZI2) {
+    	h743zi2_init_uart(&uart);
+    }
+
     Log log;
     log_init(&log, &uart);
 
@@ -37,7 +38,7 @@ int main() {
     info(&log, "Dev ID: 0x%lx", mcu_get_dev_id());
     info(&log, "Rev ID: 0x%lx", mcu_get_rev_id());
     info(&log, "Board: 0x%lx", mcu_get_board());
-    info(&log, "Model: 0x%lx", mcu_get_model());
+    info(&log, "Model: 0x%lx", mcu_get_model_for_board(mcu_get_board()));
 
 	info(&log, "Done MCU info test");
 	while (1) {}
