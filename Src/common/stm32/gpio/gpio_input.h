@@ -17,7 +17,7 @@ typedef struct {
 	uint16_t pin;
 } GPIOInput;
 
-void gpio_init_input(GPIOInput *input, GPIO_TypeDef *port, uint16_t pin,
+void gpio_input_init(GPIOInput *gpio, GPIO_TypeDef *port, uint16_t pin,
 		uint32_t pull);
 
 GPIO_PinState gpio_read(GPIOInput *gpio);

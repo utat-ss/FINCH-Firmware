@@ -15,10 +15,8 @@ typedef struct {
 	uint16_t pin;
 } GPIOOutput;
 
-void gpio_init_output_pp(GPIOOutput *output, GPIO_TypeDef *port, uint16_t pin,
-		GPIO_PinState state);
-void gpio_init_output_od(GPIOOutput *output, GPIO_TypeDef *port, uint16_t pin, uint32_t pull,
-		GPIO_PinState state);
+void gpio_output_init(GPIOOutput *gpio, GPIO_TypeDef *port, uint16_t pin,
+		uint32_t mode, uint32_t pull, GPIO_PinState state);
 
 void gpio_set(GPIOOutput *gpio, GPIO_PinState state);
 void gpio_set_low(GPIOOutput *gpio);

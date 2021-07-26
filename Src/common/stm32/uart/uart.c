@@ -161,11 +161,11 @@ void uart_init_base(UART* uart,
 	// Low GPIO speed on the H743 MCU supports up to 12MHz but UART can operate
 	// up to 12.5Mbit/s, so use medium GPIO speed to be safe
     // TX pin init
-    gpio_init_alt_func_pp(&uart->tx_gpio, tx_port, tx_pin, alternate,
-    		GPIO_NOPULL, GPIO_SPEED_FREQ_MEDIUM);
+	gpio_alt_func_init(&uart->tx_gpio, tx_port, tx_pin, alternate,
+    		GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_MEDIUM);
     // RX pin init
-    gpio_init_alt_func_pp(&uart->rx_gpio, rx_port, rx_pin, alternate,
-    		GPIO_NOPULL, GPIO_SPEED_FREQ_MEDIUM);
+	gpio_alt_func_init(&uart->rx_gpio, rx_port, rx_pin, alternate,
+    		GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_MEDIUM);
 
 	// DMA priorities: TX low, RX medium
 	// UART should be relatively low priority compared to other peripherals that
@@ -378,8 +378,8 @@ void uart_init_with_rs485(UART* uart,
 	uart_init_base(uart, instance, baud, alternate, tx_port, tx_pin, rx_port, rx_pin);
 
 	// RS-485 DE pin init
-	gpio_init_alt_func_pp(&uart->de_gpio, de_port, de_pin, alternate,
-			GPIO_NOPULL, GPIO_SPEED_FREQ_MEDIUM);
+	gpio_alt_func_init(&uart->de_gpio, de_port, de_pin, alternate,
+			GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_MEDIUM);
 
 	if (HAL_RS485Ex_Init(&uart->handle, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK) {
 		Error_Handler();
