@@ -7,7 +7,7 @@
  *  Copied over clock configuration
  */
 
-#include "init.h"
+#include <common/stm32/mcu/init.h>
 
 #ifdef STM32G474xx
 

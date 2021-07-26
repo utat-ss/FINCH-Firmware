@@ -20,7 +20,8 @@ Log *g_log_def = NULL;
 // display more verbose output
 LogLevel g_log_global_level = LOG_LEVEL_INFO;
 
-void log_init(Log *log, UART *uart) {
+void log_init(Log *log, MCU *mcu, UART *uart) {
+	log->mcu = mcu;
 	log->uart = uart;
 	// Want a level of info by default
 	log->level = LOG_LEVEL_INFO;

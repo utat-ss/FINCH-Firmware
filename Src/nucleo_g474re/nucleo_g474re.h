@@ -8,7 +8,7 @@
 #ifndef NUCLEO_G474RE_NUCLEO_G474RE_H_
 #define NUCLEO_G474RE_NUCLEO_G474RE_H_
 
-#include <common/stm32/mcu/mcu.h>
+#include <common/stm32/uart/log.h>
 
 // I/O configuration information for the STM32G474 dev kit
 
@@ -37,6 +37,6 @@ typedef struct {
 } G474RE;
 
 void g474re_init(G474RE *dev_kit);
-void g474re_init_uart(UART *uart);
+void g474re_init_uart(UART *uart, MCU *mcu);
 
 #endif /* NUCLEO_G474RE_NUCLEO_G474RE_H_ */

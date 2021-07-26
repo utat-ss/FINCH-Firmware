@@ -24,13 +24,13 @@ int main() {
 
     UART uart;
     if (board == MCU_BOARD_NUCLEO_G474RE) {
-    	g474re_init_uart(&uart);
+    	g474re_init_uart(&uart, &mcu);
     } else if (board == MCU_BOARD_NUCLEO_H743ZI2) {
-    	h743zi2_init_uart(&uart);
+    	h743zi2_init_uart(&uart, &mcu);
     }
 
     Log log;
-    log_init(&log, &uart);
+    log_init(&log, &mcu, &uart);
 
 
     info(&log, "Starting MCU info test");

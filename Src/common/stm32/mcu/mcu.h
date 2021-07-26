@@ -9,7 +9,6 @@
 #define COMMON_STM32_MCU_MCU_H_
 
 #include <common/stm32/mcu/hal.h>
-#include <common/stm32/mcu/init.h>
 
 // DEV_ID values
 typedef enum {
@@ -58,6 +57,8 @@ typedef struct {
 	MCUBoard board;
 	MCUModel model;
 } MCU;
+
+extern MCU *g_mcu_def;
 
 void mcu_init(MCU *mcu, MCUBoard board);
 MCUDevID mcu_get_dev_id();

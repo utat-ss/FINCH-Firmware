@@ -7,6 +7,14 @@
 
 #include <common/stm32/mcu/mcu.h>
 
+#include <common/stm32/mcu/init.h>
+
+// Pointer to "default" MCU struct
+// Try not to use this, but it can be used in contexts where you do not have a
+// pointer to the MCU struct
+// (should only have one MCU struct initialized throughout the program lifetime)
+MCU *g_mcu_def = NULL;
+
 /*
  * @param board - can be specified manually, as MCU_BOARD_NONE, or automatically
  *                with the result from mcu_get_board()
@@ -21,6 +29,11 @@ void mcu_init(MCU *mcu, MCUBoard board) {
 
 	mcu->board = board;
 	mcu->model = model;
+
+	// Save global default MCU pointer
+	if (g_mcu_def == NULL) {
+		g_mcu_def = mcu;
+	}
 }
 
 MCUDevID mcu_get_dev_id() {

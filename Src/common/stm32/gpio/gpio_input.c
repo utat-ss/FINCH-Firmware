@@ -11,14 +11,16 @@
 Initialize a GPIO pin to input state
 @param GPIOInput *gpio - a struct of the initialized pin to be used in
 						 other gpio functions
+@param MCU *mcu - initialized MCU struct
 @param GPIO_TypeDef *port - the gpio port the pin is on
 @param uint16_t pin - the pin number
 @param uint32_t pull - the internal pull-up/down gpio resistor state;
 					   possible values are GPIO_NOPULL, GPIO_PULLUP, GPIO_PULLDOWN
 */
-void gpio_input_init(GPIOInput *gpio, GPIO_TypeDef *port, uint16_t pin,
-		uint32_t pull) {
+void gpio_input_init(GPIOInput *gpio, MCU *mcu, GPIO_TypeDef *port,
+		uint16_t pin, uint32_t pull) {
 	// Create GPIO struct
+	gpio->mcu = mcu;
 	gpio->port = port;
 	gpio->pin = pin;
 

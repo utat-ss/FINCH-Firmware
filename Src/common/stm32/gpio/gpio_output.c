@@ -13,6 +13,7 @@ Push-pull pin output values are high or low.
 Open-drain pin output values are high impedance or low.
 @param GPIOOutput *gpio - a struct of the initialized pin to be used in
 						  other gpio functions
+@param MCU *mcu - initialized MCU struct
 @param GPIO_TypeDef *port - the gpio port the pin is on
 @param uint16_t pin - the pin number
 @param uint32_t mode - output mode; must be GPIO_MODE_OUTPUT_PP (push-pull) or
@@ -23,9 +24,10 @@ Open-drain pin output values are high impedance or low.
 @param GPIO_PinState state - initial state to set the pin to; value can be either
 							 GPIO_PIN_RESET (low) or GPIO_PIN_SET (high or high impedance)
 */
-void gpio_output_init(GPIOOutput *gpio, GPIO_TypeDef *port, uint16_t pin,
-		uint32_t mode, uint32_t pull, GPIO_PinState state) {
+void gpio_output_init(GPIOOutput *gpio, MCU *mcu, GPIO_TypeDef *port,
+		uint16_t pin, uint32_t mode, uint32_t pull, GPIO_PinState state) {
 	// Create GPIO struct
+	gpio->mcu = mcu;
 	gpio->port = port;
 	gpio->pin = pin;
 

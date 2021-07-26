@@ -13,12 +13,13 @@
 #include <stdbool.h>
 
 typedef struct {
+	MCU *mcu;
 	GPIO_TypeDef *port;
 	uint16_t pin;
 } GPIOInput;
 
-void gpio_input_init(GPIOInput *gpio, GPIO_TypeDef *port, uint16_t pin,
-		uint32_t pull);
+void gpio_input_init(GPIOInput *gpio, MCU *mcu, GPIO_TypeDef *port,
+		uint16_t pin, uint32_t pull);
 
 GPIO_PinState gpio_read(GPIOInput *gpio);
 bool gpio_is_low(GPIOInput *gpio);

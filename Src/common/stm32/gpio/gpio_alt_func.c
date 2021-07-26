@@ -10,6 +10,7 @@
 /*
 Initialize a GPIO pin to alternate function state
 @param GPIOAltFunc *gpio - a struct of the initialized alternate function pin
+@param MCU *mcu - initialized MCU struct
 @param GPIO_TypeDef *port - the gpio port the pin is on
 @param uint16_t pin - the pin number
 @param uint8_t alternate - the alternate function value
@@ -20,9 +21,11 @@ Initialize a GPIO pin to alternate function state
 @param uint32_t speed - the GPIO speed setting (e.g. GPIO_SPEED_FREQ_LOW);
                         see gpio.h for how to choose this with max frequency
 */
-void gpio_alt_func_init(GPIOAltFunc *gpio, GPIO_TypeDef *port, uint16_t pin,
-		uint8_t alternate, uint32_t mode, uint32_t pull, uint32_t speed) {
+void gpio_alt_func_init(GPIOAltFunc *gpio, MCU *mcu, GPIO_TypeDef *port,
+		uint16_t pin, uint8_t alternate, uint32_t mode, uint32_t pull,
+		uint32_t speed) {
 	// Create GPIO struct
+	gpio->mcu = mcu;
 	gpio->port = port;
 	gpio->pin = pin;
 

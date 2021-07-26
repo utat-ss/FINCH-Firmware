@@ -36,6 +36,7 @@ typedef enum {
 struct UARTStruct;
 
 typedef struct {
+	MCU *mcu;
     struct UARTStruct *uart;
     LogLevel level;
 } Log;
@@ -56,6 +57,8 @@ typedef enum {
 
 // TODO - variable sized buffers?
 typedef struct UARTStruct {
+	MCU *mcu;
+
     // HAL control
     UART_HandleTypeDef handle;
     DMA_HandleTypeDef tx_dma_handle;

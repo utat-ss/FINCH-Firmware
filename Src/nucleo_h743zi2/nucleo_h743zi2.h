@@ -8,7 +8,7 @@
 #ifndef NUCLEO_H743ZI2_NUCLEO_H743ZI2_H_
 #define NUCLEO_H743ZI2_NUCLEO_H743ZI2_H_
 
-#include <common/stm32/mcu/mcu.h>
+#include <common/stm32/uart/log.h>
 
 // I/O configuration information for the STM32H743 dev kit
 
@@ -30,6 +30,6 @@ typedef struct {
 } H743ZI2;
 
 void h743zi2_init(H743ZI2 *dev_kit);
-void h743zi2_init_uart(UART *uart);
+void h743zi2_init_uart(UART *uart, MCU *mcu);
 
 #endif /* NUCLEO_H743ZI2_NUCLEO_H743ZI2_H_ */
