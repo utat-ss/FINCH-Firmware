@@ -28,6 +28,9 @@ int main() {
     info(&log, "testing dma 3");
     info(&log, "testing dma 4");
     info(&log, "testing dma 5");
+    info(&log, "float %f", 7.963);
+
+    uart_set_rx_timeout_ms(&uart, 15000);
 
     while (1) {
         info(&log, "Enter uint:");
@@ -38,9 +41,15 @@ int main() {
         int32_t sint = uart_read_int(&uart);
         info(&log, "Read %ld", sint);
 
+        info(&log, "Enter double:");
+		double doub = uart_read_double(&uart);
+		info(&log, "Read %lf", doub);
+
         info(&log, "Enter char:");
         char c = uart_read_char(&uart);
         info(&log, "Read %c", c);
+
+        uart_wait_for_key_press(&uart);
     }
 
     return 0;

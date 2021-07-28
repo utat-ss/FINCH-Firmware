@@ -32,6 +32,7 @@ void uart_init_base(UART* uart, MCU *mcu,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin) {
 
 	uart->mcu = mcu;
+	uart->rx_timeout_ms = UART_DEF_RX_TIMEOUT_MS;
 
 	// Set up UART handle
 	uart->handle.Instance = instance;
@@ -419,6 +420,11 @@ void uart_init_with_rs485(UART* uart, MCU *mcu,
     }
 }
 
+void uart_set_rx_timeout_ms(UART *uart, uint32_t rx_timeout_ms) {
+	uart->rx_timeout_ms = rx_timeout_ms;
+	info(&uart->log, "Set UART RX timeout to %lums", rx_timeout_ms);
+}
+
 // Writes data in blocking mode
 void uart_write(UART *uart, uint8_t *buf, uint32_t count) {
 	// 1000ms timeout
@@ -426,6 +432,7 @@ void uart_write(UART *uart, uint8_t *buf, uint32_t count) {
 }
 
 // Writes data in DMA mode
+// Note this may not work correctly if you call it from an ISR
 void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
     // If a TX process is already ongoing, wait for it to finish
     // If a previous DMA TX is in progress, when the TX is done the UART ISR
@@ -493,123 +500,170 @@ bool uart_is_newline_char(char c) {
 }
 
 /*
+ * Reads a single value (no more than 64 bits) from UART input.
+ *
+ * Value can be either a uint32_t (32 bits unsigned), int32_t (32 bits signed),
+ * double (64 bits floating-point), or char (8 bits signed). This function
+ * returns a uint64_t as a way of storing the raw bits because it is large
+ * enough to store the value in all four cases, but the result will need to be
+ * casted or reinterpreted.
+ *
+ * Try two different format strings to accommodate the case of reading a uint or
+ * int, which can be in either hexadecimal or decimal form.
+ *
+ * To read floating-point values, must enable the -u_scanf_float flag in the
+ * linker settings
+ * See Project Properties > C/C++ Build > Settings > Tool Settings > MCU Settings
+ * Note this adds about 6,384 bytes to the `text` section in the compiled binary
+ */
+uint64_t uart_read_value(UART *uart, char *format1, char *format2) {
+	// In the future, could change this function to take a string argument with
+	// a message to log before reading input
+
+	// Restart RX DMA to clear any characters that are already in the buffer
+	// (e.g. from a previous call to uart_wait_for_key_press())
+	uart_restart_rx_dma(uart);
+
+    uint32_t start = HAL_GetTick();
+    // Configurable timeout
+    while (HAL_GetTick() < start + uart->rx_timeout_ms) {
+        uint32_t count = uart_get_rx_count(uart);
+        if (count > 0 && uart_is_newline_char(uart->rx_buf[count - 1])) {
+            // Must add a \0 character to the end of the string to terminate it
+            // as a C string, which is required when passing it to sscanf()
+            // Don't need the \r or \n newline character anyway, so just replace
+            // it with \0
+            uart->rx_buf[count - 1] = '\0';
+
+            // sscanf() returns the number of values successfully matched, so
+            // should be 0 (failed) or 1 (succeeded)
+
+            // sscanf() does not know the type of the memory location that the
+            // pointer (&value) is pointing to, it just places the result in
+            // that memory location assuming there is enough space there
+
+            uint64_t value = 0;
+
+            // Match in first format
+            if (sscanf(uart->rx_buf, format1, &value) > 0) {
+                // Restarting RX DMA clears the RX buffer and starts a new DMA
+                // transfer
+                uart_restart_rx_dma(uart);
+                return value;
+            }
+            // Match in second format
+            else if (sscanf(uart->rx_buf, format2, &value) > 0) {
+                uart_restart_rx_dma(uart);
+                return value;
+            }
+            // No match
+            else {
+                error(&uart->log, "Failed to read value from UART");
+                uart_restart_rx_dma(uart);
+                return 0;
+            }
+        }
+    }
+
+    error(&uart->log, "Timed out trying to read value from UART");
+    uart_restart_rx_dma(uart);
+    return 0;
+}
+
+/*
  * Reads an UNSIGNED integer from UART input.
  * It can be typed either in decimal form (no prefix) or in hexadecimal form
  * (with a "0x" prefix). For example, "35" and "0x23" would both return 35.
  * "0xff" and "0xFF" would both return 255.
  */
 uint32_t uart_read_uint(UART *uart) {
-    uint32_t start = HAL_GetTick();
-    // 60,000ms timeout
-    while (HAL_GetTick() < start + 60000) {
-        uint32_t count = uart_get_rx_count(uart);
-        if (count > 0 && uart_is_newline_char(uart->rx_buf[count - 1])) {
-            // Must add a \0 character to the end of the string to terminate it
-            // as a C string, which is required when passing it to sscanf()
-            // Don't need the \r or \n newline character anyway, so just replace
-            // it with \0
-            uart->rx_buf[count - 1] = '\0';
+	// %lu caps the saved value at 4294967295
+	// %llu caps the saved value at 2147483647 (not sure why)
+	// %llx fails completely
+	uint64_t raw_value = uart_read_value(uart, "0x%lx", "%lu");
 
-            uint32_t value = 0;
-            // sscanf() returns the number of values successfully matched, so
-            // should be 0 (failed) or 1 (succeeded)
-
-            // Match in hexadecimal format
-            if (sscanf(uart->rx_buf, "0x%lx", &value) > 0) {
-                // Restarting RX DMA clears the RX buffer and starts a new DMA
-                // transfer
-                uart_restart_rx_dma(uart);
-                return value;
-            }
-            // Match in decimal format
-            else if (sscanf(uart->rx_buf, "%lu", &value) > 0) {
-                uart_restart_rx_dma(uart);
-                return value;
-            }
-            // No match
-            else {
-                error(&uart->log, "Failed to read uint from UART");
-                uart_restart_rx_dma(uart);
-                return 0;
-            }
-        }
-    }
-
-    error(&uart->log, "Timed out trying to read uint from UART");
-    uart_restart_rx_dma(uart);
-    return 0;
+	// Return value is a uint64_t, so need to cast it to uint32_t
+	uint32_t uint_value = (uint32_t) raw_value;
+	return uint_value;
 }
 
 /*
  * Reads a SIGNED integer from UART input.
  */
 int32_t uart_read_int(UART *uart) {
-    uint32_t start = HAL_GetTick();
-    // 60,000ms timeout
-    while (HAL_GetTick() < start + 60000) {
-        uint32_t count = uart_get_rx_count(uart);
-        if (count > 0 && uart_is_newline_char(uart->rx_buf[count - 1])) {
-            // Must add a \0 character to the end of the string to terminate it
-            // as a C string, which is required when passing it to sscanf()
-            // Don't need the \r or \n newline character anyway, so just replace
-            // it with \0
-            uart->rx_buf[count - 1] = '\0';
+	// %ld caps the saved value at 2147483647 and -2147483648
+	// %lld also caps the saved value at 2147483647 and -2147483648
+	// %llx fails completely
+	uint64_t raw_value = uart_read_value(uart, "0x%lx", "%ld");
 
-            int32_t value = 0;
-            // sscanf() returns the number of values successfully matched, so
-            // should be 0 (failed) or 1 (succeeded)
-            if (sscanf(uart->rx_buf, "%ld", &value) > 0) {
-                // Restarting RX DMA clears the RX buffer and starts a new DMA
-                // transfer
-                uart_restart_rx_dma(uart);
-                return value;
-            } else {
-                error(&uart->log, "Failed to read int from UART");
-                uart_restart_rx_dma(uart);
-                return 0;
-            }
-        }
-    }
+	// Return value is a uint64_t, so need to cast it to int32_t
+	int32_t int_value = (int32_t) raw_value;
+	return int_value;
+}
 
-    error(&uart->log, "Timed out trying to read int from UART");
-    uart_restart_rx_dma(uart);
-    return 0;
+/*
+ * Reads a floating-point number from UART input.
+ */
+double uart_read_double(UART *uart) {
+	// %f - float
+	// %lf - double
+	// %Lf - long double (same as double, just don't use it)
+	// %llf, %LLf - unsupported
+	// Only need one format string, so just make the second format string blank
+	uint64_t raw_value = uart_read_value(uart, "%lf", "");
+
+	// Return value is a uint64_t, so need to reinterpret the underlying bits as
+	// a double
+	// Note this is NOT the same thing as a standard cast from one data type to
+	// another, instead this is like `reinterpret_cast` in C++
+	// Get a pointer to the uint64_t value, cast the pointer to reinterpret it
+	// as a double, then dereference the pointer to get the underlying value as
+	// a double
+	double double_value = * ((double *) (&raw_value));
+	return double_value;
 }
 
 /*
  * Reads one character from UART input.
  */
 char uart_read_char(UART *uart) {
-    uint32_t start = HAL_GetTick();
-    // 60,000ms timeout
-    while (HAL_GetTick() < start + 60000) {
-        uint32_t count = uart_get_rx_count(uart);
-        if (count > 0 && uart_is_newline_char(uart->rx_buf[count - 1])) {
-            // Must add a \0 character to the end of the string to terminate it
-            // as a C string, which is required when passing it to sscanf()
-            // Don't need the \r or \n newline character anyway, so just replace
-            // it with \0
-            uart->rx_buf[count - 1] = '\0';
+	// Only need one format string, so just make the second format string blank
+	uint64_t raw_value = uart_read_value(uart, "%c", "");
 
-            char value = 0;
-            // sscanf() returns the number of values successfully matched, so
-            // should be 0 (failed) or 1 (succeeded)
-            if (sscanf(uart->rx_buf, "%c", &value) > 0) {
-                // Restarting RX DMA clears the RX buffer and starts a new DMA
-                // transfer
-                uart_restart_rx_dma(uart);
-                return value;
-            } else {
-                error(&uart->log, "Failed to read char from UART");
-                uart_restart_rx_dma(uart);
-                return 0;
-            }
+	// Return value is a uint64_t, so need to cast it to char
+	char char_value = (char) raw_value;
+	return char_value;
+}
+
+/*
+ * Waits for one character from UART input (any key pressed).
+ * This should only be used for testing, NOT in flight.
+ * @return - true for success, false for failure (timeout)
+ */
+bool uart_wait_for_key_press(UART *uart) {
+	info(&uart->log, "Press any key to continue...");
+
+	// Restart RX DMA to clear any characters that are already in the buffer
+	// (e.g. from a previous call to uart_wait_for_key_press())
+	// Make sure to do this AFTER logging the message above
+	uart_restart_rx_dma(uart);
+
+    uint32_t start = HAL_GetTick();
+    // Configurable timeout
+    while (HAL_GetTick() < start + uart->rx_timeout_ms) {
+        uint32_t count = uart_get_rx_count(uart);
+        if (count > 0) {
+			// Restarting RX DMA clears the RX buffer and starts a new DMA
+			// transfer
+        	verbose(&uart->log, "Received key press");
+			uart_restart_rx_dma(uart);
+			return true;
         }
     }
 
-    error(&uart->log, "Timed out trying to read char from UART");
+    error(&uart->log, "Timed out waiting for key press from UART");
     uart_restart_rx_dma(uart);
-    return 0;
+    return false;
 }
 
 

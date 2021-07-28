@@ -89,11 +89,19 @@ void log_strncat_tx(Log *log, const char *source) {
  * library
  * Can't just name the function `log` because that function exists in the math
  * library
+ *
  * Need to make sure the linker has the -u_printf_float flag enabled, or else
  * printing floating-point values does not work
- * (https://community.st.com/s/question/0D50X0000B0AEJb/uprintffloat-where-to-set-for-clinker-in-stm32cubeide)
+ * See Project Properties > C/C++ Build > Settings > Tool Settings > MCU Settings
+ * Also see https://community.st.com/s/question/0D50X0000B0AEJb/uprintffloat-where-to-set-for-clinker-in-stm32cubeide
  * Note that in the compiled binary, the -u_printf_float flag adds about
  * 6,524 bytes to `text` and 364 bytes to `data`
+ *
+ * Note that %llu and %lld format specifiers do not appear to work, as they just
+ * print "lu" and "ld" (without any numbers) respectively
+ *
+ * Note this may not work correctly if you call it from an ISR (see
+ * uart_write_dma())
  */
 void log_log(Log *log, LogLevel level, const char *format, va_list args) {
 	// Only send this message over UART if the log level is high enough or the
