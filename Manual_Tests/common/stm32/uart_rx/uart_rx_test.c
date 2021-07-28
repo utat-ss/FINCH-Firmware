@@ -1,56 +1,46 @@
-#include <common/stm32/mcu/init.h>
 #include <common/stm32/uart/log.h>
 
-#ifdef STM32H743xx
-// Declare pin variables for STM32H7 devkit
-#define UART_INST 		USART3
-#define UART_ALT  		GPIO_AF7_USART3
-#define UART_TX_PORT    GPIOD
-#define UART_TX_PIN     GPIO_PIN_8
-#define UART_RX_PORT    GPIOD
-#define UART_RX_PIN     GPIO_PIN_9
-#endif
-
-#ifdef STM32G474xx
-// Declare pin variables for STM32G4 devkit
-#define UART_INST       LPUART1
-#define UART_ALT        GPIO_AF8_LPUART1    // Might be GPIO_AF12_LPUART1 instead
-#define UART_TX_PORT    GPIOA
-#define UART_TX_PIN     GPIO_PIN_2
-#define UART_RX_PORT    GPIOA
-#define UART_RX_PIN     GPIO_PIN_3
-#endif
-
-
 int main() {
-    HAL_Init();
-    clock_init();
+    // Try to automatically detect board based on MCU UID
+	MCUBoard board = mcu_get_board();
+	// If the UID is not matched, try to guess the board based on the device ID
+	if (board == MCU_BOARD_NONE) {
+		MCUDevID dev_id = mcu_get_dev_id();
+		if (dev_id == MCU_DEV_ID_STM32G471_473_474_483_484) {
+			board = MCU_BOARD_NUCLEO_G474RE;
+		}
+		else if (dev_id == MCU_DEV_ID_STM32H742_743_753_750) {
+			board = MCU_BOARD_NUCLEO_H743ZI2;
+		}
+	}
 
-    UART uart;
-    uart_init(&uart, UART_INST, UART_BAUD_115200, UART_ALT,
-            UART_TX_PORT, UART_TX_PIN, UART_RX_PORT, UART_RX_PIN);
-    Log logger;
-    log_init(&logger, &uart);
-    info(&logger, "Starting UART RX test");
+	MCU mcu;
+	mcu_init(&mcu, board);
+	UART uart;
+	uart_init_for_board(&uart, &mcu);
+	Log log;
+	log_init(&log, &mcu, &uart);
 
-    info(&logger, "testing dma 1");
-    info(&logger, "testing dma 2");
-    info(&logger, "testing dma 3");
-    info(&logger, "testing dma 4");
-    info(&logger, "testing dma 5");
+
+    info(&log, "Starting UART RX test");
+    info(&log, "testing dma 1");
+    info(&log, "testing dma 2");
+    info(&log, "testing dma 3");
+    info(&log, "testing dma 4");
+    info(&log, "testing dma 5");
 
     while (1) {
-        info(&logger, "Enter uint:");
+        info(&log, "Enter uint:");
         uint32_t uint = uart_read_uint(&uart);
-        info(&logger, "Read %lu", uint);
+        info(&log, "Read %lu", uint);
 
-        info(&logger, "Enter int:");
+        info(&log, "Enter int:");
         int32_t sint = uart_read_int(&uart);
-        info(&logger, "Read %ld", sint);
+        info(&log, "Read %ld", sint);
 
-        info(&logger, "Enter char:");
+        info(&log, "Enter char:");
         char c = uart_read_char(&uart);
-        info(&logger, "Read %c", c);
+        info(&log, "Read %c", c);
     }
 
     return 0;

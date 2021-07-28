@@ -1,16 +1,11 @@
-#include <common/stm32/mcu/mcu.h>
 #include <common/stm32/uart/log.h>
-#include <nucleo_g474re/nucleo_g474re.h>
-#include <nucleo_h743zi2/nucleo_h743zi2.h>
 
 int main() {
 	// Try to automatically detect board based on MCU UID
 	MCUBoard board = mcu_get_board();
-
 	// If the UID is not matched, try to guess the board based on the device ID
 	if (board == MCU_BOARD_NONE) {
 		MCUDevID dev_id = mcu_get_dev_id();
-
 		if (dev_id == MCU_DEV_ID_STM32G471_473_474_483_484) {
 			board = MCU_BOARD_NUCLEO_G474RE;
 		}
@@ -21,14 +16,8 @@ int main() {
 
     MCU mcu;
     mcu_init(&mcu, board);
-
     UART uart;
-    if (board == MCU_BOARD_NUCLEO_G474RE) {
-    	g474re_init_uart(&uart, &mcu);
-    } else if (board == MCU_BOARD_NUCLEO_H743ZI2) {
-    	h743zi2_init_uart(&uart, &mcu);
-    }
-
+    uart_init_for_board(&uart, &mcu);
     Log log;
     log_init(&log, &mcu, &uart);
 

@@ -7,6 +7,8 @@
 
 // log.h includes uart.h
 #include <common/stm32/uart/log.h>
+#include <nucleo_g474re/g474re_config.h>
+#include <nucleo_h743zi2/h743zi2_config.h>
 
 // Pointer to each specific UART peripheral (if used) - needed for use in ISRs
 UART *g_uart_usart1 = NULL;
@@ -368,6 +370,27 @@ void uart_init(UART* uart, MCU *mcu,
 	uart_write(uart, (uint8_t*) buf, strlen(buf));
 
 	log_init(&uart->log, mcu, uart);
+}
+
+/*
+ * Initialize normal UART for the specified board. This function is provided as
+ * a convenient initializer, given that UART is used on every MCU on every
+ * board. This function is useful to reduce code duplication in the tests in
+ * Manual_Tests/common that are supposed to work on all boards.
+ */
+void uart_init_for_board(UART* uart, MCU *mcu) {
+	if (mcu->board == MCU_BOARD_NUCLEO_G474RE) {
+		// 115,200 baud should work for LPUART1 with a higher frequency clock than a
+		// 32.768kHz LSE
+		// If this doesn't work, try 9,600 baud
+		uart_init(uart, mcu, G474RE_UART_INST, UART_BAUD_115200, G474RE_UART_AF,
+				G474RE_UART_TX_PORT, G474RE_UART_TX_PIN,
+				G474RE_UART_RX_PORT, G474RE_UART_RX_PIN);
+	} else if (mcu->board == MCU_BOARD_NUCLEO_H743ZI2) {
+		uart_init(uart, mcu, H743ZI2_UART_INST, UART_BAUD_115200, H743ZI2_UART_AF,
+				H743ZI2_UART_TX_PORT, H743ZI2_UART_TX_PIN,
+				H743ZI2_UART_RX_PORT, H743ZI2_UART_RX_PIN);
+	}
 }
 
 // Initialize UART + RS-485

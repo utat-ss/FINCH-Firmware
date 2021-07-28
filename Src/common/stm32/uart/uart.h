@@ -95,6 +95,7 @@ void uart_init(UART* uart, MCU *mcu,
         USART_TypeDef *instance, UARTBaud baud, uint8_t alternate,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin);
+void uart_init_for_board(UART* uart, MCU *mcu);
 void uart_init_with_rs485(UART* uart, MCU *mcu,
         USART_TypeDef *instance, UARTBaud baud, uint8_t alternate,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
