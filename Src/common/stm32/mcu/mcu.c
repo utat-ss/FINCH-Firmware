@@ -46,9 +46,19 @@ uint32_t mcu_get_rev_id() {
 
 MCUUID mcu_get_uid() {
 	MCUUID uid;
+
+	// The G4 HAL doesn't have the three functions to get UID
+	// It does define UID_BASE though, so copy the implementation from the H7 HAL
+#if defined(STM32G4)
+	uid.w0 = READ_REG(*((uint32_t *)(UID_BASE + 0U)));
+	uid.w1 = READ_REG(*((uint32_t *)(UID_BASE + 4U)));
+	uid.w2 = READ_REG(*((uint32_t *)(UID_BASE + 8U)));
+#elif defined(STM32H7)
 	uid.w0 = HAL_GetUIDw0();
 	uid.w1 = HAL_GetUIDw1();
 	uid.w2 = HAL_GetUIDw2();
+#endif
+
 	return uid;
 }
 
