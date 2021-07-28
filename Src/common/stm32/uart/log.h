@@ -38,7 +38,7 @@
 
 extern Log *g_log_def;
 
-void log_init(Log *log, MCU *mcu, UART *uart);
+void log_init(Log *log, UART *uart);
 void log_set_level(Log *log, LogLevel level);
 void log_set_global_level(LogLevel level);
 

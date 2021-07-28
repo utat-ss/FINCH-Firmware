@@ -19,7 +19,7 @@ int main() {
 	UART uart;
 	uart_init_for_board(&uart, &mcu);
 	Log log;
-	log_init(&log, &mcu, &uart);
+	log_init(&log, &uart);
 
 
     uint8_t buf1[20] = "testing\r\n";

@@ -36,7 +36,6 @@ typedef enum {
 struct UARTStruct;
 
 typedef struct {
-	MCU *mcu;
     struct UARTStruct *uart;
     LogLevel level;
 } Log;

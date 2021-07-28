@@ -12,7 +12,7 @@ void h743zi2_init(H743ZI2 *dev_kit) {
 	mcu_init(&dev_kit->mcu, H743ZI2_BOARD);
 
 	uart_init_for_board(&dev_kit->uart, &dev_kit->mcu);
-	log_init(&dev_kit->log, &dev_kit->mcu, &dev_kit->uart);
+	log_init(&dev_kit->log, &dev_kit->uart);
 
 	gpio_input_init(&dev_kit->blue_button, &dev_kit->mcu, H743ZI2_BLUE_BUTTON_PORT,
 			H743ZI2_BLUE_BUTTON_PIN, GPIO_NOPULL);

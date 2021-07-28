@@ -12,7 +12,7 @@ void g474re_init(G474RE *dev_kit) {
 	mcu_init(&dev_kit->mcu, G474RE_BOARD);
 
 	uart_init_for_board(&dev_kit->uart, &dev_kit->mcu);
-	log_init(&dev_kit->log, &dev_kit->mcu, &dev_kit->uart);
+	log_init(&dev_kit->log, &dev_kit->uart);
 
 	gpio_input_init(&dev_kit->blue_button, &dev_kit->mcu, G474RE_BLUE_BUTTON_PORT,
 			G474RE_BLUE_BUTTON_PIN, GPIO_NOPULL);

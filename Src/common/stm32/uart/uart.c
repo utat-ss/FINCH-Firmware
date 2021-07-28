@@ -369,7 +369,7 @@ void uart_init(UART* uart, MCU *mcu,
 	snprintf(buf, sizeof(buf), "Initialized UART\r\n");
 	uart_write(uart, (uint8_t*) buf, strlen(buf));
 
-	log_init(&uart->log, mcu, uart);
+	log_init(&uart->log, uart);
 }
 
 /*
