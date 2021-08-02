@@ -235,6 +235,8 @@ foreach(TARGET IN LISTS TEST_TARGETS)
                 # Enable printf-style formatting/printing of floating-point
                 # numbers
                 -u_printf_float
+                # Enable scanf-style reading/input of floating-point numbers
+                -u_scanf_float
         )
 
         # Add MCU series-specific settings
