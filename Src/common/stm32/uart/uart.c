@@ -344,11 +344,15 @@ void uart_init(UART* uart, MCU *mcu,
         }
 
         // Print warning message at 9600 baud
+        // Note this takes over 100ms to write to UART at 9600 baud, so it can
+        // be disabled if you need to speed up MCU initialization
         snprintf(buf, sizeof(buf),
                 "WARNING: UART is operating at %lu baud\r\n"
                 "Your serial monitor is set to 9600 baud\r\n"
                 "Change your serial monitor's baud rate!\r\n",
                 (uint32_t) baud);
+        // Must use uart_write here because the Log struct has not been
+        // initialized yet
         uart_write(uart, (uint8_t*) buf, strlen(buf));
 
         // Restore the original baud rate and reinitialize UART
@@ -425,30 +429,87 @@ void uart_set_rx_timeout_ms(UART *uart, uint32_t rx_timeout_ms) {
 	info(&uart->log, "Set UART RX timeout to %lums", rx_timeout_ms);
 }
 
-// Writes data in blocking mode
-void uart_write(UART *uart, uint8_t *buf, uint32_t count) {
-	// 1000ms timeout
-	HAL_UART_Transmit(&uart->handle, buf, count, 1000);
+void uart_wait_for_tx_ready(UART *uart) {
+	// If a TX process is already ongoing, wait for it to finish
+	// If a previous DMA TX is in progress, when the TX is done the UART ISR
+	// will set gState to ready
+	// This is necessary because if you call HAL_UART_Transmit() or
+	// HAL_UART_Transmit_DMA() when gState is not ready, it fails and returns
+	// busy (without transmitting anything)
+	uint32_t start = HAL_GetTick();
+	while (uart->handle.gState != HAL_UART_STATE_READY) {
+		// Timeout (this should never happen)
+		if (HAL_GetTick() > start + UART_TX_TIMEOUT_MS) {
+			Error_Handler();
+			return;
+		}
+	}
 }
 
-// Writes data in DMA mode
-// Note this may not work correctly if you call it from an ISR
-void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
-    // If a TX process is already ongoing, wait for it to finish
-    // If a previous DMA TX is in progress, when the TX is done the UART ISR
-    // will set gState to ready
-    // This is necessary because if you call HAL_UART_Transmit_DMA() when gState
-    // is not ready, it fails and returns busy (without printing anything)
-    uint32_t start = HAL_GetTick();
-    while (uart->handle.gState != HAL_UART_STATE_READY) {
-        // 100ms timeout (this should never happen)
-        if (HAL_GetTick() > start + 100) {
-            Error_Handler();
-            return;
-        }
-    }
+void uart_safe_memcpy(uint8_t *destination, size_t sizeof_destination,
+		uint8_t *source, size_t count) {
+	// See https://www.cplusplus.com/reference/cstring/memcpy/
 
-	HAL_UART_Transmit_DMA(&uart->handle, buf, count);
+	// memcpy() is not safe if the destination and source overlap
+	// Besides, there is no point in copying if the destination and source
+	// are the same
+	if (destination == source) {
+		return;
+	}
+
+	// Make sure count doesn't overflow the destination buffer size
+	if (count > sizeof_destination) {
+		count = sizeof_destination;
+	}
+
+	// Copy from source to destination
+	memcpy(destination, source, count);
+}
+
+/*
+ * Writes data in blocking mode
+ */
+void uart_write(UART *uart, uint8_t *buf, uint32_t count) {
+	// Must wait until the previous TX transfer has completed (could have a TX
+	// DMA transfer ongoing)
+	uart_wait_for_tx_ready(uart);
+
+	// Don't need to copy the data bytes to the UART struct's TX buffer
+	// since this function just blocks until the transmission is complete
+	HAL_UART_Transmit(&uart->handle, buf, count, UART_TX_TIMEOUT_MS);
+}
+
+/*
+ * Writes data in DMA mode
+ * Note when this function returns, the DMA transmission is probably not
+ * finished
+ * Note this may not work correctly if you call it from an ISR
+ * Note that buf should be a SEPARATE BUFFER from uart->tx_buf
+ */
+void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
+	// Must wait until the previous TX DMA transfer has completed
+    uart_wait_for_tx_ready(uart);
+
+    // Copy data from the buffer passed in as an argument to the UART struct's
+    // TX buffer
+    // This ensures the bytes to be written remain stable (unmodified) while the
+    // DMA is transferring them to the UART output
+    // This must occur AFTER waiting for UART TX to be ready (i.e. after waiting
+    // for the previous DMA transfer to complete)
+    // If we write to uart->tx_buf before the previous transfer has completed,
+	// it overwrites the data of the previous transfer and corrupts the bytes
+    // that have not been sent out yet by the previous transfer
+    uart_safe_memcpy((uint8_t *) uart->tx_buf, sizeof(uart->tx_buf), buf, count);
+
+    // Transmit the data from the UART struct's TX buffer
+	HAL_UART_Transmit_DMA(&uart->handle, (uint8_t *) uart->tx_buf, count);
+
+	// In the future, could modify this implementation so it doesn't have to
+	// wait for the previous DMA transfer to finish before starting the next
+	// one
+	// Could make it pause the previous DMA transfer, discard bytes from the
+	// buffer that have already been transmitted, append the bytes of the
+	// new message to the buffer, then start a new DMA transfer
 }
 
 /*

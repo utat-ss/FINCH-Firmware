@@ -82,6 +82,10 @@ https://electronics.stackexchange.com/questions/393868/stm32f4-dma-transfer-erro
 
 // See uart_log.h for enum and struct definitions
 
+// TX timeout (in ms)
+// Conservative upper bound calculated assuming 9600 baud (~1 byte per ms),
+// max 160 bytes per line, plus a lot of margin
+#define UART_TX_TIMEOUT_MS 400
 // Default RX timeout (in ms)
 #define UART_DEF_RX_TIMEOUT_MS	60000
 
