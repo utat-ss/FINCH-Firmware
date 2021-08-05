@@ -47,13 +47,6 @@ typedef struct {
 #define UART_TX_BUF_SIZE 160
 #define UART_RX_BUF_SIZE 80
 
-// Baud rate is just an integer number, but make it an enum to limit possible
-// baud values to only those that are practically used (to prevent typos)
-typedef enum {
-    UART_BAUD_9600 = 9600,
-    UART_BAUD_115200 = 115200
-} UARTBaud;
-
 // TODO - variable sized buffers?
 typedef struct UARTStruct {
 	MCU *mcu;

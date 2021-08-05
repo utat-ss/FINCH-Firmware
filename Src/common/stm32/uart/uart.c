@@ -330,23 +330,13 @@ void uart_init(UART* uart, MCU *mcu,
     // theirs set to 9600, we switch the MCU's UART to 9600, print a warning
     // message, then switch back to the original baud rate
     if (baud != UART_BAUD_9600) {
-
-        // Abort all ongoing transfers (this function executes in blocking mode)
-        HAL_UART_Abort(&uart->handle);
-        // Deinitialize the UART peripheral
-        HAL_UART_DeInit(&uart->handle);
-        // Change baud rate to 9600
-        uart->handle.Init.BaudRate = UART_BAUD_9600;
-        // Reinitialize UART at 9600 baud
-        if (HAL_UART_Init(&uart->handle) != HAL_OK) {
-            Error_Handler();
-        }
+    	uart_set_baud(uart, UART_BAUD_9600);
 
         // Print warning message at 9600 baud
         // Note this takes over 100ms to write to UART at 9600 baud, so it can
         // be disabled if you need to speed up MCU initialization
         snprintf(buf, sizeof(buf),
-                "WARNING: UART is operating at %lu baud\r\n"
+                "WARNING: UART will be operating at %lu baud\r\n"
                 "Your serial monitor is set to 9600 baud\r\n"
                 "Change your serial monitor's baud rate!\r\n",
                 (uint32_t) baud);
@@ -355,12 +345,7 @@ void uart_init(UART* uart, MCU *mcu,
         uart_write(uart, (uint8_t*) buf, strlen(buf));
 
         // Restore the original baud rate and reinitialize UART
-        HAL_UART_Abort(&uart->handle);
-        HAL_UART_DeInit(&uart->handle);
-        uart->handle.Init.BaudRate = baud;
-        if (HAL_UART_Init(&uart->handle) != HAL_OK) {
-            Error_Handler();
-        }
+        uart_set_baud(uart, baud);
     }
 
 	// Set global variables after HAL_UART_Init() to make sure they are
@@ -387,11 +372,11 @@ void uart_init_for_board(UART* uart, MCU *mcu) {
 		// 115,200 baud should work for LPUART1 with a higher frequency clock than a
 		// 32.768kHz LSE
 		// If this doesn't work, try 9,600 baud
-		uart_init(uart, mcu, G474RE_UART_INST, UART_BAUD_115200, G474RE_UART_AF,
+		uart_init(uart, mcu, G474RE_UART_INST, UART_DEF_BAUD, G474RE_UART_AF,
 				G474RE_UART_TX_PORT, G474RE_UART_TX_PIN,
 				G474RE_UART_RX_PORT, G474RE_UART_RX_PIN);
 	} else if (mcu->board == MCU_BOARD_NUCLEO_H743ZI2) {
-		uart_init(uart, mcu, H743ZI2_UART_INST, UART_BAUD_115200, H743ZI2_UART_AF,
+		uart_init(uart, mcu, H743ZI2_UART_INST, UART_DEF_BAUD, H743ZI2_UART_AF,
 				H743ZI2_UART_TX_PORT, H743ZI2_UART_TX_PIN,
 				H743ZI2_UART_RX_PORT, H743ZI2_UART_RX_PIN);
 	}
@@ -421,6 +406,19 @@ void uart_init_with_rs485(UART* uart, MCU *mcu,
 	if (g_log_def != NULL) {
         info(g_log_def, "Initialized UART + RS-485");
     }
+}
+
+void uart_set_baud(UART *uart, UARTBaud baud) {
+	// Abort all ongoing transfers (this function executes in blocking mode)
+	HAL_UART_Abort(&uart->handle);
+	// Deinitialize the UART peripheral
+	HAL_UART_DeInit(&uart->handle);
+	// Change baud rate to desired
+	uart->handle.Init.BaudRate = baud;
+	// Reinitialize UART at new baud
+	if (HAL_UART_Init(&uart->handle) != HAL_OK) {
+		Error_Handler();
+	}
 }
 
 void uart_wait_for_tx_ready(UART *uart) {
