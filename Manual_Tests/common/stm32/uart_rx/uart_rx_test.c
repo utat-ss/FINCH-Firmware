@@ -31,20 +31,16 @@ int main() {
     info(&log, "float %f", 7.963);
 
     while (1) {
-        info(&log, "Enter uint:");
-        uint32_t uint = uart_read_uint(&uart);
+        uint32_t uint = uart_read_uint(&uart, "Enter uint:");
         info(&log, "Read %lu", uint);
 
-        info(&log, "Enter int:");
-        int32_t sint = uart_read_int(&uart);
+        int32_t sint = uart_read_int(&uart, "Enter %s:", "int");
         info(&log, "Read %ld", sint);
 
-        info(&log, "Enter double:");
-		double doub = uart_read_double(&uart);
+		double doub = uart_read_double(&uart, "Enter double:");
 		info(&log, "Read %lf", doub);
 
-        info(&log, "Enter char:");
-        char c = uart_read_char(&uart);
+        char c = uart_read_char(&uart, "Enter char:");
         info(&log, "Read %c", c);
 
         uart_wait_for_key_press(&uart);

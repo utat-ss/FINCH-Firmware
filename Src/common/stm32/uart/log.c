@@ -145,8 +145,8 @@ bool log_should_write_msg(Log *log, LogLevel level) {
 }
 
 /*
- * This function is never meant to be called directly by other code outside this
- * library
+ * This function is generally never meant to be called directly by other code
+ * outside this library
  * Can't just name the function `log` because that function exists in the math
  * library
  *

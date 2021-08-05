@@ -115,10 +115,10 @@ void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count);
 void uart_restart_rx_dma(UART *uart);
 uint32_t uart_get_rx_count(UART *uart);
 
-uint32_t uart_read_uint(UART *uart);
-int32_t uart_read_int(UART *uart);
-double uart_read_double(UART *uart);
-char uart_read_char(UART *uart);
+uint32_t uart_read_uint(UART *uart, char *tx_format, ...);
+int32_t uart_read_int(UART *uart, char *tx_format, ...);
+double uart_read_double(UART *uart, char *tx_format, ...);
+char uart_read_char(UART *uart, char *tx_format, ...);
 void uart_wait_for_key_press(UART *uart);
 
 #endif /* COMMON_STM32_UART_UART_H_ */

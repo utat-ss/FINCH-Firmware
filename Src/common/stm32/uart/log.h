@@ -42,6 +42,7 @@ void log_init(Log *log, UART *uart);
 void log_set_level(Log *log, LogLevel level);
 void log_set_global_level(LogLevel level);
 
+void log_log(Log *log, LogLevel level, char *format, va_list args);
 // Chose not to prefix these names with "log_" because they are incredibly
 // commonly used
 void error(Log *log, char *format, ...);

@@ -571,9 +571,10 @@ bool uart_is_newline_char(char c) {
  * See Project Properties > C/C++ Build > Settings > Tool Settings > MCU Settings
  * Note this adds about 6,384 bytes to the `text` section in the compiled binary
  */
-uint64_t uart_read_value(UART *uart, char *format1, char *format2) {
-	// In the future, could change this function to take a string argument with
-	// a message to log before reading input
+uint64_t uart_read_value(UART *uart, char *tx_format, va_list tx_args,
+		char *format1, char *format2) {
+	// Log an output message before receiving input
+	log_log(&uart->log, LOG_LEVEL_INFO, tx_format, tx_args);
 
 	// Restart RX DMA to clear any characters that are already in the buffer
 	// (e.g. from a previous call to uart_wait_for_key_press()) and start a new
@@ -628,11 +629,15 @@ uint64_t uart_read_value(UART *uart, char *format1, char *format2) {
  * (with a "0x" prefix). For example, "35" and "0x23" would both return 35.
  * "0xff" and "0xFF" would both return 255.
  */
-uint32_t uart_read_uint(UART *uart) {
+uint32_t uart_read_uint(UART *uart, char *tx_format, ...) {
 	// %lu caps the saved value at 4294967295
 	// %llu caps the saved value at 2147483647 (not sure why)
 	// %llx fails completely
-	uint64_t raw_value = uart_read_value(uart, "0x%lx", "%lu");
+	va_list tx_args;
+	va_start(tx_args, tx_format);
+	uint64_t raw_value = uart_read_value(uart, tx_format, tx_args,
+			"0x%lx", "%lu");
+	va_end(tx_args);
 
 	// Return value is a uint64_t, so need to cast it to uint32_t
 	uint32_t uint_value = (uint32_t) raw_value;
@@ -642,11 +647,15 @@ uint32_t uart_read_uint(UART *uart) {
 /*
  * Reads a SIGNED integer from UART input.
  */
-int32_t uart_read_int(UART *uart) {
+int32_t uart_read_int(UART *uart, char *tx_format, ...) {
 	// %ld caps the saved value at 2147483647 and -2147483648
 	// %lld also caps the saved value at 2147483647 and -2147483648
 	// %llx fails completely
-	uint64_t raw_value = uart_read_value(uart, "0x%lx", "%ld");
+	va_list tx_args;
+	va_start(tx_args, tx_format);
+	uint64_t raw_value = uart_read_value(uart, tx_format, tx_args,
+			"0x%lx", "%ld");
+	va_end(tx_args);
 
 	// Return value is a uint64_t, so need to cast it to int32_t
 	int32_t int_value = (int32_t) raw_value;
@@ -656,13 +665,16 @@ int32_t uart_read_int(UART *uart) {
 /*
  * Reads a floating-point number from UART input.
  */
-double uart_read_double(UART *uart) {
+double uart_read_double(UART *uart, char *tx_format, ...) {
 	// %f - float
 	// %lf - double
 	// %Lf - long double (same as double, just don't use it)
 	// %llf, %LLf - unsupported
 	// Only need one format string, so just make the second format string blank
-	uint64_t raw_value = uart_read_value(uart, "%lf", "");
+	va_list tx_args;
+	va_start(tx_args, tx_format);
+	uint64_t raw_value = uart_read_value(uart, tx_format, tx_args, "%lf", "");
+	va_end(tx_args);
 
 	// Return value is a uint64_t, so need to reinterpret the underlying bits as
 	// a double
@@ -678,9 +690,12 @@ double uart_read_double(UART *uart) {
 /*
  * Reads one character from UART input.
  */
-char uart_read_char(UART *uart) {
+char uart_read_char(UART *uart, char *tx_format, ...) {
 	// Only need one format string, so just make the second format string blank
-	uint64_t raw_value = uart_read_value(uart, "%c", "");
+	va_list tx_args;
+	va_start(tx_args, tx_format);
+	uint64_t raw_value = uart_read_value(uart, tx_format, tx_args, "%c", "");
+	va_end(tx_args);
 
 	// Return value is a uint64_t, so need to cast it to char
 	char char_value = (char) raw_value;
