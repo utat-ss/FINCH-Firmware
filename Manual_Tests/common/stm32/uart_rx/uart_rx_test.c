@@ -30,8 +30,6 @@ int main() {
     info(&log, "testing dma 5");
     info(&log, "float %f", 7.963);
 
-    uart_set_rx_timeout_ms(&uart, 15000);
-
     while (1) {
         info(&log, "Enter uint:");
         uint32_t uint = uart_read_uint(&uart);

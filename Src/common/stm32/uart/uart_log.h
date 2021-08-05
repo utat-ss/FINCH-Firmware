@@ -79,9 +79,6 @@ typedef struct UARTStruct {
 
     // Default Log struct for this UART
     Log log;
-
-    // RX timeout (in ms)
-    uint32_t rx_timeout_ms;
 } UART;
 
 // -----------------------------------------------------------------------------

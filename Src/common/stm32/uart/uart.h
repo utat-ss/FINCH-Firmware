@@ -86,8 +86,6 @@ https://electronics.stackexchange.com/questions/393868/stm32f4-dma-transfer-erro
 // Conservative upper bound calculated assuming 9600 baud (~1 byte per ms),
 // max 160 bytes per line, plus a lot of margin
 #define UART_TX_TIMEOUT_MS 400
-// Default RX timeout (in ms)
-#define UART_DEF_RX_TIMEOUT_MS	60000
 
 extern UART *g_uart_usart1;
 extern UART *g_uart_usart2;
@@ -110,7 +108,6 @@ void uart_init_with_rs485(UART* uart, MCU *mcu,
 		GPIO_TypeDef *tx_port, uint16_t tx_pin,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin,
 		GPIO_TypeDef *de_port, uint16_t de_pin);
-void uart_set_rx_timeout_ms(UART *uart, uint32_t rx_timeout_ms);
 
 void uart_write(UART *uart, uint8_t *buf, uint32_t count);
 void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count);
@@ -122,6 +119,6 @@ uint32_t uart_read_uint(UART *uart);
 int32_t uart_read_int(UART *uart);
 double uart_read_double(UART *uart);
 char uart_read_char(UART *uart);
-bool uart_wait_for_key_press(UART *uart);
+void uart_wait_for_key_press(UART *uart);
 
 #endif /* COMMON_STM32_UART_UART_H_ */

@@ -32,7 +32,6 @@ void uart_init_base(UART* uart, MCU *mcu,
 		GPIO_TypeDef *rx_port, uint16_t rx_pin) {
 
 	uart->mcu = mcu;
-	uart->rx_timeout_ms = UART_DEF_RX_TIMEOUT_MS;
 
 	// Set up UART handle
 	uart->handle.Instance = instance;
@@ -424,11 +423,6 @@ void uart_init_with_rs485(UART* uart, MCU *mcu,
     }
 }
 
-void uart_set_rx_timeout_ms(UART *uart, uint32_t rx_timeout_ms) {
-	uart->rx_timeout_ms = rx_timeout_ms;
-	info(&uart->log, "Set UART RX timeout to %lums", rx_timeout_ms);
-}
-
 void uart_wait_for_tx_ready(UART *uart) {
 	// If a TX process is already ongoing, wait for it to finish
 	// If a previous DMA TX is in progress, when the TX is done the UART ISR
@@ -582,13 +576,15 @@ uint64_t uart_read_value(UART *uart, char *format1, char *format2) {
 	// a message to log before reading input
 
 	// Restart RX DMA to clear any characters that are already in the buffer
-	// (e.g. from a previous call to uart_wait_for_key_press())
+	// (e.g. from a previous call to uart_wait_for_key_press()) and start a new
+	// DMA transfer
 	uart_restart_rx_dma(uart);
 
-    uint32_t start = HAL_GetTick();
-    // Configurable timeout
-    while (HAL_GetTick() < start + uart->rx_timeout_ms) {
+	uint64_t value = 0;
+
+    while (true) {
         uint32_t count = uart_get_rx_count(uart);
+
         if (count > 0 && uart_is_newline_char(uart->rx_buf[count - 1])) {
             // Must add a \0 character to the end of the string to terminate it
             // as a C string, which is required when passing it to sscanf()
@@ -603,32 +599,27 @@ uint64_t uart_read_value(UART *uart, char *format1, char *format2) {
             // pointer (&value) is pointing to, it just places the result in
             // that memory location assuming there is enough space there
 
-            uint64_t value = 0;
-
             // Match in first format
             if (sscanf(uart->rx_buf, format1, &value) > 0) {
-                // Restarting RX DMA clears the RX buffer and starts a new DMA
-                // transfer
-                uart_restart_rx_dma(uart);
-                return value;
             }
             // Match in second format
             else if (sscanf(uart->rx_buf, format2, &value) > 0) {
-                uart_restart_rx_dma(uart);
-                return value;
             }
             // No match
             else {
                 error(&uart->log, "Failed to read value from UART");
-                uart_restart_rx_dma(uart);
-                return 0;
+                value = 0;
             }
+
+            // Break out of while loop
+            break;
         }
+
+        // If using an RTOS, should yield the thread right here
     }
 
-    error(&uart->log, "Timed out trying to read value from UART");
     uart_restart_rx_dma(uart);
-    return 0;
+	return value;
 }
 
 /*
@@ -699,32 +690,25 @@ char uart_read_char(UART *uart) {
 /*
  * Waits for one character from UART input (any key pressed).
  * This should only be used for testing, NOT in flight.
- * @return - true for success, false for failure (timeout)
  */
-bool uart_wait_for_key_press(UART *uart) {
+void uart_wait_for_key_press(UART *uart) {
 	info(&uart->log, "Press any key to continue...");
 
 	// Restart RX DMA to clear any characters that are already in the buffer
-	// (e.g. from a previous call to uart_wait_for_key_press())
+	// (e.g. from a previous call to uart_wait_for_key_press()) and start a new
+	// DMA transfer
 	// Make sure to do this AFTER logging the message above
 	uart_restart_rx_dma(uart);
 
-    uint32_t start = HAL_GetTick();
-    // Configurable timeout
-    while (HAL_GetTick() < start + uart->rx_timeout_ms) {
-        uint32_t count = uart_get_rx_count(uart);
-        if (count > 0) {
-			// Restarting RX DMA clears the RX buffer and starts a new DMA
-			// transfer
+    while (true) {
+        if (uart_get_rx_count(uart) > 0) {
         	verbose(&uart->log, "Received key press");
 			uart_restart_rx_dma(uart);
-			return true;
+			return;
         }
-    }
 
-    error(&uart->log, "Timed out waiting for key press from UART");
-    uart_restart_rx_dma(uart);
-    return false;
+        // If using an RTOS, should yield the thread right here
+    }
 }
 
 
