@@ -69,13 +69,17 @@ typedef struct UARTStruct {
     GPIOAltFunc de_gpio;
 
     // Store a buffer of bytes (characters) in this UART struct to be sent by
-    // the TX DMA.
+    // the TX DMA
     // It should be in the UART struct instead of the Log struct because we
     // expect to have many Log structs for each UART struct, so having a buffer
-    // in each Log struct would be a big waste of memory.
-    char tx_buf[UART_TX_BUF_SIZE];
+    // in each Log struct would be a big waste of memory
+    // Must be volatile so that all writes to the buffer are actually writes to
+    // memory (that the DMA reads from)
+    volatile uint8_t tx_buf[UART_TX_BUF_SIZE];
     // Buffer for receiving bytes through the RX DMA
-    char rx_buf[UART_RX_BUF_SIZE];
+    // Must be volatile so that all reads from the buffer are actually reads
+	// from memory (that the DMA writes to)
+    volatile uint8_t rx_buf[UART_RX_BUF_SIZE];
 
     // Default Log struct for this UART
     Log log;

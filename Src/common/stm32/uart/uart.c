@@ -493,9 +493,12 @@ void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
     // If we write to uart->tx_buf before the previous transfer has completed,
 	// it overwrites the data of the previous transfer and corrupts the bytes
     // that have not been sent out yet by the previous transfer
-    uart_safe_memcpy((uint8_t *) uart->tx_buf, sizeof(uart->tx_buf), buf, count);
+    // Note the cast discards the `volatile` qualifier
+    uart_safe_memcpy((uint8_t *) uart->tx_buf, sizeof(uart->tx_buf),
+    		buf, count);
 
     // Transmit the data from the UART struct's TX buffer
+    // Note the cast discards the `volatile` qualifier
 	HAL_UART_Transmit_DMA(&uart->handle, (uint8_t *) uart->tx_buf, count);
 
 	// In the future, could modify this implementation so it doesn't have to
@@ -525,10 +528,14 @@ void uart_restart_rx_dma(UART *uart) {
     // Technically this is not required, but do it to make it easier to view the
     // contents of the buffer in the debugger (only see the bytes filled by the
     // current RX transfer)
-    memset(uart->rx_buf, 0, prev_count);
+    // Note the cast discards the `volatile` qualifier
+    memset((uint8_t *) uart->rx_buf, 0, prev_count);
 
-    // Start a new RX DMA transfer, starting back at the beginning of the RX buffer
-    HAL_UART_Receive_DMA(&uart->handle, (uint8_t*) uart->rx_buf, UART_RX_BUF_SIZE);
+    // Start a new RX DMA transfer, starting back at the beginning of the RX
+    // buffer
+    // Note the cast discards the `volatile` qualifier
+    HAL_UART_Receive_DMA(&uart->handle, (uint8_t *) uart->rx_buf,
+    		sizeof(uart->rx_buf));
 }
 
 /*
@@ -547,7 +554,7 @@ uint32_t uart_get_rx_count(UART *uart) {
     uint32_t ndtr = ((DMA_Channel_TypeDef *) uart->rx_dma_handle.Instance)->CNDTR;
 #endif
 
-    return UART_RX_BUF_SIZE - ndtr;
+    return sizeof(uart->rx_buf) - ndtr;
 }
 
 bool uart_is_newline_char(char c) {
@@ -601,10 +608,12 @@ uint64_t uart_read_value(UART *uart, char *tx_format, va_list tx_args,
             // that memory location assuming there is enough space there
 
             // Match in first format
-            if (sscanf(uart->rx_buf, format1, &value) > 0) {
+            // Note the cast discards the `volatile` qualifier
+            if (sscanf((char *) uart->rx_buf, format1, &value) > 0) {
             }
             // Match in second format
-            else if (sscanf(uart->rx_buf, format2, &value) > 0) {
+            // Note the cast discards the `volatile` qualifier
+            else if (sscanf((char *) uart->rx_buf, format2, &value) > 0) {
             }
             // No match
             else {
