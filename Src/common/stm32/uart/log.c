@@ -93,7 +93,7 @@ void log_safe_strncat(char *destination, size_t sizeof_destination,
 
 /*
  * Writes a message (already formatted) to UART, prefixed with a timestamp and
- * log level and ended with a newline.
+ * log level and suffixed with a newline.
  *
  * Note this may not work correctly if you call it from an ISR (see
  * uart_write_dma()).
@@ -221,4 +221,100 @@ void verbose(Log *log, char *format, ...) {
 	va_start(args, format);
 	log_log(log, LOG_LEVEL_VERBOSE, format, args);
 	va_end(args);
+}
+
+/*
+ * Logs an array of bytes, with a prefix message that supports printf-style
+ * formatting.
+ */
+void log_log_bytes(Log *log, LogLevel level, uint8_t *bytes, uint32_t count,
+		char *prefix_format, va_list prefix_args) {
+	// Similar implementation as log_log()
+
+	// Don't prepare the message if it won't be written to UART
+	if (!log_should_write_msg(log, level)) {
+		return;
+	}
+
+	// Format the prefix message (standard printf-style)
+	char msg[UART_TX_BUF_SIZE];
+	vsnprintf(msg, sizeof(msg), prefix_format, prefix_args);
+
+	// Add a colon and space after the message prefix, only if the prefix is not
+	// empty
+	if (strlen(msg) > 0) {
+		log_safe_strncat(msg, sizeof(msg), ": ");
+	}
+
+	// Add a string to describe the number of bytes
+	// Since there is already a string in the buffer that we are appending to,
+	// call snprintf() at a point in the buffer that is not the start
+	size_t len = strlen(msg);
+	snprintf(&msg[len], sizeof(msg) - len,
+			"%lu %s", count, (count == 1) ? "byte" : "bytes");
+
+	// Add the "0x" prefix and the first byte
+	// "0x" signifies all bytes are written in hex format
+	if (count > 0) {
+		len = strlen(msg);
+		snprintf(&msg[len], sizeof(msg) - len, ": 0x%.2X", bytes[0]);
+	}
+
+	// Add all other bytes with a ":" prefix to separate bytes
+	len = strlen(msg);
+	for (int i = 1; i < count; i++) {
+		snprintf(&msg[len], sizeof(msg) - len, ":%.2X", bytes[i]);
+		// Manually add 3 instead of calling strlen() every time through the
+		// loop because we know 3 bytes are added (colon and 2 digits)
+		len += 3;
+	}
+
+	// snprintf() always adds a terminating null character, so `msg` is now a C
+	// string
+	log_write_msg(log, level, msg);
+}
+
+void error_bytes(Log *log, uint8_t *bytes, uint32_t count,
+		char *prefix_format, ...) {
+	va_list prefix_args;
+	va_start(prefix_args, prefix_format);
+	log_log_bytes(log, LOG_LEVEL_ERROR, bytes, count,
+			prefix_format, prefix_args);
+	va_end(prefix_args);
+}
+
+void warning_bytes(Log *log, uint8_t *bytes, uint32_t count,
+		char *prefix_format, ...) {
+	va_list prefix_args;
+	va_start(prefix_args, prefix_format);
+	log_log_bytes(log, LOG_LEVEL_WARNING, bytes, count,
+			prefix_format, prefix_args);
+	va_end(prefix_args);
+}
+
+void info_bytes(Log *log, uint8_t *bytes, uint32_t count,
+		char *prefix_format, ...) {
+	va_list prefix_args;
+	va_start(prefix_args, prefix_format);
+	log_log_bytes(log, LOG_LEVEL_INFO, bytes, count,
+			prefix_format, prefix_args);
+	va_end(prefix_args);
+}
+
+void debug_bytes(Log *log, uint8_t *bytes, uint32_t count,
+		char *prefix_format, ...) {
+	va_list prefix_args;
+	va_start(prefix_args, prefix_format);
+	log_log_bytes(log, LOG_LEVEL_DEBUG, bytes, count,
+			prefix_format, prefix_args);
+	va_end(prefix_args);
+}
+
+void verbose_bytes(Log *log, uint8_t *bytes, uint32_t count,
+		char *prefix_format, ...) {
+	va_list prefix_args;
+	va_start(prefix_args, prefix_format);
+	log_log_bytes(log, LOG_LEVEL_VERBOSE, bytes, count,
+			prefix_format, prefix_args);
+	va_end(prefix_args);
 }

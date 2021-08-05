@@ -50,4 +50,15 @@ void info(Log *log, char *format, ...);
 void debug(Log *log, char *format, ...);
 void verbose(Log *log, char *format, ...);
 
+void error_bytes(Log *log, uint8_t *bytes, uint32_t count,
+		char *prefix_format, ...);
+void warning_bytes(Log *log, uint8_t *bytes, uint32_t count,
+		char *prefix_format, ...);
+void info_bytes(Log *log, uint8_t *bytes, uint32_t count,
+		char *prefix_format, ...);
+void debug_bytes(Log *log, uint8_t *bytes, uint32_t count,
+		char *prefix_format, ...);
+void verbose_bytes(Log *log, uint8_t *bytes, uint32_t count,
+		char *prefix_format, ...);
+
 #endif /* COMMON_STM32_UART_LOG_H_ */
