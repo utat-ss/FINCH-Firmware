@@ -7,6 +7,7 @@
 
 // log.h includes uart.h
 #include <common/stm32/uart/log.h>
+#include <common/stm32/util/util.h>
 #include <nucleo_g474re/g474re_config.h>
 #include <nucleo_h743zi2/h743zi2_config.h>
 
@@ -441,26 +442,6 @@ void uart_wait_for_tx_ready(UART *uart) {
 	}
 }
 
-void uart_safe_memcpy(uint8_t *destination, size_t sizeof_destination,
-		uint8_t *source, size_t count) {
-	// See https://www.cplusplus.com/reference/cstring/memcpy/
-
-	// memcpy() is not safe if the destination and source overlap
-	// Besides, there is no point in copying if the destination and source
-	// are the same
-	if (destination == source) {
-		return;
-	}
-
-	// Make sure count doesn't overflow the destination buffer size
-	if (count > sizeof_destination) {
-		count = sizeof_destination;
-	}
-
-	// Copy from source to destination
-	memcpy(destination, source, count);
-}
-
 /*
  * Writes data in blocking mode
  */
@@ -495,7 +476,7 @@ void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
 	// it overwrites the data of the previous transfer and corrupts the bytes
     // that have not been sent out yet by the previous transfer
     // Note the cast discards the `volatile` qualifier
-    uart_safe_memcpy((uint8_t *) uart->tx_buf, sizeof(uart->tx_buf),
+    util_safe_memcpy((uint8_t *) uart->tx_buf, sizeof(uart->tx_buf),
     		buf, count);
 
     // Transmit the data from the UART struct's TX buffer
