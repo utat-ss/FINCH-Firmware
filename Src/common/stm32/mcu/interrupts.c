@@ -64,11 +64,19 @@
 /******************************************************************************/
 /*           Cortex Processor Interruption and Exception Handlers          */
 /******************************************************************************/
+
+/*
+ * Some descriptions of ARM Cortex exceptions/interrupts:
+ * https://mcuoneclipse.com/2016/08/28/arm-cortex-m-interrupts-and-freertos-part-3/
+ */
+
 /**
   * @brief This function handles Non maskable interrupt.
   */
 void NMI_Handler(void)
 {
+  Error_Handler();
+
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
 
   /* USER CODE END NonMaskableInt_IRQn 0 */
@@ -82,6 +90,8 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
+  Error_Handler();
+
   /* USER CODE BEGIN HardFault_IRQn 0 */
 
   /* USER CODE END HardFault_IRQn 0 */
@@ -97,6 +107,8 @@ void HardFault_Handler(void)
   */
 void MemManage_Handler(void)
 {
+  Error_Handler();
+
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
 
   /* USER CODE END MemoryManagement_IRQn 0 */
@@ -112,6 +124,8 @@ void MemManage_Handler(void)
   */
 void BusFault_Handler(void)
 {
+  Error_Handler();
+
   /* USER CODE BEGIN BusFault_IRQn 0 */
 
   /* USER CODE END BusFault_IRQn 0 */
@@ -127,6 +141,8 @@ void BusFault_Handler(void)
   */
 void UsageFault_Handler(void)
 {
+  Error_Handler();
+
   /* USER CODE BEGIN UsageFault_IRQn 0 */
 
   /* USER CODE END UsageFault_IRQn 0 */
@@ -142,6 +158,10 @@ void UsageFault_Handler(void)
   */
 void SVC_Handler(void)
 {
+  // Not sure if this should actually be considered an error
+  // Could remove this in the future
+  Error_Handler();
+
   /* USER CODE BEGIN SVCall_IRQn 0 */
 
   /* USER CODE END SVCall_IRQn 0 */
@@ -155,6 +175,10 @@ void SVC_Handler(void)
   */
 void DebugMon_Handler(void)
 {
+  // Not sure if this should actually be considered an error
+  // Could remove this in the future
+  Error_Handler();
+
   /* USER CODE BEGIN DebugMonitor_IRQn 0 */
 
   /* USER CODE END DebugMonitor_IRQn 0 */
@@ -168,6 +192,10 @@ void DebugMon_Handler(void)
   */
 void PendSV_Handler(void)
 {
+  // Not sure if this should actually be considered an error
+  // Could remove this in the future
+  Error_Handler();
+
   /* USER CODE BEGIN PendSV_IRQn 0 */
 
   /* USER CODE END PendSV_IRQn 0 */

@@ -4,8 +4,7 @@
 
 #include <common/stm32/mcu/errors.h>
 
-void Error_Handler(void)
-{
+void Error_Handler(void) {
 	// It is very useful to place a breakpoint at the beginning of this function
 	// to catch all errors that call this function, especially when UART has not
 	// been initialized yet so it can't print anything
@@ -29,8 +28,7 @@ void Error_Handler(void)
   * @param  line: assert_param error line source number
   * @retval None
   */
-void assert_failed(uint8_t *file, uint32_t line)
-{
+void assert_failed(uint8_t *file, uint32_t line) {
 	if (g_log_def == NULL) {
 		return;
 	}

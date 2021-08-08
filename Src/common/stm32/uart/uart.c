@@ -432,6 +432,9 @@ void uart_wait_for_tx_ready(UART *uart) {
 	while (uart->handle.gState != HAL_UART_STATE_READY) {
 		// Timeout (this should never happen)
 		if (HAL_GetTick() > start + UART_TX_TIMEOUT_MS) {
+			// Note that this could get stuck infinitely because Error_Handler()
+			// logs a message over UART, which calls uart_wait_for_tx_ready()
+			// first, which can call Error_Handler() again, and so on
 			Error_Handler();
 			return;
 		}

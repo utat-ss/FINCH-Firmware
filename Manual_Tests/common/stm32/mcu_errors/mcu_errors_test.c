@@ -21,17 +21,32 @@ int main() {
 	Log log;
 	log_init(&log, &uart);
 
-
     info(&log, "Starting MCU errors test");
 
     Error_Handler();
     assert_param(1);
     assert_param(0);
     // Must cast __FILE__ or else it produces the warning "pointer targets in
-    // passing argument 1 of 'assert_failed' differ in signedness [-Wpointer-sign]"
+    // passing argument 1 of 'assert_failed' differ in signedness
+    // [-Wpointer-sign]"
     assert_failed((uint8_t*) __FILE__, __LINE__);
 
-	info(&log, "Done MCU errors test");
+    // Intentionally call a HAL function with invalid input so it fails
+    // assert_param(), which calls assert_failed()
+    UART_HandleTypeDef uart_handle;
+    uart_handle.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+    uart_handle.Instance = NULL;	// Not a valid UART/USART or LPUART
+    HAL_UART_Init(&uart_handle);
+
+    info(&log, "Almost done MCU errors test");
+    info(&log, "Will try to force a hard fault, "
+    		   "which infinite loops in the fault handler");
+
+    // Force a hard fault by reading from an invalid memory address
+    uint32_t *ptr = (uint32_t *) 0x20000;
+    uint32_t value = *ptr;	// This line should fail
+    info(&log, "0x%lx", value);	// Should never reach this line
+
 	while (1) {}
 
     return 0;
