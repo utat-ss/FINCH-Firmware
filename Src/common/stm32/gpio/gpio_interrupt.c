@@ -16,6 +16,7 @@
  */
 
 #include <common/stm32/gpio/gpio_interrupt.h>
+#include <common/stm32/util/util.h>
 
 // This should set all callbacks by default to NULL
 GPIOInterruptCallback g_gpio_interrupt_callbacks[GPIO_INTERRUPT_NUM_EXTI_LINES]
@@ -36,8 +37,7 @@ void gpio_interrupt_init(GPIOInterrupt *gpio, MCU *mcu, GPIO_TypeDef *port,
 
 	// Set function pointer for interrupt callback
 	for (uint32_t i = 0; i < GPIO_INTERRUPT_NUM_EXTI_LINES; i++) {
-		// TODO BIT macro
-		if ((1 << i) == pin) {
+		if (bit(i) == pin) {
 			g_gpio_interrupt_callbacks[i] = callback;
 		}
 	}
@@ -159,8 +159,7 @@ void EXTI15_10_IRQHandler(void) {
   */
 void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin) {
 	for (uint32_t i = 0; i < GPIO_INTERRUPT_NUM_EXTI_LINES; i++) {
-		// TODO BIT macro
-		if ((1 << i) == gpio_pin && g_gpio_interrupt_callbacks[i] != NULL) {
+		if (bit(i) == gpio_pin && g_gpio_interrupt_callbacks[i] != NULL) {
 			g_gpio_interrupt_callbacks[i]();
 		}
 	}
