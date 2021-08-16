@@ -52,8 +52,13 @@ void random_init(Random *random, UART *uart) {
 
 	/* RNG interrupt Init */
 	// Use preemption priority of 15 for lowest priority
-	HAL_NVIC_SetPriority(HASH_RNG_IRQn, 15, 0);
-	HAL_NVIC_EnableIRQ(HASH_RNG_IRQn);
+#if defined(STM32G4)
+	const IRQn_Type irq = RNG_IRQn;
+#elif defined(STM32H7)
+	const IRQn_Type irq = HASH_RNG_IRQn;
+#endif
+	HAL_NVIC_SetPriority(irq, 15, 0);
+	HAL_NVIC_EnableIRQ(irq);
 
 	// Initialize handle
 	random->handle.Instance = RNG;
