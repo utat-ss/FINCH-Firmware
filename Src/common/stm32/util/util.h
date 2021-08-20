@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <string.h>
 
+
 /*
  * Gets a value with only a single bit at the specified index set to 1.
  * e.g. bit(0) = 0x1, bit(1) = 0x2, bit(11) = 0x800
@@ -64,6 +65,11 @@ static inline uint64_t get_bits(uint64_t value, uint32_t msb, uint32_t lsb) {
 	return (value >> lsb) & lsb_bits(msb - lsb + 1);
 }
 
+
+void serialize_be_bytes(uint64_t value, uint8_t* bytes, uint32_t count);
+uint64_t deserialize_be_bytes(uint8_t* bytes, uint32_t count);
+void serialize_le_bytes(uint64_t value, uint8_t* bytes, uint32_t count);
+uint64_t deserialize_le_bytes(uint8_t* bytes, uint32_t count);
 
 void util_safe_memcpy(uint8_t *destination, size_t sizeof_destination,
 		uint8_t *source, size_t count);

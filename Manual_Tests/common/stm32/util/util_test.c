@@ -33,6 +33,24 @@ int main() {
 	info(&log, "get_bits(0xA3, 7, 5) = 0x%lX", get_bits(0xA3, 7, 5));	// 0x5
 	info(&log, "get_bits(0xA3, 7, 4) = 0x%lX", get_bits(0xA3, 7, 4));	// 0xA
 
+	uint8_t bytes1[3];
+	serialize_be_bytes(0xFA329B, bytes1, 3);
+	info_bytes(&log, bytes1, 3,
+			"serialize_be_bytes(0xFA329B, ..., 3)");	// 0xFA:32:9B
+
+	uint8_t bytes2[3] = {0xAF, 0x23, 0xB9};
+	info(&log, "deserialize_be_bytes({0xAF, 0x23, 0xB9}, 3) = 0x%lX",
+			deserialize_be_bytes(bytes2, 3));	// 0xAF23B9
+
+	uint8_t bytes3[3];
+	serialize_le_bytes(0xFA329B, bytes3, 3);
+	info_bytes(&log, bytes3, 3,
+			"serialize_le_bytes(0xFA329B, ..., 3)");	// 0x9B:32:FA
+
+	uint8_t bytes4[3] = {0xAF, 0x23, 0xB9};
+	info(&log, "deserialize_le_bytes({0xAF, 0x23, 0xB9}, 3) = 0x%lX",
+			deserialize_le_bytes(bytes4, 3));	// 0xB923AF
+
 	info(&log, "Done utilities test");
 	while (1) {}
 
