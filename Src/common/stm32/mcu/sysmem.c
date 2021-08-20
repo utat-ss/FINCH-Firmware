@@ -25,6 +25,12 @@
 #include <errno.h>
 #include <stdint.h>
 
+
+// UTAT EDIT - BEGINNING
+#include <common/stm32/mcu/errors.h>
+// UTAT EDIT - END
+
+
 /**
  * Pointer to the current high watermark of the heap usage
  */
@@ -53,6 +59,16 @@ static uint8_t *__sbrk_heap_end = NULL;
  */
 void *_sbrk(ptrdiff_t incr)
 {
+  // UTAT EDIT - BEGINNING
+  // Since this function is called by malloc(), log an error here because we
+  // should never be calling malloc()
+  // In the future, if we have a justifiable reason for sometimes using
+  // malloc(), could implement some method here to disable/re-enable the error
+  // when appropriate
+  Error_Handler();
+  // UTAT EDIT - END
+
+
   extern uint8_t _end; /* Symbol defined in the linker script */
   extern uint8_t _estack; /* Symbol defined in the linker script */
   extern uint32_t _Min_Stack_Size; /* Symbol defined in the linker script */
