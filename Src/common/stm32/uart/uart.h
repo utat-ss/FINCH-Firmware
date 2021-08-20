@@ -80,6 +80,7 @@ https://stackoverflow.com/questions/51323589/are-all-ram-sections-used-in-this-l
 https://electronics.stackexchange.com/questions/393868/stm32f4-dma-transfer-error-with-adc
  */
 
+
 // See uart_log.h for enum and struct definitions
 
 // TX timeout (in ms)
@@ -100,16 +101,6 @@ typedef enum {
 	UART_BAUD_230400 = 230400,
 } UARTBaud;
 
-extern UART *g_uart_usart1;
-extern UART *g_uart_usart2;
-extern UART *g_uart_usart3;
-extern UART *g_uart_uart4;
-extern UART *g_uart_uart5;
-extern UART *g_uart_usart6;
-extern UART *g_uart_uart7;
-extern UART *g_uart_uart8;
-
-extern UART *g_uart_def;
 
 void uart_init(UART* uart, MCU *mcu,
         USART_TypeDef *instance, UARTBaud baud, uint8_t alternate,

@@ -3,13 +3,14 @@
  *
  *  Created on: May 6, 2021
  *      Author: bruno
+ *
+ * Code with variable arguments is based on
+ * https://github.com/HeronMkII/lib-common/blob/master/src/uart/log.c
  */
 
 #include <common/stm32/uart/log.h>
 #include <common/stm32/util/util.h>
 
-// Code with variable arguments is based on
-// https://github.com/HeronMkII/lib-common/blob/master/src/uart/log.c
 
 // This is the "default" Log struct
 // It can be used in places where there is no individual Log available (e.g.
@@ -20,6 +21,7 @@ Log *g_log_def = NULL;
 // This is not an override, but it can be used to force all Log structs to
 // display more verbose output
 LogLevel g_log_global_level = LOG_LEVEL_INFO;
+
 
 void log_init(Log *log, UART *uart) {
 	log->uart = uart;

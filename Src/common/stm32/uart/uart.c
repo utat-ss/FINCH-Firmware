@@ -5,11 +5,14 @@
  *      Author: Ketan
  */
 
+// Don't include uart.h here or else it will produce a circular include error
+
 // log.h includes uart.h
 #include <common/stm32/uart/log.h>
 #include <common/stm32/util/util.h>
 #include <nucleo_g474re/g474re_config.h>
 #include <nucleo_h743zi2/h743zi2_config.h>
+
 
 // Pointer to each specific UART peripheral (if used) - needed for use in ISRs
 UART *g_uart_usart1 = NULL;
@@ -20,9 +23,11 @@ UART *g_uart_uart5 = NULL;
 UART *g_uart_usart6 = NULL;
 UART *g_uart_uart7 = NULL;
 UART *g_uart_uart8 = NULL;
+UART *g_uart_lpuart1 = NULL;
 
-// Default UART - used globally
+// Default UART - can be used globally
 UART *g_uart_def = NULL;
+
 
 /*
  * alt - e.g. GPIO_AF7_USART3 for an instance of USART3
@@ -52,10 +57,12 @@ void uart_init_base(UART* uart, MCU *mcu,
 	// (RM0433 p.2046)
 	// These thresholds honestly shouldn't matter since we are not using the
 	// FIFO threshold interrupts
-	if (HAL_UARTEx_SetTxFifoThreshold(&uart->handle, UART_TXFIFO_THRESHOLD_7_8) != HAL_OK) {
+	if (HAL_UARTEx_SetTxFifoThreshold(&uart->handle, UART_TXFIFO_THRESHOLD_7_8)
+			!= HAL_OK) {
 		Error_Handler();
 	}
-	if (HAL_UARTEx_SetRxFifoThreshold(&uart->handle, UART_RXFIFO_THRESHOLD_7_8) != HAL_OK) {
+	if (HAL_UARTEx_SetRxFifoThreshold(&uart->handle, UART_RXFIFO_THRESHOLD_7_8)
+			!= HAL_OK) {
 		Error_Handler();
 	}
     if (HAL_UARTEx_EnableFifoMode(&uart->handle) != HAL_OK) {
@@ -66,14 +73,28 @@ void uart_init_base(UART* uart, MCU *mcu,
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
 #if defined(STM32H7)
-	if (uart->handle.Instance == USART1 || uart->handle.Instance == USART6) {
+	if (	uart->handle.Instance == USART1 ||
+			uart->handle.Instance == USART6) {
 	    // UART peripheral 1 or 6
 	    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART16;
-        PeriphClkInitStruct.Usart16ClockSelection = RCC_USART16CLKSOURCE_D2PCLK2;
-	} else {
+        PeriphClkInitStruct.Usart16ClockSelection =
+        		RCC_USART16CLKSOURCE_D2PCLK2;
+	}
+	else if (
+			uart->handle.Instance == USART2 ||
+			uart->handle.Instance == USART3 ||
+			uart->handle.Instance == UART4 ||
+			uart->handle.Instance == UART5 ||
+			uart->handle.Instance == UART7 ||
+			uart->handle.Instance == UART8) {
 	    // UART peripheral 2, 3, 4, 5, 7, or 8
 	    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART234578;
-        PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
+        PeriphClkInitStruct.Usart234578ClockSelection =
+        		RCC_USART234578CLKSOURCE_D2PCLK1;
+	}
+	else if (uart->handle.Instance == LPUART1) {
+		PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+		PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK4;
 	}
 #elif defined(STM32G4)
 	if (uart->handle.Instance == USART1) {
@@ -81,28 +102,33 @@ void uart_init_base(UART* uart, MCU *mcu,
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART1;
         PeriphClkInitStruct.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
     }
-	if (uart->handle.Instance == USART2) {
+	else if (uart->handle.Instance == USART2) {
         // UART peripheral 2
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART2;
         PeriphClkInitStruct.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
     }
-	if (uart->handle.Instance == USART3) {
+	else if (uart->handle.Instance == USART3) {
         // UART peripheral 3
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3;
         PeriphClkInitStruct.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
     }
-	if (uart->handle.Instance == UART4) {
+	else if (uart->handle.Instance == UART4) {
         // UART peripheral 4
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_UART4;
         PeriphClkInitStruct.Uart4ClockSelection = RCC_UART4CLKSOURCE_PCLK1;
     }
-	if (uart->handle.Instance == UART5) {
+	else if (uart->handle.Instance == UART5) {
         // UART peripheral 5
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_UART5;
         PeriphClkInitStruct.Uart5ClockSelection = RCC_UART5CLKSOURCE_PCLK1;
     }
+	else if (uart->handle.Instance == LPUART1) {
+		PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+		PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
+	}
 #endif
 
+	// Now actually configure the peripheral clock
 	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
 	    Error_Handler();
     }
@@ -112,6 +138,7 @@ void uart_init_base(UART* uart, MCU *mcu,
 	uint32_t tx_dma_request;
 	uint32_t rx_dma_request;
 	IRQn_Type irq;
+
 	if (uart->handle.Instance == USART1) {
 		__HAL_RCC_USART1_CLK_ENABLE();
 		tx_dma_request = DMA_REQUEST_USART1_TX;
@@ -162,6 +189,19 @@ void uart_init_base(UART* uart, MCU *mcu,
         irq = UART8_IRQn;
 	}
 #endif
+	if (uart->handle.Instance == LPUART1) {
+		__HAL_RCC_LPUART1_CLK_ENABLE();
+
+#if defined(STM32H7)
+		// The H7 series does not support the standard DMA with LPUART1
+		Error_Handler();
+#else
+		tx_dma_request = DMA_REQUEST_LPUART1_TX;
+		rx_dma_request = DMA_REQUEST_LPUART1_RX;
+#endif
+
+		irq = LPUART1_IRQn;
+	}
 
 	// Low GPIO speed on the H743 MCU supports up to 12MHz but UART can operate
 	// up to 12.5Mbit/s, so use medium GPIO speed to be safe
@@ -243,24 +283,22 @@ void uart_init_base(UART* uart, MCU *mcu,
     // TODO - common header file / Confluence page with DMA/stream allocations/constants?
     /* DMA interrupt init */
 #if defined(STM32H7)
-    IRQn_Type tx_dma_irq = DMA1_Stream0_IRQn;
-    IRQn_Type rx_dma_irq = DMA1_Stream1_IRQn;
+    const IRQn_Type tx_dma_irq = DMA1_Stream0_IRQn;
+    const IRQn_Type rx_dma_irq = DMA1_Stream1_IRQn;
 #elif defined(STM32G4)
-    IRQn_Type tx_dma_irq = DMA1_Channel1_IRQn;
-    IRQn_Type rx_dma_irq = DMA1_Channel2_IRQn;
+    const IRQn_Type tx_dma_irq = DMA1_Channel1_IRQn;
+    const IRQn_Type rx_dma_irq = DMA1_Channel2_IRQn;
 #endif
 
+    // Configure and enable the DMA interrupts
     // Set the preempt priority to 8, around the middle of the 0-15 range
     // Give stream 1 (RX) a more important subpriority than stream 0 (TX)
-    /* DMA1_Stream0_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(tx_dma_irq, 8, 1);
     HAL_NVIC_EnableIRQ(tx_dma_irq);
-    /* DMA1_Stream1_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(rx_dma_irq, 8, 0);
     HAL_NVIC_EnableIRQ(rx_dma_irq);
 
-	/* USART3 interrupt Init */
-    // Configure the NVIC and enable the interrupt
+    // Configure and enable the UART interrupt
     // This is necessary for TX (even though it's in DMA mode), enabling
     // interrupts when a transmission is done so it can call the IRQ handler,
     // which sets the UART handle back to a ready state to be able to do the
@@ -302,7 +340,11 @@ void uart_set_globals(UART *uart) {
         g_uart_uart8 = uart;
     }
 #endif
+    if (uart->handle.Instance == LPUART1) {
+		g_uart_lpuart1 = uart;
+	}
 
+    // Set default UART global variable
     if (g_uart_def == NULL) {
         g_uart_def = uart;
     }
@@ -732,10 +774,14 @@ void uart_wait_for_key_press(UART *uart) {
  */
 
 /**
-  * @brief This function handles DMA1 stream0 global interrupt.
+  * @brief This function handles DMA1 channel1 or stream0 global interrupt.
   * This function is automatically called for TX transfer complete.
   */
+#if defined(STM32G4)
+void DMA1_Channel1_IRQHandler(void) {
+#elif defined(STM32H7)
 void DMA1_Stream0_IRQHandler(void) {
+#endif
     if (g_uart_def == NULL) {
         return;
     }
@@ -804,15 +850,26 @@ void UART8_IRQHandler(void) {
     }
     HAL_UART_IRQHandler(&g_uart_uart8->handle);
 }
+void LPUART1_IRQHandler(void) {
+    if (g_uart_lpuart1 == NULL) {
+        return;
+    }
+    HAL_UART_IRQHandler(&g_uart_lpuart1->handle);
+}
+
 
 
 
 
 /**
-  * @brief This function handles DMA1 stream1 global interrupt.
+  * @brief This function handles DMA1 channel2/stream1 global interrupt.
   * This function is automatically called for RX transfer complete.
   */
+#if defined(STM32G4)
+void DMA1_Channel2_IRQHandler(void) {
+#elif defined(STM32H7)
 void DMA1_Stream1_IRQHandler(void) {
+#endif
     if (g_uart_def == NULL) {
         return;
     }
@@ -820,11 +877,12 @@ void DMA1_Stream1_IRQHandler(void) {
 }
 
 /*
- * This function is called in the DMA1 Stream1 IRQ handler when all possible
- * bytes have been received, i.e. number of bytes received is equal to the
- * `Size` parameter passed to HAL_UART_Receive_DMA().
+ * This function is called in the DMA1 Channel2/Stream1 IRQ handler when all
+ * possible bytes have been received, i.e. number of bytes received is equal to
+ * the `Size` parameter passed to HAL_UART_Receive_DMA().
  * This function is called from
- * DMA1_Stream1_IRQHandler() -> HAL_DMA_IRQHandler() -> UART_DMAReceiveCplt()
+ * DMA1_Channel2_IRQHandler()/DMA1_Stream1_IRQHandler() -> HAL_DMA_IRQHandler()
+ * -> UART_DMAReceiveCplt()
  * if all possible RX bytes have been received.
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {

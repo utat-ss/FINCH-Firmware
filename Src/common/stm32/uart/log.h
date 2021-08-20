@@ -34,9 +34,11 @@
  * messages that are INFO, WARNING, or ERROR are displayed over UART.
  */
 
+
 // See uart_log.h for enum and struct definitions
 
 extern Log *g_log_def;
+
 
 void log_init(Log *log, UART *uart);
 void log_set_level(Log *log, LogLevel level);
