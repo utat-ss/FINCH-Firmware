@@ -1,5 +1,5 @@
 /*
- * gpio_interrupt.c
+ * gpio_it_input.c
  *
  *  Created on: Aug 6, 2021
  *      Author: bruno
@@ -15,30 +15,29 @@
  * (e.g. A12, B12, F12) are connected to the same interrupt source
  */
 
-#include <common/stm32/gpio/gpio_interrupt.h>
+#include <common/stm32/gpio/gpio_it_input.h>
 #include <common/stm32/util/util.h>
 
 // This should set all callbacks by default to NULL
-GPIOInterruptCallback g_gpio_interrupt_callbacks[GPIO_INTERRUPT_NUM_EXTI_LINES]
-		= {NULL};
+GPIOITInputCB g_gpio_it_input_cbs[GPIO_IT_INPUT_EXTI_COUNT] = {NULL};
 
 /*
  * @param mode - one of GPIO_MODE_IT_RISING, GPIO_MODE_IT_FALLING,
  *               GPIO_MODE_IT_RISING_FALLING
  * @param pull - one of GPIO_NOPULL, GPIO_PULLUP, GPIO_PULLDOWN
  */
-void gpio_interrupt_init(GPIOInterrupt *gpio, MCU *mcu, GPIO_TypeDef *port,
-		uint16_t pin, uint32_t mode, uint32_t pull,
-		GPIOInterruptCallback callback) {
+void gpio_it_input_init(GPIOITInput *gpio, MCU *mcu, GPIO_TypeDef *port,
+		uint16_t pin, uint32_t mode, uint32_t pull, GPIOITInputCB callback) {
+
 	// Initialize GPIOInput struct within GPIOInterrupt struct
 	gpio->input.mcu = mcu;
 	gpio->input.port = port;
 	gpio->input.pin = pin;
 
 	// Set function pointer for interrupt callback
-	for (uint32_t i = 0; i < GPIO_INTERRUPT_NUM_EXTI_LINES; i++) {
+	for (uint32_t i = 0; i < GPIO_IT_INPUT_EXTI_COUNT; i++) {
 		if (bit(i) == pin) {
-			g_gpio_interrupt_callbacks[i] = callback;
+			g_gpio_it_input_cbs[i] = callback;
 		}
 	}
 
@@ -151,16 +150,17 @@ void EXTI15_10_IRQHandler(void) {
 
 /**
   * @brief  EXTI line detection callback.
-  * @param  gpio_pin: Specifies the port pin connected to corresponding EXTI line.
+  * @param  gpio_pin: Specifies the port pin connected to corresponding EXTI
+  *                   line.
   * @retval None
   *
   * This function overrides the weak version of this function in the HAL.
   * This function is called by HAL_GPIO_EXTI_IRQHandler() in the HAL.
   */
 void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin) {
-	for (uint32_t i = 0; i < GPIO_INTERRUPT_NUM_EXTI_LINES; i++) {
-		if (bit(i) == gpio_pin && g_gpio_interrupt_callbacks[i] != NULL) {
-			g_gpio_interrupt_callbacks[i]();
+	for (uint32_t i = 0; i < GPIO_IT_INPUT_EXTI_COUNT; i++) {
+		if (bit(i) == gpio_pin && g_gpio_it_input_cbs[i] != NULL) {
+			g_gpio_it_input_cbs[i]();
 		}
 	}
 }

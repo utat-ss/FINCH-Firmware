@@ -44,6 +44,7 @@
 
 #include <common/stm32/gpio/gpio_alt_func.h>
 #include <common/stm32/gpio/gpio_input.h>
+#include <common/stm32/gpio/gpio_it_input.h>
 #include <common/stm32/gpio/gpio_output.h>
 
 #endif /* COMMON_STM32_GPIO_GPIO_H_ */
