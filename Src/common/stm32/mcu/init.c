@@ -30,7 +30,7 @@ void GPIOClock_Config(void) {
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
-  // Should only be available on H7 family
+  // Should only be available on the H7 series, not the G4 series
 #if defined(GPIOH)
   __HAL_RCC_GPIOH_CLK_ENABLE();
 #endif
