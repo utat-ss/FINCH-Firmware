@@ -25,12 +25,6 @@
 #include <errno.h>
 #include <stdint.h>
 
-
-// UTAT EDIT - BEGINNING
-#include <common/stm32/mcu/errors.h>
-// UTAT EDIT - END
-
-
 /**
  * Pointer to the current high watermark of the heap usage
  */
@@ -60,12 +54,12 @@ static uint8_t *__sbrk_heap_end = NULL;
 void *_sbrk(ptrdiff_t incr)
 {
   // UTAT EDIT - BEGINNING
-  // Since this function is called by malloc(), log an error here because we
-  // should never be calling malloc()
-  // In the future, if we have a justifiable reason for sometimes using
-  // malloc(), could implement some method here to disable/re-enable the error
-  // when appropriate
-  Error_Handler();
+  // This function is called by malloc()
+  // It seems that malloc() is called for the first time printf-style formatting
+  // with a floating-point number occurs in the program
+  // This happens with logging functions such as info(), which call vsnprintf()
+  // In the future, could implement some method here to enable/disable producing
+  // an error when this function is called
   // UTAT EDIT - END
 
 
