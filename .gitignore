@@ -51,19 +51,27 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-# Build/Generated Files
-**/Debug/**
-Core/**
+# STM32CubeIDE project/configuration files
+.settings
 .mxproject
-**/.settings/**
 mx.scratch
+*.launch
 
-# CMake build folder
+# STM32CubeIDE CubeMX generated files
+Projects/**/Core
+Projects/**/Drivers
+
+# STM32CubeIDE build files
+Debug
+
+# CMake build folders
 Build*
 
 # Binary files (e.g. firmware downloaded from MCU)
 *.bin
 
-# Other
-.DS_Store
+# VS Code files
 .vscode
+
+# macOS files
+.DS_Store
