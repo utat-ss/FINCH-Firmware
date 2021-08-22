@@ -1,7 +1,7 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    interrupts.c (formerly stm32g4xx_it.c/stm32h7xx_it.c)
+  * @file    it.c (formerly stm32g4xx_it.c/stm32h7xx_it.c)
   * @brief   Interrupt Service Routines.
   ******************************************************************************
   * @attention
@@ -20,7 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <common/stm32/mcu/errors.h>
-#include "interrupts.h"
+#include "it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -219,10 +219,10 @@ void SysTick_Handler(void)
 }
 
 /******************************************************************************/
-/* STM32H7xx Peripheral Interrupt Handlers                                    */
+/* STM32 Peripheral Interrupt Handlers                                        */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
 /* For the available peripheral interrupt handler names,                      */
-/* please refer to the startup file (startup_stm32h7xx.s).                    */
+/* please refer to the startup file (startup_stm32xxxx.s).                    */
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */

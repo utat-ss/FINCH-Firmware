@@ -1,7 +1,7 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    interrupts.h (formerly stm32g4xx_it.h/stm32h7xx_it.h)
+  * @file    it.h (formerly stm32g4xx_it.h/stm32h7xx_it.h)
   * @brief   This file contains the headers of the interrupt handlers.
   ******************************************************************************
   * @attention
@@ -19,8 +19,8 @@
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef COMMON_STM32_MCU_INTERRUPTS_H
-#define COMMON_STM32_MCU_INTERRUPTS_H
+#ifndef __IT_H
+#define __IT_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -64,6 +64,6 @@ void SysTick_Handler(void);
 }
 #endif
 
-#endif /* COMMON_STM32_MCU_INTERRUPTS_H */
+#endif /* __IT_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
