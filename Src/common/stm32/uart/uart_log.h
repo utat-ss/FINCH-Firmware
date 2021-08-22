@@ -8,6 +8,8 @@
 #ifndef COMMON_STM32_UART_UART_LOG_H_
 #define COMMON_STM32_UART_UART_LOG_H_
 
+#include <common/stm32/gpio/gpio.h>
+
 /*
  * Normally these definitions would be separated into uart.h and log.h, but
  * since the UART and Log structs refer to each other, it was impossible for it

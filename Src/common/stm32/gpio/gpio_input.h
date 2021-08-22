@@ -8,8 +8,7 @@
 #ifndef COMMON_STM32_GPIO_GPIO_INPUT_H_
 #define COMMON_STM32_GPIO_GPIO_INPUT_H_
 
-#include <common/stm32/uart/log.h>
-
+#include <common/stm32/mcu/mcu.h>
 #include <stdbool.h>
 
 typedef struct {

@@ -21,10 +21,8 @@
  */
 
 #include <common/stm32/util/random.h>
-
 #include <common/stm32/mcu/errors.h>
 #include <common/stm32/util/util.h>
-
 #include <stdlib.h>
 
 

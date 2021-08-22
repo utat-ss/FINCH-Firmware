@@ -1,5 +1,5 @@
+#include <common/stm32/mcu/errors.h>
 #include <common/stm32/uart/log.h>
-
 #include <stdlib.h>
 
 int main() {

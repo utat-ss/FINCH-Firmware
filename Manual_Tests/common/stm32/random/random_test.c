@@ -1,4 +1,3 @@
-#include <common/stm32/uart/log.h>
 #include <common/stm32/util/random.h>
 
 int main() {

@@ -8,10 +8,8 @@
 #ifndef COMMON_STM32_UART_UART_H_
 #define COMMON_STM32_UART_UART_H_
 
-#include <common/stm32/gpio/gpio.h>
 #include <common/stm32/uart/uart_log.h>
 
-#include <stdbool.h>
 
 /*
 There is lots of confusion around UART vs USART, more generically referred to as

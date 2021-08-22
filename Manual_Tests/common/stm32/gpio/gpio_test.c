@@ -10,7 +10,6 @@
  */
 
 #include <common/stm32/gpio/gpio.h>
-#include <common/stm32/mcu/init.h>
 #include <nucleo_g474re/g474re_config.h>
 #include <nucleo_h743zi2/h743zi2_config.h>
 

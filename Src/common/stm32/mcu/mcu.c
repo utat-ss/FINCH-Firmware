@@ -6,7 +6,6 @@
  */
 
 #include <common/stm32/mcu/mcu.h>
-
 #include <common/stm32/mcu/init.h>
 
 // Pointer to "default" MCU struct

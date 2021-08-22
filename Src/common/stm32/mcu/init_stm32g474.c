@@ -8,6 +8,8 @@
  */
 
 #include <common/stm32/mcu/init.h>
+#include <common/stm32/mcu/errors.h>
+#include <common/stm32/mcu/hal.h>
 
 #ifdef STM32G474xx
 

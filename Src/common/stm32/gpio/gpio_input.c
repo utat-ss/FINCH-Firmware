@@ -5,9 +5,8 @@
  *      Author: bruno
  */
 
-// Would normally include gpio_input.h, but that produces an include dependency
-// error
-#include <common/stm32/gpio/gpio.h>
+#include <common/stm32/gpio/gpio_input.h>
+#include <common/stm32/uart/log.h>
 
 /*
 Initialize a GPIO pin to input state

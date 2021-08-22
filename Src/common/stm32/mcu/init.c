@@ -6,6 +6,7 @@
  */
 
 #include <common/stm32/mcu/init.h>
+#include <common/stm32/mcu/hal.h>
 
 /**
   * Initializes the Global MSP.

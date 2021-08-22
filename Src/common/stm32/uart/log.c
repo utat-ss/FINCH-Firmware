@@ -10,6 +10,7 @@
 
 #include <common/stm32/uart/log.h>
 #include <common/stm32/util/util.h>
+#include <stdio.h>
 
 
 // This is the "default" Log struct

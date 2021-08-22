@@ -1,4 +1,5 @@
 #include <common/stm32/uart/log.h>
+#include <string.h>
 
 int main() {
 	// Try to automatically detect board based on MCU UID

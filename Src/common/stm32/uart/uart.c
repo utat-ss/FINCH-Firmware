@@ -5,13 +5,13 @@
  *      Author: Bruno
  */
 
-// Don't include uart.h here or else it will produce a circular include error
-
-// log.h includes uart.h
+#include <common/stm32/uart/uart.h>
+#include <common/stm32/mcu/errors.h>
 #include <common/stm32/uart/log.h>
 #include <common/stm32/util/util.h>
 #include <nucleo_g474re/g474re_config.h>
 #include <nucleo_h743zi2/h743zi2_config.h>
+#include <stdio.h>
 
 
 // Pointer to each specific UART peripheral (if used) - needed for use in ISRs
@@ -27,7 +27,6 @@ UART *g_uart_lpuart1 = NULL;
 
 // Default UART - can be used globally
 UART *g_uart_def = NULL;
-
 
 
 void uart_init_dma(UART* uart, USART_TypeDef *instance) {
