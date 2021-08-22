@@ -2,7 +2,7 @@
  * uart.c
  *
  *  Created on: Oct 10, 2020
- *      Author: Ketan
+ *      Author: Bruno
  */
 
 // Don't include uart.h here or else it will produce a circular include error
@@ -45,14 +45,14 @@ void uart_init_dma(UART* uart, USART_TypeDef *instance) {
     __HAL_RCC_DMA1_CLK_ENABLE();
 
 
-    // TODO - common header file / Confluence page with DMA/stream allocations/constants?
+    // TODO - Confluence page with DMA channel/stream allocations?
     /* DMA interrupt init */
-#if defined(STM32H7)
-    const IRQn_Type tx_dma_irq = DMA1_Stream0_IRQn;
-    const IRQn_Type rx_dma_irq = DMA1_Stream1_IRQn;
-#elif defined(STM32G4)
+#if defined(STM32G4)
     const IRQn_Type tx_dma_irq = DMA1_Channel1_IRQn;
     const IRQn_Type rx_dma_irq = DMA1_Channel2_IRQn;
+#elif defined(STM32H7)
+    const IRQn_Type tx_dma_irq = DMA1_Stream0_IRQn;
+    const IRQn_Type rx_dma_irq = DMA1_Stream1_IRQn;
 #endif
 
     // Configure and enable the DMA interrupts
@@ -101,26 +101,26 @@ void uart_init_dma(UART* uart, USART_TypeDef *instance) {
 		tx_dma_request = DMA_REQUEST_UART8_TX;
         rx_dma_request = DMA_REQUEST_UART8_RX;
 	}
-#endif
 	if (instance == LPUART1) {
-#if defined(STM32H7)
 		// The H7 series does not support the standard DMA with LPUART1
 		Error_Handler();
+	}
 #else
+	if (instance == LPUART1) {
 		tx_dma_request = DMA_REQUEST_LPUART1_TX;
 		rx_dma_request = DMA_REQUEST_LPUART1_RX;
-#endif
 	}
+#endif
 
     /* TX DMA Init */
-    // The H7 HAL has `Instance` with type `DMA_Stream_TypeDef*`,
-    // while the G4 HAL has `Instance` with type `DMA_Channel_TypeDef*`
+    // The G4 HAL has `Instance` with type `DMA_Channel_TypeDef*`,
+	// while the H7 HAL has `Instance` with type `DMA_Stream_TypeDef*`
+	// G4 uses the term "channel" and starts numbering at 1
     // H7 uses the term "stream" and starts numbering at 0
-    // G4 uses the term "channel" and starts numbering at 1
-#if defined(STM32H7)
-    uart->tx_dma_handle.Instance = DMA1_Stream0;
-#elif defined(STM32G4)
+#if defined(STM32G4)
     uart->tx_dma_handle.Instance = DMA1_Channel1;
+#elif defined(STM32H7)
+    uart->tx_dma_handle.Instance = DMA1_Stream0;
 #endif
     uart->tx_dma_handle.Init.Request = tx_dma_request;
     uart->tx_dma_handle.Init.Direction = DMA_MEMORY_TO_PERIPH;
@@ -143,10 +143,10 @@ void uart_init_dma(UART* uart, USART_TypeDef *instance) {
     __HAL_LINKDMA(&uart->handle, hdmatx, uart->tx_dma_handle);
 
     /* RX DMA Init */
-#if defined(STM32H7)
-    uart->rx_dma_handle.Instance = DMA1_Stream1;
-#elif defined(STM32G4)
+#if defined(STM32G4)
     uart->rx_dma_handle.Instance = DMA1_Channel2;
+#elif defined(STM32H7)
+    uart->rx_dma_handle.Instance = DMA1_Stream1;
 #endif
     uart->rx_dma_handle.Init.Request = rx_dma_request;
     uart->rx_dma_handle.Init.Direction = DMA_PERIPH_TO_MEMORY;
@@ -157,7 +157,6 @@ void uart_init_dma(UART* uart, USART_TypeDef *instance) {
     uart->rx_dma_handle.Init.Mode = DMA_NORMAL;
     uart->rx_dma_handle.Init.Priority = DMA_PRIORITY_MEDIUM;
 #if defined(STM32H7)
-    // Only H7 supports FIFO mode and burst
     uart->rx_dma_handle.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     uart->rx_dma_handle.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_1QUARTERFULL;
     uart->rx_dma_handle.Init.MemBurst = DMA_MBURST_SINGLE;
@@ -173,31 +172,7 @@ void uart_init_clk_and_nvic(UART* uart, USART_TypeDef *instance) {
 	// Peripheral clock configuration
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
-#if defined(STM32H7)
-	if (	instance == USART1 ||
-			instance == USART6) {
-	    // UART peripheral 1 or 6
-	    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART16;
-        PeriphClkInitStruct.Usart16ClockSelection =
-        		RCC_USART16CLKSOURCE_D2PCLK2;
-	}
-	else if (
-			instance == USART2 ||
-			instance == USART3 ||
-			instance == UART4 ||
-			instance == UART5 ||
-			instance == UART7 ||
-			instance == UART8) {
-	    // UART peripheral 2, 3, 4, 5, 7, or 8
-	    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART234578;
-        PeriphClkInitStruct.Usart234578ClockSelection =
-        		RCC_USART234578CLKSOURCE_D2PCLK1;
-	}
-	else if (instance == LPUART1) {
-		PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-		PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK4;
-	}
-#elif defined(STM32G4)
+#if defined(STM32G4)
 	if (instance == USART1) {
         // UART peripheral 1
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART1;
@@ -226,6 +201,30 @@ void uart_init_clk_and_nvic(UART* uart, USART_TypeDef *instance) {
 	else if (instance == LPUART1) {
 		PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
 		PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
+	}
+#elif defined(STM32H7)
+	if (	instance == USART1 ||
+			instance == USART6) {
+	    // UART peripheral 1 or 6
+	    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART16;
+        PeriphClkInitStruct.Usart16ClockSelection =
+        		RCC_USART16CLKSOURCE_D2PCLK2;
+	}
+	else if (
+			instance == USART2 ||
+			instance == USART3 ||
+			instance == UART4 ||
+			instance == UART5 ||
+			instance == UART7 ||
+			instance == UART8) {
+	    // UART peripheral 2, 3, 4, 5, 7, or 8
+	    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART234578;
+        PeriphClkInitStruct.Usart234578ClockSelection =
+        		RCC_USART234578CLKSOURCE_D2PCLK1;
+	}
+	else if (instance == LPUART1) {
+		PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+		PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK4;
 	}
 #endif
 
@@ -611,18 +610,18 @@ void uart_restart_rx_dma(UART *uart) {
  * RX DMA.
  */
 uint32_t uart_get_rx_count(UART *uart) {
-    // The DMA's NDTR (or CNDTR) register counts down from the number of RX
+    // The DMA's CNDTR (or NDTR) register counts down from the number of RX
     // bytes expected to 0 (at which point the DMA RX transfer is done)
 
     // uart->rx_dma_handle.Instance is actually a void* type, so we need to cast
     // it to its struct type to access the NDTR field/register
 
-#if defined(STM32H7)
-    uint32_t ndtr =
-    		((DMA_Stream_TypeDef*) uart->rx_dma_handle.Instance)->NDTR;
-#elif defined(STM32G4)
+#if defined(STM32G4)
     uint32_t ndtr =
     		((DMA_Channel_TypeDef*) uart->rx_dma_handle.Instance)->CNDTR;
+#elif defined(STM32H7)
+    uint32_t ndtr =
+    		((DMA_Stream_TypeDef*) uart->rx_dma_handle.Instance)->NDTR;
 #endif
 
     return sizeof(uart->rx_buf) - ndtr;
@@ -830,6 +829,7 @@ void DMA1_Channel1_IRQHandler(void) {
 #elif defined(STM32H7)
 void DMA1_Stream0_IRQHandler(void) {
 #endif
+
     if (g_uart_def == NULL) {
         return;
     }
@@ -918,6 +918,7 @@ void DMA1_Channel2_IRQHandler(void) {
 #elif defined(STM32H7)
 void DMA1_Stream1_IRQHandler(void) {
 #endif
+
     if (g_uart_def == NULL) {
         return;
     }
