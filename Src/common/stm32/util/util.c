@@ -60,8 +60,8 @@ uint64_t deserialize_le_bytes(uint8_t* bytes, uint32_t count) {
 }
 
 
-void util_safe_memcpy(uint8_t *destination, size_t sizeof_destination,
-        uint8_t *source, size_t count) {
+void util_safe_memcpy(uint8_t* destination, size_t sizeof_destination,
+        uint8_t* source, size_t count) {
     // See https://www.cplusplus.com/reference/cstring/memcpy/
 
     // memcpy() is not safe if the destination and source overlap
@@ -88,8 +88,8 @@ void util_safe_memcpy(uint8_t *destination, size_t sizeof_destination,
  * array, so the caller must pass in sizeof(destination) as the
  * sizeof_destination argument.
  */
-void util_safe_strncat(char *destination, size_t sizeof_destination,
-        char *source) {
+void util_safe_strncat(char* destination, size_t sizeof_destination,
+        char* source) {
     // See https://www.cplusplus.com/reference/cstring/strncat/
 
     // Note that the third argument to strncat() is NOT the total size of

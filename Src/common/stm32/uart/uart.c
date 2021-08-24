@@ -15,21 +15,21 @@
 
 
 // Pointer to each specific UART peripheral (if used) - needed for use in ISRs
-UART *g_uart_usart1 = NULL;
-UART *g_uart_usart2 = NULL;
-UART *g_uart_usart3 = NULL;
-UART *g_uart_uart4 = NULL;
-UART *g_uart_uart5 = NULL;
-UART *g_uart_usart6 = NULL;
-UART *g_uart_uart7 = NULL;
-UART *g_uart_uart8 = NULL;
-UART *g_uart_lpuart1 = NULL;
+UART* g_uart_usart1 = NULL;
+UART* g_uart_usart2 = NULL;
+UART* g_uart_usart3 = NULL;
+UART* g_uart_uart4 = NULL;
+UART* g_uart_uart5 = NULL;
+UART* g_uart_usart6 = NULL;
+UART* g_uart_uart7 = NULL;
+UART* g_uart_uart8 = NULL;
+UART* g_uart_lpuart1 = NULL;
 
 // Default UART - can be used globally
-UART *g_uart_def = NULL;
+UART* g_uart_def = NULL;
 
 
-void uart_init_dma(UART* uart, USART_TypeDef *instance) {
+void uart_init_dma(UART* uart, USART_TypeDef* instance) {
     // Currently, the DMA allocations only work if there is only one normal
     // UART peripheral (not with RS-485) initialized throughout the program
     if (g_uart_def != NULL) {
@@ -178,7 +178,7 @@ void uart_init_dma(UART* uart, USART_TypeDef *instance) {
     __HAL_LINKDMA(&uart->handle, hdmarx, uart->rx_dma_handle);
 }
 
-void uart_init_clk_and_nvic(UART* uart, USART_TypeDef *instance) {
+void uart_init_clk_and_nvic(UART* uart, USART_TypeDef* instance) {
     // Peripheral clock configuration
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
@@ -302,10 +302,10 @@ void uart_init_clk_and_nvic(UART* uart, USART_TypeDef *instance) {
 /*
  * alternate - e.g. GPIO_AF7_USART3 for an instance of USART3
  */
-void uart_init_base(UART* uart, MCU *mcu,
-        USART_TypeDef *instance, UARTBaud baud, uint8_t alternate,
-        GPIO_TypeDef *tx_port, uint16_t tx_pin,
-        GPIO_TypeDef *rx_port, uint16_t rx_pin) {
+void uart_init_base(UART* uart, MCU* mcu,
+        USART_TypeDef* instance, UARTBaud baud, uint8_t alternate,
+        GPIO_TypeDef* tx_port, uint16_t tx_pin,
+        GPIO_TypeDef* rx_port, uint16_t rx_pin) {
 
     // Initialize DMA
     uart_init_dma(uart, instance);
@@ -358,7 +358,7 @@ void uart_init_base(UART* uart, MCU *mcu,
 /*
  * Sets the necessary global variable(s) for this UART.
  */
-void uart_set_globals(UART *uart) {
+void uart_set_globals(UART* uart) {
     // Save a pointer to the UART struct to the appropriate global variable
     if (uart->handle.Instance == USART1) {
         g_uart_usart1 = uart;
@@ -397,10 +397,10 @@ void uart_set_globals(UART *uart) {
 }
 
 // Initialize normal UART
-void uart_init(UART* uart, MCU *mcu,
-        USART_TypeDef *instance, UARTBaud baud, uint8_t alternate,
-        GPIO_TypeDef *tx_port, uint16_t tx_pin,
-        GPIO_TypeDef *rx_port, uint16_t rx_pin) {
+void uart_init(UART* uart, MCU* mcu,
+        USART_TypeDef* instance, UARTBaud baud, uint8_t alternate,
+        GPIO_TypeDef* tx_port, uint16_t tx_pin,
+        GPIO_TypeDef* rx_port, uint16_t rx_pin) {
 
     uart_init_base(uart, mcu, instance, baud, alternate, tx_port, tx_pin,
             rx_port, rx_pin);
@@ -457,7 +457,7 @@ void uart_init(UART* uart, MCU *mcu,
  * board. This function is useful to reduce code duplication in the tests in
  * Manual_Tests/common that are supposed to work on all boards.
  */
-void uart_init_for_board(UART* uart, MCU *mcu) {
+void uart_init_for_board(UART* uart, MCU* mcu) {
     if (mcu->board == MCU_BOARD_NUCLEO_G474RE) {
         // 115,200 baud should work for LPUART1 with a higher frequency clock
         // than a 32.768kHz LSE
@@ -473,11 +473,11 @@ void uart_init_for_board(UART* uart, MCU *mcu) {
 }
 
 // Initialize UART + RS-485
-void uart_init_with_rs485(UART* uart, MCU *mcu,
-        USART_TypeDef *instance, UARTBaud baud, uint8_t alternate,
-        GPIO_TypeDef *tx_port, uint16_t tx_pin,
-        GPIO_TypeDef *rx_port, uint16_t rx_pin,
-        GPIO_TypeDef *de_port, uint16_t de_pin) {
+void uart_init_with_rs485(UART* uart, MCU* mcu,
+        USART_TypeDef* instance, UARTBaud baud, uint8_t alternate,
+        GPIO_TypeDef* tx_port, uint16_t tx_pin,
+        GPIO_TypeDef* rx_port, uint16_t rx_pin,
+        GPIO_TypeDef* de_port, uint16_t de_pin) {
 
     uart_init_base(uart, mcu, instance, baud, alternate, tx_port, tx_pin,
             rx_port, rx_pin);
@@ -504,7 +504,7 @@ void uart_init_with_rs485(UART* uart, MCU *mcu,
 /*
  * This should only be used to change the baud after initializing UART.
  */
-void uart_set_baud(UART *uart, UARTBaud baud) {
+void uart_set_baud(UART* uart, UARTBaud baud) {
     // Abort all ongoing transfers (this function executes in blocking mode)
     HAL_UART_Abort(&uart->handle);
     // Deinitialize the UART peripheral
@@ -517,7 +517,7 @@ void uart_set_baud(UART *uart, UARTBaud baud) {
     }
 }
 
-void uart_wait_for_tx_ready(UART *uart) {
+void uart_wait_for_tx_ready(UART* uart) {
     // If a TX process is already ongoing, wait for it to finish
     // If a previous DMA TX is in progress, when the TX is done the UART ISR
     // will set gState to ready
@@ -540,7 +540,7 @@ void uart_wait_for_tx_ready(UART *uart) {
 /*
  * Writes data in blocking mode
  */
-void uart_write(UART *uart, uint8_t *buf, uint32_t count) {
+void uart_write(UART* uart, uint8_t* buf, uint32_t count) {
     // Must wait until the previous TX transfer has completed (could have a TX
     // DMA transfer ongoing)
     uart_wait_for_tx_ready(uart);
@@ -557,7 +557,7 @@ void uart_write(UART *uart, uint8_t *buf, uint32_t count) {
  * Note this may not work correctly if you call it from an ISR
  * Note that buf should be a SEPARATE BUFFER from uart->tx_buf
  */
-void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
+void uart_write_dma(UART* uart, uint8_t* buf, uint32_t count) {
     // Must wait until the previous TX DMA transfer has completed
     uart_wait_for_tx_ready(uart);
 
@@ -571,12 +571,11 @@ void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
     // it overwrites the data of the previous transfer and corrupts the bytes
     // that have not been sent out yet by the previous transfer
     // Note the cast discards the `volatile` qualifier
-    util_safe_memcpy((uint8_t *) uart->tx_buf, sizeof(uart->tx_buf),
-            buf, count);
+    util_safe_memcpy((uint8_t*) uart->tx_buf, sizeof(uart->tx_buf), buf, count);
 
     // Transmit the data from the UART struct's TX buffer
     // Note the cast discards the `volatile` qualifier
-    HAL_UART_Transmit_DMA(&uart->handle, (uint8_t *) uart->tx_buf, count);
+    HAL_UART_Transmit_DMA(&uart->handle, (uint8_t*) uart->tx_buf, count);
 
     // In the future, could modify this implementation so it doesn't have to
     // wait for the previous DMA transfer to finish before starting the next
@@ -590,7 +589,7 @@ void uart_write_dma(UART *uart, uint8_t *buf, uint32_t count) {
  * This function works for starting RX for the first time or for restarting it
  * after the first time.
  */
-void uart_restart_rx_dma(UART *uart) {
+void uart_restart_rx_dma(UART* uart) {
     // Get number of bytes already transferred
     // Do this before aborting the RX transfer just in case NDTR is changed
     uint32_t prev_count = uart_get_rx_count(uart);
@@ -606,12 +605,12 @@ void uart_restart_rx_dma(UART *uart) {
     // contents of the buffer in the debugger (only see the bytes filled by the
     // current RX transfer)
     // Note the cast discards the `volatile` qualifier
-    memset((uint8_t *) uart->rx_buf, 0, prev_count);
+    memset((uint8_t*) uart->rx_buf, 0, prev_count);
 
     // Start a new RX DMA transfer, starting back at the beginning of the RX
     // buffer
     // Note the cast discards the `volatile` qualifier
-    HAL_UART_Receive_DMA(&uart->handle, (uint8_t *) uart->rx_buf,
+    HAL_UART_Receive_DMA(&uart->handle, (uint8_t*) uart->rx_buf,
             sizeof(uart->rx_buf));
 }
 
@@ -619,7 +618,7 @@ void uart_restart_rx_dma(UART *uart) {
  * Returns the number of bytes received and stored in the buffer so far through
  * RX DMA.
  */
-uint32_t uart_get_rx_count(UART *uart) {
+uint32_t uart_get_rx_count(UART* uart) {
     // The DMA's CNDTR (or NDTR) register counts down from the number of RX
     // bytes expected to 0 (at which point the DMA RX transfer is done)
 
@@ -659,8 +658,8 @@ bool uart_is_newline_char(char c) {
  * > MCU Settings
  * Note this adds about 6,384 bytes to the `text` section in the compiled binary
  */
-uint64_t uart_read_value(UART *uart, char *tx_format, va_list tx_args,
-        char *format1, char *format2) {
+uint64_t uart_read_value(UART* uart, char* tx_format, va_list tx_args,
+        char* format1, char* format2) {
     // Log an output message before receiving input
     log_log(&uart->log, LOG_LEVEL_INFO, tx_format, tx_args);
 
@@ -690,11 +689,11 @@ uint64_t uart_read_value(UART *uart, char *tx_format, va_list tx_args,
 
             // Match in first format
             // Note the cast discards the `volatile` qualifier
-            if (sscanf((char *) uart->rx_buf, format1, &value) > 0) {
+            if (sscanf((char*) uart->rx_buf, format1, &value) > 0) {
             }
             // Match in second format
             // Note the cast discards the `volatile` qualifier
-            else if (sscanf((char *) uart->rx_buf, format2, &value) > 0) {
+            else if (sscanf((char*) uart->rx_buf, format2, &value) > 0) {
             }
             // No match
             else {
@@ -719,7 +718,7 @@ uint64_t uart_read_value(UART *uart, char *tx_format, va_list tx_args,
  * (with a "0x" prefix). For example, "35" and "0x23" would both return 35.
  * "0xff" and "0xFF" would both return 255.
  */
-uint32_t uart_read_uint(UART *uart, char *tx_format, ...) {
+uint32_t uart_read_uint(UART* uart, char* tx_format, ...) {
     // %lu caps the saved value at 4294967295
     // %llu caps the saved value at 2147483647 (not sure why)
     // %llx fails completely
@@ -737,7 +736,7 @@ uint32_t uart_read_uint(UART *uart, char *tx_format, ...) {
 /*
  * Reads a SIGNED integer from UART input.
  */
-int32_t uart_read_int(UART *uart, char *tx_format, ...) {
+int32_t uart_read_int(UART* uart, char* tx_format, ...) {
     // %ld caps the saved value at 2147483647 and -2147483648
     // %lld also caps the saved value at 2147483647 and -2147483648
     // %llx fails completely
@@ -755,7 +754,7 @@ int32_t uart_read_int(UART *uart, char *tx_format, ...) {
 /*
  * Reads a floating-point number from UART input.
  */
-double uart_read_double(UART *uart, char *tx_format, ...) {
+double uart_read_double(UART* uart, char* tx_format, ...) {
     // %f - float
     // %lf - double
     // %Lf - long double (same as double, just don't use it)
@@ -773,14 +772,14 @@ double uart_read_double(UART *uart, char *tx_format, ...) {
     // Get a pointer to the uint64_t value, cast the pointer to reinterpret it
     // as a double, then dereference the pointer to get the underlying value as
     // a double
-    double double_value = * ((double *) (&raw_value));
+    double double_value = * ((double*) (&raw_value));
     return double_value;
 }
 
 /*
  * Reads one character from UART input.
  */
-char uart_read_char(UART *uart, char *tx_format, ...) {
+char uart_read_char(UART* uart, char* tx_format, ...) {
     // Only need one format string, so just make the second format string blank
     va_list tx_args;
     va_start(tx_args, tx_format);
@@ -796,7 +795,7 @@ char uart_read_char(UART *uart, char *tx_format, ...) {
  * Waits for one character from UART input (any key pressed).
  * This should only be used for testing, NOT in flight.
  */
-void uart_wait_for_key_press(UART *uart) {
+void uart_wait_for_key_press(UART* uart) {
     info(&uart->log, "Press any key to continue...");
 
     // Restart RX DMA to clear any characters that are already in the buffer
@@ -944,7 +943,7 @@ void DMA1_Stream1_IRQHandler(void)
  * -> UART_DMAReceiveCplt()
  * if all possible RX bytes have been received.
  */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
     if (g_log_def == NULL) {
         return;
     }

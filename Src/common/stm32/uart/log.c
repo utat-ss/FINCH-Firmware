@@ -16,7 +16,7 @@
 // This is the "default" Log struct
 // It can be used in places where there is no individual Log available (e.g.
 // interrupt handlers)
-Log *g_log_def = NULL;
+Log* g_log_def = NULL;
 
 // Global log level
 // This is not an override, but it can be used to force all Log structs to
@@ -24,7 +24,7 @@ Log *g_log_def = NULL;
 LogLevel g_log_global_level = LOG_LEVEL_INFO;
 
 
-void log_init(Log *log, UART *uart) {
+void log_init(Log* log, UART* uart) {
     log->uart = uart;
     // Want a level of info by default
     log->level = LOG_LEVEL_INFO;
@@ -55,7 +55,7 @@ char* log_get_level_string(LogLevel level) {
     }
 }
 
-void log_set_level(Log *log, LogLevel level) {
+void log_set_level(Log* log, LogLevel level) {
     log->level = level;
     info(log, "Set individual log level to %s", log_get_level_string(level));
 }
@@ -72,7 +72,7 @@ void log_set_global_level(LogLevel level) {
  * Note this may not work correctly if you call it from an ISR (see
  * uart_write_dma()).
  */
-void log_write_msg(Log *log, LogLevel level, char *msg) {
+void log_write_msg(Log* log, LogLevel level, char* msg) {
     // Must prepare our bytes in a separate buffer from the UART's TX buffer
     char buf[UART_TX_BUF_SIZE];
 
@@ -105,14 +105,14 @@ void log_write_msg(Log *log, LogLevel level, char *msg) {
     // using `strlen` since there is a \0 character in the buffer
     // Note the uart_write_dma() function will copy the contents of `buf` to the
     // UART TX buffer, then transfer them over DMA
-    uart_write_dma(log->uart, (uint8_t *) buf, strlen(buf));
+    uart_write_dma(log->uart, (uint8_t*) buf, strlen(buf));
 }
 
 /*
  * Returns true if a message with the specified log level should be written to
  * UART.
  */
-bool log_should_write_msg(Log *log, LogLevel level) {
+bool log_should_write_msg(Log* log, LogLevel level) {
     // Only send the message over UART if the log level is high enough or the
     // global log level is high enough
     return log->level >= level || g_log_global_level >= level;
@@ -134,7 +134,7 @@ bool log_should_write_msg(Log *log, LogLevel level) {
  * Note that %llu and %lld format specifiers do not appear to work, as they just
  * print "lu" and "ld" (without any numbers) respectively
  */
-void log_log(Log *log, LogLevel level, char *format, va_list args) {
+void log_log(Log* log, LogLevel level, char* format, va_list args) {
     // Do this check before calling vsnprintf in case the argument
     // parsing/formatting takes a long time
     // Can bail out early if the message won't be written to UART
@@ -161,7 +161,7 @@ void log_log(Log *log, LogLevel level, char *format, va_list args) {
     log_write_msg(log, level, msg);
 }
 
-void error(Log *log, char *format, ...) {
+void error(Log* log, char* format, ...) {
     // Some magic stuff here to retrieve and process the variable arguments
     va_list args;
     va_start(args, format);
@@ -169,28 +169,28 @@ void error(Log *log, char *format, ...) {
     va_end(args);
 }
 
-void warning(Log *log, char *format, ...) {
+void warning(Log* log, char* format, ...) {
     va_list args;
     va_start(args, format);
     log_log(log, LOG_LEVEL_WARNING, format, args);
     va_end(args);
 }
 
-void info(Log *log, char *format, ...) {
+void info(Log* log, char* format, ...) {
     va_list args;
     va_start(args, format);
     log_log(log, LOG_LEVEL_INFO, format, args);
     va_end(args);
 }
 
-void debug(Log *log, char *format, ...) {
+void debug(Log* log, char* format, ...) {
     va_list args;
     va_start(args, format);
     log_log(log, LOG_LEVEL_DEBUG, format, args);
     va_end(args);
 }
 
-void verbose(Log *log, char *format, ...) {
+void verbose(Log* log, char* format, ...) {
     va_list args;
     va_start(args, format);
     log_log(log, LOG_LEVEL_VERBOSE, format, args);
@@ -201,8 +201,8 @@ void verbose(Log *log, char *format, ...) {
  * Logs an array of bytes, with a prefix message that supports printf-style
  * formatting.
  */
-void log_log_bytes(Log *log, LogLevel level, uint8_t *bytes, uint32_t count,
-        char *prefix_format, va_list prefix_args) {
+void log_log_bytes(Log* log, LogLevel level, uint8_t* bytes, uint32_t count,
+        char* prefix_format, va_list prefix_args) {
     // Similar implementation as log_log()
 
     // Don't prepare the message if it won't be written to UART
@@ -248,8 +248,8 @@ void log_log_bytes(Log *log, LogLevel level, uint8_t *bytes, uint32_t count,
     log_write_msg(log, level, msg);
 }
 
-void error_bytes(Log *log, uint8_t *bytes, uint32_t count,
-        char *prefix_format, ...) {
+void error_bytes(Log* log, uint8_t* bytes, uint32_t count,
+        char* prefix_format, ...) {
     va_list prefix_args;
     va_start(prefix_args, prefix_format);
     log_log_bytes(log, LOG_LEVEL_ERROR, bytes, count,
@@ -257,8 +257,8 @@ void error_bytes(Log *log, uint8_t *bytes, uint32_t count,
     va_end(prefix_args);
 }
 
-void warning_bytes(Log *log, uint8_t *bytes, uint32_t count,
-        char *prefix_format, ...) {
+void warning_bytes(Log* log, uint8_t* bytes, uint32_t count,
+        char* prefix_format, ...) {
     va_list prefix_args;
     va_start(prefix_args, prefix_format);
     log_log_bytes(log, LOG_LEVEL_WARNING, bytes, count,
@@ -266,8 +266,8 @@ void warning_bytes(Log *log, uint8_t *bytes, uint32_t count,
     va_end(prefix_args);
 }
 
-void info_bytes(Log *log, uint8_t *bytes, uint32_t count,
-        char *prefix_format, ...) {
+void info_bytes(Log* log, uint8_t* bytes, uint32_t count,
+        char* prefix_format, ...) {
     va_list prefix_args;
     va_start(prefix_args, prefix_format);
     log_log_bytes(log, LOG_LEVEL_INFO, bytes, count,
@@ -275,8 +275,8 @@ void info_bytes(Log *log, uint8_t *bytes, uint32_t count,
     va_end(prefix_args);
 }
 
-void debug_bytes(Log *log, uint8_t *bytes, uint32_t count,
-        char *prefix_format, ...) {
+void debug_bytes(Log* log, uint8_t* bytes, uint32_t count,
+        char* prefix_format, ...) {
     va_list prefix_args;
     va_start(prefix_args, prefix_format);
     log_log_bytes(log, LOG_LEVEL_DEBUG, bytes, count,
@@ -284,8 +284,8 @@ void debug_bytes(Log *log, uint8_t *bytes, uint32_t count,
     va_end(prefix_args);
 }
 
-void verbose_bytes(Log *log, uint8_t *bytes, uint32_t count,
-        char *prefix_format, ...) {
+void verbose_bytes(Log* log, uint8_t* bytes, uint32_t count,
+        char* prefix_format, ...) {
     va_list prefix_args;
     va_start(prefix_args, prefix_format);
     log_log_bytes(log, LOG_LEVEL_VERBOSE, bytes, count,

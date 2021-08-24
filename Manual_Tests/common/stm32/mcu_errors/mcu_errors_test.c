@@ -42,14 +42,14 @@ int main() {
 
     // Make sure it logs an error if you try to use malloc()
     info(&log, "Attempting malloc()");
-    uint8_t *dyn_array = malloc(100);
+    uint8_t* dyn_array = malloc(100);
     info(&log, "Dynamic array addr: 0x%lx", dyn_array);
 
     info(&log, "Almost done MCU errors test");
     info(&log, "Will try to force a hard fault, "
             "which infinite loops in the fault handler");
     // Force a hard fault by reading from an invalid memory address
-    uint32_t *ptr = (uint32_t *) 0x20000;
+    uint32_t* ptr = (uint32_t*) 0x20000;
     uint32_t value = *ptr;	// This line should fail
     info(&log, "0x%lx", value);	// Should never reach this line
 

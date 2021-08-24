@@ -61,9 +61,9 @@ typedef struct {
     MCUModel model;
 } MCU;
 
-extern MCU *g_mcu_def;
+extern MCU* g_mcu_def;
 
-void mcu_init(MCU *mcu, MCUBoard board);
+void mcu_init(MCU* mcu, MCUBoard board);
 MCUDevID mcu_get_dev_id();
 uint32_t mcu_get_rev_id();
 MCUUID mcu_get_uid();

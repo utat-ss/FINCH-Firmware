@@ -19,6 +19,6 @@ typedef struct {
     GPIOOutput green_led;
 } G474RE;
 
-void g474re_init(G474RE *dev_kit);
+void g474re_init(G474RE* dev_kit);
 
 #endif /* NUCLEO_G474RE_G474RE_H_ */

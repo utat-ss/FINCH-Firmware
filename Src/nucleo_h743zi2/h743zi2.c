@@ -8,7 +8,7 @@
 #include <nucleo_h743zi2/h743zi2.h>
 #include <nucleo_h743zi2/h743zi2_config.h>
 
-void h743zi2_init(H743ZI2 *dev_kit) {
+void h743zi2_init(H743ZI2* dev_kit) {
     mcu_init(&dev_kit->mcu, H743ZI2_BOARD);
 
     uart_init_for_board(&dev_kit->uart, &dev_kit->mcu);

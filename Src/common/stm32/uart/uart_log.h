@@ -38,7 +38,7 @@ typedef enum {
 struct UARTStruct;
 
 typedef struct {
-    struct UARTStruct *uart;
+    struct UARTStruct* uart;
     LogLevel level;
 } Log;
 
@@ -51,7 +51,7 @@ typedef struct {
 
 // If using C++ in the future, should use a template to specify the buffer sizes
 typedef struct UARTStruct {
-    MCU *mcu;
+    MCU* mcu;
 
     // HAL control
     UART_HandleTypeDef handle;

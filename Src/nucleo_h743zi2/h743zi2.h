@@ -19,6 +19,6 @@ typedef struct {
     GPIOOutput red_led;
 } H743ZI2;
 
-void h743zi2_init(H743ZI2 *dev_kit);
+void h743zi2_init(H743ZI2* dev_kit);
 
 #endif /* NUCLEO_H743ZI2_H743ZI2_H_ */

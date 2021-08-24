@@ -71,9 +71,9 @@ uint64_t deserialize_be_bytes(uint8_t* bytes, uint32_t count);
 void serialize_le_bytes(uint64_t value, uint8_t* bytes, uint32_t count);
 uint64_t deserialize_le_bytes(uint8_t* bytes, uint32_t count);
 
-void util_safe_memcpy(uint8_t *destination, size_t sizeof_destination,
-        uint8_t *source, size_t count);
-void util_safe_strncat(char *destination, size_t sizeof_destination,
-        char *source);
+void util_safe_memcpy(uint8_t* destination, size_t sizeof_destination,
+        uint8_t* source, size_t count);
+void util_safe_strncat(char* destination, size_t sizeof_destination,
+        char* source);
 
 #endif /* COMMON_STM32_UTIL_UTIL_H_ */

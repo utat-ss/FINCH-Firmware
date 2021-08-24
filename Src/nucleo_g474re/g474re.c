@@ -8,7 +8,7 @@
 #include <nucleo_g474re/g474re.h>
 #include <nucleo_g474re/g474re_config.h>
 
-void g474re_init(G474RE *dev_kit) {
+void g474re_init(G474RE* dev_kit) {
     mcu_init(&dev_kit->mcu, G474RE_BOARD);
 
     uart_init_for_board(&dev_kit->uart, &dev_kit->mcu);

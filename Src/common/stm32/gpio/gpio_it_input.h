@@ -25,7 +25,7 @@ typedef struct {
     GPIOInput input;
 } GPIOITInput;
 
-void gpio_it_input_init(GPIOITInput *gpio, MCU *mcu, GPIO_TypeDef *port,
+void gpio_it_input_init(GPIOITInput* gpio, MCU* mcu, GPIO_TypeDef* port,
         uint16_t pin, uint32_t mode, uint32_t pull, GPIOITInputCB callback);
 
 #endif /* COMMON_STM32_GPIO_GPIO_IT_INPUT_H_ */

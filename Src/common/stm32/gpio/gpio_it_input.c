@@ -27,7 +27,7 @@ GPIOITInputCB g_gpio_it_input_cbs[GPIO_IT_INPUT_EXTI_COUNT] = {NULL};
  *               GPIO_MODE_IT_RISING_FALLING
  * @param pull - one of GPIO_NOPULL, GPIO_PULLUP, GPIO_PULLDOWN
  */
-void gpio_it_input_init(GPIOITInput *gpio, MCU *mcu, GPIO_TypeDef *port,
+void gpio_it_input_init(GPIOITInput* gpio, MCU* mcu, GPIO_TypeDef* port,
         uint16_t pin, uint32_t mode, uint32_t pull, GPIOITInputCB callback) {
 
     // Initialize GPIOInput struct within GPIOInterrupt struct

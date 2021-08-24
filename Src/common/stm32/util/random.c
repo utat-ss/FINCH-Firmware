@@ -27,10 +27,10 @@
 
 
 // Global pointer to "default" Random struct - for use in IRQ handler
-Random *g_random_def = NULL;
+Random* g_random_def = NULL;
 
 
-void random_init(Random *random, UART *uart) {
+void random_init(Random* random, UART* uart) {
     // Initialize the log specifically for random
     log_init(&random->log, uart);
 
@@ -86,7 +86,7 @@ void random_init(Random *random, UART *uart) {
  * Manually sets the seed value, overriding the seed set in random_init() from
  * the RNG peripheral.
  */
-void random_set_seed(Random *random, uint32_t seed) {
+void random_set_seed(Random* random, uint32_t seed) {
     random->seed = seed;
     srand(random->seed);
     info(&random->log, "Manually set random seed to %lu", random->seed);
@@ -95,7 +95,7 @@ void random_set_seed(Random *random, uint32_t seed) {
 /*
  * Gets a raw value from rand() between 0 and INT32_MAX.
  */
-uint32_t random_get_raw(Random *random) {
+uint32_t random_get_raw(Random* random) {
     // rand() generates a number between 0 and RAND_MAX (equal to INT32_MAX)
     uint32_t number = rand();
     verbose(&random->log, "Raw value from rand(): %lu", number);
@@ -107,7 +107,7 @@ uint32_t random_get_raw(Random *random) {
  * low and high are both INCLUSIVE
  * high can be up to 2^31 - 1
  */
-uint32_t random_get_uint(Random *random, uint32_t low, uint32_t high) {
+uint32_t random_get_uint(Random* random, uint32_t low, uint32_t high) {
     uint32_t number = (random_get_raw(random) % (high - low + 1)) + low;
     debug(&random->log, "Random uint: %lu", number);
     return number;
@@ -118,7 +118,7 @@ uint32_t random_get_uint(Random *random, uint32_t low, uint32_t high) {
  *
  * Need this function because random_get_uint() can only produce up to 2^31 - 1.
  */
-uint32_t random_get_uint32(Random *random) {
+uint32_t random_get_uint32(Random* random) {
     uint32_t raw1 = random_get_raw(random);
     uint32_t raw2 = random_get_raw(random);
     // raw1 only has 31 random bits (bits 30:0), so take bit 0 of raw2 and make
@@ -132,7 +132,7 @@ uint32_t random_get_uint32(Random *random) {
  * Gets a random double value in the range [low, high].
  * low and high are both INCLUSIVE
  */
-double random_get_double(Random *random, double low, double high) {
+double random_get_double(Random* random, double low, double high) {
     // Translate to a double value between 0.0 and 1.0
     double zero_to_one = (double) random_get_raw(random) / (double) RAND_MAX;
     // Translate to a double value in the desired range
@@ -170,6 +170,6 @@ void RNG_IRQHandler(void) {
  * This overrides the weak function of the same name in the HAL.
  * This function is called by HAL_RNG_IRQHandler() in the HAL.
  */
-void HAL_RNG_ErrorCallback(RNG_HandleTypeDef *hrng) {
+void HAL_RNG_ErrorCallback(RNG_HandleTypeDef* hrng) {
     Error_Handler();
 }

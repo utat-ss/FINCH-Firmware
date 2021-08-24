@@ -11,13 +11,13 @@
 #include <common/stm32/mcu/mcu.h>
 
 typedef struct {
-    MCU *mcu;
+    MCU* mcu;
     // May be able to remove these fields if they are not used
-    GPIO_TypeDef *port;
+    GPIO_TypeDef* port;
     uint16_t pin;
 } GPIOAltFunc;
 
-void gpio_alt_func_init(GPIOAltFunc *gpio, MCU *mcu, GPIO_TypeDef *port,
+void gpio_alt_func_init(GPIOAltFunc* gpio, MCU* mcu, GPIO_TypeDef* port,
         uint16_t pin, uint8_t alternate, uint32_t mode, uint32_t pull,
         uint32_t speed);
 
