@@ -49,7 +49,7 @@ typedef struct {
 #define UART_TX_BUF_SIZE 160
 #define UART_RX_BUF_SIZE 80
 
-// TODO - variable sized buffers?
+// If using C++ in the future, should use a template to specify the buffer sizes
 typedef struct UARTStruct {
 	MCU *mcu;
 

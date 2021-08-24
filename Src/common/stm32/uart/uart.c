@@ -30,6 +30,18 @@ UART *g_uart_def = NULL;
 
 
 void uart_init_dma(UART* uart, USART_TypeDef *instance) {
+	// Currently, the DMA allocations only work if there is only one normal
+	// UART peripheral (not with RS-485) initialized throughout the program
+	if (g_uart_def != NULL) {
+		Error_Handler();
+	}
+	// In the future, should implement some method to either use different
+	// channel/stream allocations or not use DMA at all for a second or third
+	// UART peripheral (e.g. camera control interface, GPS interface)
+	// Preferably don't use DMA for additional UART peripherals if it's not
+	// necessary
+
+
 	// DMA priorities: TX low, RX medium
 	// UART should be relatively low priority compared to other peripherals that
 	// are more time-critical (e.g. DCMI, SD card) since UART is generally only
@@ -44,7 +56,6 @@ void uart_init_dma(UART* uart, USART_TypeDef *instance) {
     __HAL_RCC_DMA1_CLK_ENABLE();
 
 
-    // TODO - Confluence page with DMA channel/stream allocations?
     /* DMA interrupt init */
 #if defined(STM32G4)
     const IRQn_Type tx_dma_irq = DMA1_Channel1_IRQn;
