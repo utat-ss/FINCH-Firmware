@@ -20,9 +20,11 @@ Open-drain pin output values are high impedance or low.
                        GPIO_MODE_OUTPUT_OD (open-drain)
 @param uint32_t pull - the internal pull-up/down gpio resistor state;
                        for mode=GPIO_MODE_OUTPUT_PP, must be GPIO_NOPULL;
-                       for mode=GPIO_MODE_OUTPUT_OD, must be GPIO_NOPULL or GPIO_PULLUP
-@param GPIO_PinState state - initial state to set the pin to; value can be either
-							 GPIO_PIN_RESET (low) or GPIO_PIN_SET (high or high impedance)
+                       for mode=GPIO_MODE_OUTPUT_OD, must be GPIO_NOPULL or
+                       GPIO_PULLUP
+@param GPIO_PinState state - initial state to set the pin to; value can be
+							 either GPIO_PIN_RESET (low) or GPIO_PIN_SET (high
+							 or high impedance)
  */
 void gpio_output_init(GPIOOutput *gpio, MCU *mcu, GPIO_TypeDef *port,
         uint16_t pin, uint32_t mode, uint32_t pull, GPIO_PinState state) {
@@ -49,7 +51,8 @@ void gpio_output_init(GPIOOutput *gpio, MCU *mcu, GPIO_TypeDef *port,
 Set an output pin to a certain value
 @param GPIOOutput *gpio - the pin's GPIOOutput struct
 @param GPIO_PinState state - the pin's GPIO_PinState; value can be either
-							 GPIO_PIN_RESET (low) or GPIO_PIN_SET (high or high impedance)
+							 GPIO_PIN_RESET (low) or GPIO_PIN_SET (high or high
+							 impedance)
  */
 void gpio_set(GPIOOutput *gpio, GPIO_PinState state) {
     HAL_GPIO_WritePin(gpio->port, gpio->pin, state);

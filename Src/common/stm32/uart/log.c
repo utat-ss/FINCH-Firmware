@@ -162,7 +162,7 @@ void log_log(Log *log, LogLevel level, char *format, va_list args) {
 }
 
 void error(Log *log, char *format, ...) {
-    // Some magic stuff here to retrieve and process the list of variable arguments
+    // Some magic stuff here to retrieve and process the variable arguments
     va_list args;
     va_start(args, format);
     log_log(log, LOG_LEVEL_ERROR, format, args);

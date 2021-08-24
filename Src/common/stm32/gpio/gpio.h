@@ -30,7 +30,8 @@
  *  - high speed (0b10) - 85MHz
  *  - very high speed (0b11) - 100MHz
  *
- *  Alternate function values can be seen in the following datasheets for the following MCUs:
+ *  Alternate function values can be seen in the following datasheets for the
+ *  following MCUs:
  *  STM32H7 - Table 10 pg 89: https://www.mouser.ca/datasheet/2/389/dm00387108-1799185.pdf
  *  STM32G4 - Table 13 pg 74: https://www.st.com/resource/en/datasheet/stm32g474ve.pdf
  *

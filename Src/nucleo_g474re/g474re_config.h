@@ -22,7 +22,7 @@
 
 #if defined(STM32G4)
 // Real mapping
-#define G474RE_UART_AF      GPIO_AF8_LPUART1	// Might be GPIO_AF12_LPUART1 instead
+#define G474RE_UART_AF      GPIO_AF8_LPUART1    // Might be GPIO_AF12_LPUART1 instead
 #elif defined(STM32H7)
 // Doesn't matter what this is, just need it to compile properly since
 // GPIO_AF8_LPUART1 does not exist in the H7 HAL

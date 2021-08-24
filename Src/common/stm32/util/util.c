@@ -20,7 +20,8 @@
  */
 void serialize_be_bytes(uint64_t value, uint8_t* bytes, uint32_t count) {
     for (uint32_t i = 0; i < count; i++) {
-        bytes[i] = get_bits(value, ((count - i) * 8) - 1, ((count - i) * 8) - 8);
+        bytes[i] = get_bits(
+                value, ((count - i) * 8) - 1, ((count - i) * 8) - 8);
     }
 }
 

@@ -16,8 +16,8 @@ Initialize a GPIO pin to alternate function state
 @param uint8_t alternate - the alternate function value
 @param uint32_t mode - output mode; must be GPIO_MODE_AF_PP (push-pull) or
                        GPIO_MODE_AF_OD (open-drain)
-@param uint32_t pull - the internal pull-up/down gpio resistor state;
-                       possible values are GPIO_NOPULL, GPIO_PULLUP, GPIO_PULLDOWN
+@param uint32_t pull - the internal pull-up/down gpio resistor state; possible
+                       values are GPIO_NOPULL, GPIO_PULLUP, GPIO_PULLDOWN
 @param uint32_t speed - the GPIO speed setting (e.g. GPIO_SPEED_FREQ_LOW);
                         see gpio.h for how to choose this with max frequency
  */
