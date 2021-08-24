@@ -11,13 +11,13 @@
 #include <common/stm32/mcu/mcu.h>
 
 typedef struct {
-	MCU *mcu;
-	GPIO_TypeDef *port;
-	uint16_t pin;
+    MCU *mcu;
+    GPIO_TypeDef *port;
+    uint16_t pin;
 } GPIOOutput;
 
 void gpio_output_init(GPIOOutput *gpio, MCU *mcu, GPIO_TypeDef *port,
-		uint16_t pin, uint32_t mode, uint32_t pull, GPIO_PinState state);
+        uint16_t pin, uint32_t mode, uint32_t pull, GPIO_PinState state);
 
 void gpio_set(GPIOOutput *gpio, GPIO_PinState state);
 void gpio_set_low(GPIOOutput *gpio);

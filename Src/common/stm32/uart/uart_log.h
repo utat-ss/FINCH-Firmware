@@ -51,7 +51,7 @@ typedef struct {
 
 // If using C++ in the future, should use a template to specify the buffer sizes
 typedef struct UARTStruct {
-	MCU *mcu;
+    MCU *mcu;
 
     // HAL control
     UART_HandleTypeDef handle;
@@ -73,7 +73,7 @@ typedef struct UARTStruct {
     volatile uint8_t tx_buf[UART_TX_BUF_SIZE];
     // Buffer for receiving bytes through the RX DMA
     // Must be volatile so that all reads from the buffer are actually reads
-	// from memory (that the DMA writes to)
+    // from memory (that the DMA writes to)
     volatile uint8_t rx_buf[UART_RX_BUF_SIZE];
 
     // Default Log struct for this UART

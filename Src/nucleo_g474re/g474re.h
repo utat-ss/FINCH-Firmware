@@ -12,11 +12,11 @@
 
 // Struct to represent the MCU on the dev kit and all peripherals/configuration
 typedef struct {
-	MCU mcu;
-	UART uart;
-	Log log;
-	GPIOInput blue_button;
-	GPIOOutput green_led;
+    MCU mcu;
+    UART uart;
+    Log log;
+    GPIOInput blue_button;
+    GPIOOutput green_led;
 } G474RE;
 
 void g474re_init(G474RE *dev_kit);

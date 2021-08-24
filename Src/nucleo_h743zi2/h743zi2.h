@@ -12,11 +12,11 @@
 
 // Struct to represent the MCU on the dev kit and all peripherals/configuration
 typedef struct {
-	MCU mcu;
-	UART uart;
-	Log log;
-	GPIOInput blue_button;
-	GPIOOutput red_led;
+    MCU mcu;
+    UART uart;
+    Log log;
+    GPIOInput blue_button;
+    GPIOOutput red_led;
 } H743ZI2;
 
 void h743zi2_init(H743ZI2 *dev_kit);

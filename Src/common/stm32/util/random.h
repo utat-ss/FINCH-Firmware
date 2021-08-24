@@ -11,9 +11,9 @@
 #include <common/stm32/uart/log.h>
 
 typedef struct {
-	Log log;
-	RNG_HandleTypeDef handle;
-	uint32_t seed;
+    Log log;
+    RNG_HandleTypeDef handle;
+    uint32_t seed;
 } Random;
 
 void random_init(Random *random, UART *uart);

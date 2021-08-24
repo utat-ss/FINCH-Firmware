@@ -8,10 +8,10 @@
 #include <nucleo_g474re/g474re.h>
 
 int main() {
-	G474RE dk;
-	g474re_init(&dk);
+    G474RE dk;
+    g474re_init(&dk);
 
-	// To be filled in to test something
+    // To be filled in to test something
 
-	return 0;
+    return 0;
 }

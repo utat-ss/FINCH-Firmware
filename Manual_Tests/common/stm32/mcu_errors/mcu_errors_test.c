@@ -4,24 +4,24 @@
 
 int main() {
     // Try to automatically detect board based on MCU UID
-	MCUBoard board = mcu_get_board();
-	// If the UID is not matched, try to guess the board based on the device ID
-	if (board == MCU_BOARD_NONE) {
-		MCUDevID dev_id = mcu_get_dev_id();
-		if (dev_id == MCU_DEV_ID_STM32G471_473_474_483_484) {
-			board = MCU_BOARD_NUCLEO_G474RE;
-		}
-		else if (dev_id == MCU_DEV_ID_STM32H742_743_753_750) {
-			board = MCU_BOARD_NUCLEO_H743ZI2;
-		}
-	}
+    MCUBoard board = mcu_get_board();
+    // If the UID is not matched, try to guess the board based on the device ID
+    if (board == MCU_BOARD_NONE) {
+        MCUDevID dev_id = mcu_get_dev_id();
+        if (dev_id == MCU_DEV_ID_STM32G471_473_474_483_484) {
+            board = MCU_BOARD_NUCLEO_G474RE;
+        }
+        else if (dev_id == MCU_DEV_ID_STM32H742_743_753_750) {
+            board = MCU_BOARD_NUCLEO_H743ZI2;
+        }
+    }
 
-	MCU mcu;
-	mcu_init(&mcu, board);
-	UART uart;
-	uart_init_for_board(&uart, &mcu);
-	Log log;
-	log_init(&log, &uart);
+    MCU mcu;
+    mcu_init(&mcu, board);
+    UART uart;
+    uart_init_for_board(&uart, &mcu);
+    Log log;
+    log_init(&log, &uart);
 
     info(&log, "Starting MCU errors test");
 
@@ -47,13 +47,13 @@ int main() {
 
     info(&log, "Almost done MCU errors test");
     info(&log, "Will try to force a hard fault, "
-    		   "which infinite loops in the fault handler");
+            "which infinite loops in the fault handler");
     // Force a hard fault by reading from an invalid memory address
     uint32_t *ptr = (uint32_t *) 0x20000;
     uint32_t value = *ptr;	// This line should fail
     info(&log, "0x%lx", value);	// Should never reach this line
 
-	while (1) {}
+    while (1) {}
 
     return 0;
 }

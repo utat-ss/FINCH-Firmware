@@ -23,9 +23,9 @@
  * Need `static` or else it produces the error "undefined reference to `bit'".
  */
 static inline uint64_t bit(uint32_t index) {
-	// Use "1LLU" (long long unsigned) instead of "1" to make sure the constant
-	// is 64 bits instead of 32 bits
-	return 1LLU << index;
+    // Use "1LLU" (long long unsigned) instead of "1" to make sure the constant
+    // is 64 bits instead of 32 bits
+    return 1LLU << index;
 }
 
 /*
@@ -34,7 +34,7 @@ static inline uint64_t bit(uint32_t index) {
  * e.g. lsb_bits(0) = 0x0, lsb_bits(1) = 0x1, lsb_bits(5) = 0x1F
  */
 static inline uint64_t lsb_bits(uint32_t count) {
-	return bit(count) - 1;
+    return bit(count) - 1;
 }
 
 /*
@@ -42,7 +42,7 @@ static inline uint64_t lsb_bits(uint32_t count) {
  * e.g. bits(12, 12) = 0x1000, bits(15, 12) = 0xF000, bits(11, 1) = 0xFFE
  */
 static inline uint64_t bits(uint32_t msb, uint32_t lsb) {
-	return lsb_bits(msb - lsb + 1) << lsb;
+    return lsb_bits(msb - lsb + 1) << lsb;
 }
 
 /*
@@ -52,7 +52,7 @@ static inline uint64_t bits(uint32_t msb, uint32_t lsb) {
  * e.g. get_bit(0xA3, 7) = 1, get_bit(0xA3, 6) = 0, get_bit(0xA3, 5) = 1
  */
 static inline uint64_t get_bit(uint64_t value, uint32_t index) {
-	return (value >> index) & bit(0);
+    return (value >> index) & bit(0);
 }
 
 /*
@@ -62,7 +62,7 @@ static inline uint64_t get_bit(uint64_t value, uint32_t index) {
  * e.g. get_bits(0xA3, 7, 5) = 0b101, get_bits(0xA3, 7, 4) = 0b1010
  */
 static inline uint64_t get_bits(uint64_t value, uint32_t msb, uint32_t lsb) {
-	return (value >> lsb) & lsb_bits(msb - lsb + 1);
+    return (value >> lsb) & lsb_bits(msb - lsb + 1);
 }
 
 
@@ -72,8 +72,8 @@ void serialize_le_bytes(uint64_t value, uint8_t* bytes, uint32_t count);
 uint64_t deserialize_le_bytes(uint8_t* bytes, uint32_t count);
 
 void util_safe_memcpy(uint8_t *destination, size_t sizeof_destination,
-		uint8_t *source, size_t count);
+        uint8_t *source, size_t count);
 void util_safe_strncat(char *destination, size_t sizeof_destination,
-		char *source);
+        char *source);
 
 #endif /* COMMON_STM32_UTIL_UTIL_H_ */

@@ -19,13 +19,13 @@
 typedef void (*GPIOITInputCB)(void);
 
 typedef struct {
-	// Because an interrupt pin can also function as a normal GPIO input, store
-	// a GPIOInput struct so that application code can call functions from
-	// gpio_input.c that take a GPIOInput argument
-	GPIOInput input;
+    // Because an interrupt pin can also function as a normal GPIO input, store
+    // a GPIOInput struct so that application code can call functions from
+    // gpio_input.c that take a GPIOInput argument
+    GPIOInput input;
 } GPIOITInput;
 
 void gpio_it_input_init(GPIOITInput *gpio, MCU *mcu, GPIO_TypeDef *port,
-		uint16_t pin, uint32_t mode, uint32_t pull, GPIOITInputCB callback);
+        uint16_t pin, uint32_t mode, uint32_t pull, GPIOITInputCB callback);
 
 #endif /* COMMON_STM32_GPIO_GPIO_IT_INPUT_H_ */
