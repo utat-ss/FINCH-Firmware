@@ -23,7 +23,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 # Must request GNU compiler-specific extensions (i.e. use gnu11 instead of c11)
 # Described here: https://community.st.com/s/question/0D53W000003N839/build-stm32l071cbt-project-with-stm32cubeide-121-failedsolve
-# If this is off, will get the following error:
+# If this is off, will get an error similar to the following:
 #       .../Firmware/System/STM32H7/syscalls.c:41:27: error:expected '=', ',', ';', 'asm' or '__attribute__' before 'asm'
 #       register char * stack_ptr asm("sp");
 set(CMAKE_C_EXTENSIONS ON)
@@ -45,10 +45,13 @@ add_library(${LIBRARIES_TARGET} OBJECT)
 # It's very fast to just delete the build folder and recreate it anyways when
 # adding a new file
 
+# Recursively find all source (.c and .s) files under the Drivers/Common directory
+file(GLOB_RECURSE DRIVERS_COMMON_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/Common/*.c" "Drivers/Common/*.s")
 # Recursively find all source (.c and .s) files under the Src directory
 file(GLOB_RECURSE SRC_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Src/*.c" "Src/*.s")
-# Add Src files to libraries target
+# Add Drivers/Common and Src files to libraries target
 target_sources(${LIBRARIES_TARGET} PRIVATE
+        ${DRIVERS_COMMON_SOURCES}
         ${SRC_SOURCES}
 )
 
@@ -56,26 +59,18 @@ target_sources(${LIBRARIES_TARGET} PRIVATE
 # The ^ matches a string at the beginning (checks what the string starts with)
 # https://cmake.org/cmake/help/v3.7/command/string.html#regex-specification
 if (${MCU} MATCHES "^G4")
-        # Recursively find all source (.c and .s) files under the Drivers/STM32G4xx_HAL_Driver directory
-        file(GLOB_RECURSE DRIVERS_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32G4xx_HAL_Driver/*.c" "Drivers/STM32G4xx_HAL_Driver/*.s")
-        # Recursively find all source (.c and .s) files under the System/STM32G4 directory
-        file(GLOB_RECURSE SYSTEM_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "System/STM32G4/*.c" "System/STM32G4/*.s")
-
+        # Recursively find all source (.c and .s) files under the Drivers/STM32G4 directory
+        file(GLOB_RECURSE DRIVERS_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32G4/*.c" "Drivers/STM32G4/*.s")
         # Add G4 source files to libraries target
         target_sources(${LIBRARIES_TARGET} PRIVATE
                 ${DRIVERS_G4_SOURCES}
-                ${SYSTEM_G4_SOURCES}
         )
 elseif (${MCU} MATCHES "^H7")
-        # Recursively find all source (.c and .s) files under the Drivers/STM32H7xx_HAL_Driver directory
-        file(GLOB_RECURSE DRIVERS_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32H7xx_HAL_Driver/*.c" "Drivers/STM32H7xx_HAL_Driver/*.s")
-        # Recursively find all source (.c and .s) files under the System/STM32H7 directory
-        file(GLOB_RECURSE SYSTEM_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "System/STM32H7/*.c" "System/STM32H7/*.s")
-
+        # Recursively find all source (.c and .s) files under the Drivers/STM32H7 directory
+        file(GLOB_RECURSE DRIVERS_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32H7/*.c" "Drivers/STM32H7/*.s")
         # Add H7 source files to libraries target
         target_sources(${LIBRARIES_TARGET} PRIVATE
                 ${DRIVERS_H7_SOURCES}
-                ${SYSTEM_H7_SOURCES}
         )
 endif()
 
@@ -135,9 +130,8 @@ set(H7_OPTIONS
 # to both)
 foreach(TARGET IN LISTS LIBRARIES_TARGET TEST_TARGETS)
         # Specify all header (.h) file directories
-        # Similar to source files, explicitly list all files rather than globbing 
         target_include_directories(${TARGET} PRIVATE
-                Drivers/CMSIS/Include
+                Drivers/Common/CMSIS
                 Src
         )
 
@@ -171,9 +165,9 @@ foreach(TARGET IN LISTS LIBRARIES_TARGET TEST_TARGETS)
         # Add MCU series-specific settings
         if (${MCU} MATCHES "^G4")
                 target_include_directories(${TARGET} PRIVATE
-                        Drivers/CMSIS/Device/ST/STM32G4xx/Include
-                        Drivers/STM32G4xx_HAL_Driver/Inc
-                        System/STM32G4
+                        Drivers/STM32G4/CMSIS
+                        Drivers/STM32G4/STM32G4xx_HAL_Driver/Inc
+                        Drivers/STM32G4/System
                 )
 
                 target_compile_definitions(${TARGET} PRIVATE
@@ -190,9 +184,9 @@ foreach(TARGET IN LISTS LIBRARIES_TARGET TEST_TARGETS)
                 )
         elseif (${MCU} MATCHES "^H7")
                 target_include_directories(${TARGET} PRIVATE
-                        Drivers/CMSIS/Device/ST/STM32H7xx/Include
-                        Drivers/STM32H7xx_HAL_Driver/Inc
-                        System/STM32H7
+                        Drivers/STM32H7/CMSIS
+                        Drivers/STM32H7/STM32H7xx_HAL_Driver/Inc
+                        Drivers/STM32H7/System
                 )
 
                 target_compile_definitions(${TARGET} PRIVATE

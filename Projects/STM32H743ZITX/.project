@@ -47,10 +47,5 @@
 			<type>2</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src</locationURI>
 		</link>
-		<link>
-			<name>System</name>
-			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/System</locationURI>
-		</link>
 	</linkedResources>
 </projectDescription>
