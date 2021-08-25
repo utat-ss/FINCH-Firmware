@@ -5,8 +5,8 @@
  *      Author: bruno
  */
 
-#include <common/stm32/mcu/mcu.h>
-#include <common/stm32/mcu/init.h>
+#include <common/stm32/mcu/Init.h>
+#include <common/stm32/mcu/MCU.h>
 
 // Pointer to "default" MCU struct
 // Try not to use this, but it can be used in contexts where you do not have a

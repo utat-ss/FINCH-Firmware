@@ -5,8 +5,8 @@
  *      Author: bruno
  */
 
-#include <common/stm32/mcu/init.h>
-#include <common/stm32/mcu/hal.h>
+#include <common/stm32/mcu/HAL.h>
+#include <common/stm32/mcu/Init.h>
 
 /**
  * Initializes the Global MSP.

@@ -5,7 +5,7 @@
  *      Author: bruno
  */
 
-#include <common/stm32/gpio/gpio_output.h>
+#include <common/stm32/gpio/GPIOOutput.h>
 
 /*
 Initialize a GPIO pin to output state

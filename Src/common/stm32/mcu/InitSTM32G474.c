@@ -7,9 +7,9 @@
  *  Copied over clock configuration
  */
 
-#include <common/stm32/mcu/init.h>
-#include <common/stm32/mcu/errors.h>
-#include <common/stm32/mcu/hal.h>
+#include <common/stm32/mcu/Errors.h>
+#include <common/stm32/mcu/HAL.h>
+#include <common/stm32/mcu/Init.h>
 
 #ifdef STM32G474xx
 

@@ -15,9 +15,9 @@
  * (e.g. A12, B12, F12) are connected to the same interrupt source
  */
 
-#include <common/stm32/gpio/gpio_it_input.h>
+#include <common/stm32/gpio/GPIOITInput.h>
 #include <common/stm32/mcu/errors.h>
-#include <common/stm32/util/util.h>
+#include <common/stm32/util/Util.h>
 
 // This should set all callbacks by default to NULL
 GPIOITInputCB g_gpio_it_input_cbs[GPIO_IT_INPUT_EXTI_COUNT] = {NULL};

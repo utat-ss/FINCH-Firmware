@@ -1,14 +1,14 @@
 /*
- * g474re.h
+ * h743zi2.h
  *
  *  Created on: Jul. 25, 2021
  *      Author: bruno
  */
 
-#ifndef NUCLEO_G474RE_G474RE_H_
-#define NUCLEO_G474RE_G474RE_H_
+#ifndef NUCLEO_H743ZI2_H743ZI2_H_
+#define NUCLEO_H743ZI2_H743ZI2_H_
 
-#include <common/stm32/uart/log.h>
+#include <common/stm32/uart/Log.h>
 
 // Struct to represent the MCU on the dev kit and all peripherals/configuration
 typedef struct {
@@ -16,9 +16,9 @@ typedef struct {
     UART uart;
     Log log;
     GPIOInput blue_button;
-    GPIOOutput green_led;
-} G474RE;
+    GPIOOutput red_led;
+} H743ZI2;
 
-void g474re_init(G474RE* dev_kit);
+void h743zi2_init(H743ZI2* dev_kit);
 
-#endif /* NUCLEO_G474RE_G474RE_H_ */
+#endif /* NUCLEO_H743ZI2_H743ZI2_H_ */

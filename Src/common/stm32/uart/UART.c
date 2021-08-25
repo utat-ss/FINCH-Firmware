@@ -5,12 +5,12 @@
  *      Author: Bruno
  */
 
+#include <common/stm32/mcu/Errors.h>
+#include <common/stm32/uart/Log.h>
 #include <common/stm32/uart/uart.h>
-#include <common/stm32/mcu/errors.h>
-#include <common/stm32/uart/log.h>
-#include <common/stm32/util/util.h>
-#include <nucleo_g474re/g474re_config.h>
-#include <nucleo_h743zi2/h743zi2_config.h>
+#include <common/stm32/util/Util.h>
+#include <nucleo_g474re/G474REConfig.h>
+#include <nucleo_h743zi2/H743ZI2Config.h>
 #include <stdio.h>
 
 

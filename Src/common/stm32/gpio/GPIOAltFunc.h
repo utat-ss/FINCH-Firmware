@@ -5,10 +5,10 @@
  *      Author: bruno
  */
 
-#ifndef COMMON_STM32_GPIO_GPIO_ALT_FUNC_H_
-#define COMMON_STM32_GPIO_GPIO_ALT_FUNC_H_
+#ifndef COMMON_STM32_GPIO_GPIOALTFUNC_H_
+#define COMMON_STM32_GPIO_GPIOALTFUNC_H_
 
-#include <common/stm32/mcu/mcu.h>
+#include <common/stm32/mcu/MCU.h>
 
 typedef struct {
     MCU* mcu;
@@ -21,4 +21,4 @@ void gpio_alt_func_init(GPIOAltFunc* gpio, MCU* mcu, GPIO_TypeDef* port,
         uint16_t pin, uint8_t alternate, uint32_t mode, uint32_t pull,
         uint32_t speed);
 
-#endif /* COMMON_STM32_GPIO_GPIO_ALT_FUNC_H_ */
+#endif /* COMMON_STM32_GPIO_GPIOALTFUNC_H_ */

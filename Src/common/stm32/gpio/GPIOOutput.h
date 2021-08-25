@@ -5,10 +5,10 @@
  *      Author: bruno
  */
 
-#ifndef COMMON_STM32_GPIO_GPIO_OUTPUT_H_
-#define COMMON_STM32_GPIO_GPIO_OUTPUT_H_
+#ifndef COMMON_STM32_GPIO_GPIOOUTPUT_H_
+#define COMMON_STM32_GPIO_GPIOOUTPUT_H_
 
-#include <common/stm32/mcu/mcu.h>
+#include <common/stm32/mcu/MCU.h>
 
 typedef struct {
     MCU* mcu;
@@ -24,4 +24,4 @@ void gpio_set_low(GPIOOutput* gpio);
 void gpio_set_high(GPIOOutput* gpio);
 void gpio_toggle(GPIOOutput* gpio);
 
-#endif /* COMMON_STM32_GPIO_GPIO_OUTPUT_H_ */
+#endif /* COMMON_STM32_GPIO_GPIOOUTPUT_H_ */

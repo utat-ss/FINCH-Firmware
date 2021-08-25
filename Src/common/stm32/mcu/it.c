@@ -19,8 +19,8 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include <common/stm32/mcu/errors.h>
-#include <common/stm32/mcu/hal.h>
+#include <common/stm32/mcu/Errors.h>
+#include <common/stm32/mcu/HAL.h>
 #include "it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */

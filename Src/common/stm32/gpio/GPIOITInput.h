@@ -5,10 +5,10 @@
  *      Author: bruno
  */
 
-#ifndef COMMON_STM32_GPIO_GPIO_IT_INPUT_H_
-#define COMMON_STM32_GPIO_GPIO_IT_INPUT_H_
+#ifndef COMMON_STM32_GPIO_GPIOITINPUT_H_
+#define COMMON_STM32_GPIO_GPIOITINPUT_H_
 
-#include <common/stm32/gpio/gpio_input.h>
+#include <common/stm32/gpio/GPIOInput.h>
 
 // Number of interrupt lines, equal to the number of GPIO pins per port
 #define GPIO_IT_INPUT_EXTI_COUNT 16
@@ -28,4 +28,4 @@ typedef struct {
 void gpio_it_input_init(GPIOITInput* gpio, MCU* mcu, GPIO_TypeDef* port,
         uint16_t pin, uint32_t mode, uint32_t pull, GPIOITInputCB callback);
 
-#endif /* COMMON_STM32_GPIO_GPIO_IT_INPUT_H_ */
+#endif /* COMMON_STM32_GPIO_GPIOITINPUT_H_ */

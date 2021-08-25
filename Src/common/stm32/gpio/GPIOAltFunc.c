@@ -5,7 +5,7 @@
  *      Author: bruno
  */
 
-#include <common/stm32/gpio/gpio_alt_func.h>
+#include <common/stm32/gpio/GPIOAltFunc.h>
 
 /*
 Initialize a GPIO pin to alternate function state

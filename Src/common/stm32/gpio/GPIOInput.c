@@ -5,8 +5,8 @@
  *      Author: bruno
  */
 
-#include <common/stm32/gpio/gpio_input.h>
-#include <common/stm32/uart/log.h>
+#include <common/stm32/gpio/GPIOInput.h>
+#include <common/stm32/uart/Log.h>
 
 /*
 Initialize a GPIO pin to input state

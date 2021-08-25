@@ -5,8 +5,8 @@
  *      Author: bruno
  */
 
-#ifndef NUCLEO_G474RE_G474RE_CONFIG_H_
-#define NUCLEO_G474RE_G474RE_CONFIG_H_
+#ifndef NUCLEO_G474RE_G474RECONFIG_H_
+#define NUCLEO_G474RE_G474RECONFIG_H_
 
 // I/O and settings configuration information for the STM32G474 dev kit
 
@@ -37,4 +37,4 @@
 #define G474RE_GREEN_LED_PORT	GPIOA
 #define G474RE_GREEN_LED_PIN 	GPIO_PIN_5
 
-#endif /* NUCLEO_G474RE_G474RE_CONFIG_H_ */
+#endif /* NUCLEO_G474RE_G474RECONFIG_H_ */

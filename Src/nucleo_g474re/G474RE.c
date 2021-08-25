@@ -5,8 +5,8 @@
  *      Author: bruno
  */
 
-#include <nucleo_g474re/g474re.h>
-#include <nucleo_g474re/g474re_config.h>
+#include <nucleo_g474re/G474RE.h>
+#include <nucleo_g474re/G474REConfig.h>
 
 void g474re_init(G474RE* dev_kit) {
     mcu_init(&dev_kit->mcu, G474RE_BOARD);

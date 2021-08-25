@@ -2,8 +2,8 @@
  * errors.c
  */
 
-#include <common/stm32/mcu/errors.h>
-#include <common/stm32/uart/log.h>
+#include <common/stm32/mcu/Errors.h>
+#include <common/stm32/uart/Log.h>
 
 void Error_Handler(void) {
     // It is very useful to place a breakpoint at the beginning of this function

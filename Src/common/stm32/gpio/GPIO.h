@@ -43,9 +43,9 @@
 #ifndef COMMON_STM32_GPIO_GPIO_H_
 #define COMMON_STM32_GPIO_GPIO_H_
 
-#include <common/stm32/gpio/gpio_alt_func.h>
-#include <common/stm32/gpio/gpio_input.h>
-#include <common/stm32/gpio/gpio_it_input.h>
-#include <common/stm32/gpio/gpio_output.h>
+#include <common/stm32/gpio/GPIOAltFunc.h>
+#include <common/stm32/gpio/GPIOInput.h>
+#include <common/stm32/gpio/GPIOITInput.h>
+#include <common/stm32/gpio/GPIOOutput.h>
 
 #endif /* COMMON_STM32_GPIO_GPIO_H_ */

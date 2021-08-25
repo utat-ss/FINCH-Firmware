@@ -8,7 +8,7 @@
 #ifndef COMMON_STM32_UTIL_RANDOM_H_
 #define COMMON_STM32_UTIL_RANDOM_H_
 
-#include <common/stm32/uart/log.h>
+#include <common/stm32/uart/Log.h>
 
 typedef struct {
     Log log;

@@ -5,8 +5,8 @@
  *      Author: bruno
  */
 
-#ifndef NUCLEO_H743ZI2_H743ZI2_CONFIG_H_
-#define NUCLEO_H743ZI2_H743ZI2_CONFIG_H_
+#ifndef NUCLEO_H743ZI2_H743ZI2CONFIG_H_
+#define NUCLEO_H743ZI2_H743ZI2CONFIG_H_
 
 // I/O and settings configuration information for the STM32H743 dev kit
 
@@ -29,4 +29,4 @@
 #define H743ZI2_RED_LED_PORT	GPIOB
 #define H743ZI2_RED_LED_PIN		GPIO_PIN_14
 
-#endif /* NUCLEO_H743ZI2_H743ZI2_CONFIG_H_ */
+#endif /* NUCLEO_H743ZI2_H743ZI2CONFIG_H_ */

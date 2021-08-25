@@ -8,7 +8,7 @@
 #ifndef COMMON_STM32_UART_UART_H_
 #define COMMON_STM32_UART_UART_H_
 
-#include <common/stm32/uart/uart_log.h>
+#include <common/stm32/uart/UARTLog.h>
 
 
 /*

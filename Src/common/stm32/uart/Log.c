@@ -8,8 +8,8 @@
  * https://github.com/HeronMkII/lib-common/blob/master/src/uart/log.c
  */
 
-#include <common/stm32/uart/log.h>
-#include <common/stm32/util/util.h>
+#include <common/stm32/uart/Log.h>
+#include <common/stm32/util/Util.h>
 #include <stdio.h>
 
 

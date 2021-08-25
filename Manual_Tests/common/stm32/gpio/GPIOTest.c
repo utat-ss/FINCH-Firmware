@@ -10,8 +10,8 @@
  */
 
 #include <common/stm32/gpio/gpio.h>
-#include <nucleo_g474re/g474re_config.h>
-#include <nucleo_h743zi2/h743zi2_config.h>
+#include <nucleo_g474re/G474REConfig.h>
+#include <nucleo_h743zi2/H743ZI2Config.h>
 
 int main() {
     // Try to automatically detect board based on MCU UID

@@ -5,10 +5,10 @@
  *      Author: bruno
  */
 
-#ifndef COMMON_STM32_UART_UART_LOG_H_
-#define COMMON_STM32_UART_UART_LOG_H_
+#ifndef COMMON_STM32_UART_UARTLOG_H_
+#define COMMON_STM32_UART_UARTLOG_H_
 
-#include <common/stm32/gpio/gpio.h>
+#include <common/stm32/gpio/GPIO.h>
 
 /*
  * Normally these definitions would be separated into uart.h and log.h, but
@@ -82,4 +82,4 @@ typedef struct UARTStruct {
 
 // -----------------------------------------------------------------------------
 
-#endif /* COMMON_STM32_UART_UART_LOG_H_ */
+#endif /* COMMON_STM32_UART_UARTLOG_H_ */
