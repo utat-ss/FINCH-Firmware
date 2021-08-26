@@ -28,6 +28,9 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 #       register char * stack_ptr asm("sp");
 set(CMAKE_C_EXTENSIONS ON)
 
+
+
+
 # Create a shared library (object library) that compiles all library source files
 # only once rather than repeating compilation for each test target
 # https://stackoverflow.com/questions/29634101/cmake-how-to-define-target-without-linking-compilation-only
@@ -108,24 +111,35 @@ foreach(TEST_DIR IN LISTS TEST_DIRS)
         add_executable(${TEST_TARGET} $<TARGET_OBJECTS:${LIBRARIES_TARGET}> ${SOURCES})
 endforeach()
 
-# Save common options between the compiler and linker in variables so we don't
+
+
+
+# Save common options for both the compiler and linker in variables so we don't
 # have to repeat them for both
-# To see settings used in the IDE project and their descriptions/explanations,
-# under IDE project properties, go to C/C++ Build > Settings > Tool Settings
+# To see settings used in an IDE project and their descriptions, under IDE
+# project properties, go to C/C++ Build > Settings > Tool Settings
 set(OPTIONS
+        # Reduced C runtime library
+        --specs=nano.specs
+        # Hardware implementation floating-point ABI
         -mfloat-abi=hard
+        # Thumb2 instruction set
         -mthumb
-        -specs=nano.specs
 )
 set(G4_OPTIONS
+        # Cortex M4 CPU
         -mcpu=cortex-m4
+        # FPv4 single-precision floating-point unit
         -mfpu=fpv4-sp-d16
 )
 set(H7_OPTIONS
+        # Cortex M7 CPU
         -mcpu=cortex-m7
+        # FPv5 double-precision floating-point unit
         -mfpu=fpv5-d16
 )
 
+# Apply compiler settings
 # Loop through all targets (both libraries and tests since these settings apply
 # to both)
 foreach(TARGET IN LISTS LIBRARIES_TARGET TEST_TARGETS)
@@ -148,18 +162,26 @@ foreach(TARGET IN LISTS LIBRARIES_TARGET TEST_TARGETS)
         target_compile_options(${TARGET} PRIVATE
                 ${OPTIONS}
 
-                -fdata-sections
-                -ffunction-sections
-                -fstack-usage
-
-                # Maximum debugging information
+                # Maximum debug level (debugging information)
                 # https://stackoverflow.com/questions/10475040/gcc-g-vs-g3-gdb-flag-what-is-the-difference
                 -g3
+                # Optimization level (-O0 is none)
+                $<$<CONFIG:Debug>:-O0>
 
-                # Optimization level
-                $<$<CONFIG:Debug>:-Og>
+                # Place functions in their own sections
+                -ffunction-sections
+                # Place data in their own sections
+                -fdata-sections
 
+                # Enable all warnings about questionable constructions
                 -Wall
+                # Warn if a user-supplied include directory does not exist
+                -Wmissing-include-dirs
+                # Warn when a switch statement does not have a default case
+                -Wswitch-default
+
+                # Enable stack usage analysis
+                -fstack-usage
         )
 
         # Add MCU series-specific settings
@@ -204,6 +226,7 @@ foreach(TARGET IN LISTS LIBRARIES_TARGET TEST_TARGETS)
         endif()
 endforeach()
 
+# Apply linker and post-build settings
 # Loop through test targets
 # These settings only apply to test targets (because they are linked and produce
 # a final binary)
@@ -211,26 +234,30 @@ foreach(TARGET IN LISTS TEST_TARGETS)
         # Add linker options
         target_link_options(${TARGET} PRIVATE
                 ${OPTIONS}
-                
-                -static
+
+                # Minimal implementation of system calls
+                --specs=nosys.specs
 
                 # Generate map file, which provides linker info and symbols
                 -Wl,-Map=${TARGET}.map
+                # Add symbol cross reference table to map file
+                -Wl,--cref
+                # Discard unused sections
                 -Wl,--gc-sections
 
-                # Use C math library
-                # end-group must come after start-group or else we get the
-                # linker error: "group ended before it began"
-                -Wl,--start-group
-                -lc
-                -lm
-                -Wl,--end-group
+                -static
 
                 # Enable printf-style formatting/printing of floating-point
                 # numbers
                 -u_printf_float
                 # Enable scanf-style reading/input of floating-point numbers
                 -u_scanf_float
+
+                # Use C math library
+                -Wl,--start-group
+                -lc
+                -lm
+                -Wl,--end-group
         )
 
         # Add MCU series-specific settings
