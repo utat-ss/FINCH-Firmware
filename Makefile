@@ -68,14 +68,13 @@ ifeq ($(OS),Windows_NT)
 	WINDOWS = 1
 endif
 
-# Detect how many MCUs of each model are connected
+# If DETECT=1, detect how many MCUs of each model are connected
+# Setting DETECT=1 causes this to execute the `st-info --probe` command, which
+# resets all MCUs connected to the computer, causing each MCU to restart its
+# current program
 # Might need to make the grep strings "G4" and "H7" more specific in the future
-# Note that running any sort of `make` command (e.g. `make clean`) will cause
-# these `st-info --probe` commands to be executed, resetting the MCU and
-# restarting its current program
-# Can set DETECT=0 when calling `make` to skip the probe command and auto MCU
-# detection, preventing the MCU from resetting and restarting its program
-ifneq ($(DETECT),0)
+# (e.g. different strings for G431 and G474)
+ifeq ($(DETECT),1)
 	ifeq ($(WINDOWS),1)
 		G474_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'G4').length")
 		H743_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'H7').length")
@@ -149,7 +148,7 @@ endif
 # Based on https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/new-item?view=powershell-7.1 (Example 8)
 $(BUILD_DIR):
 ifeq ($(MCU),)
-	@echo "ERROR: Parameter MCU must be defined"
+	@echo "ERROR: Parameter MCU must be defined, or set DETECT=1 if one MCU is connected"
 	exit 1
 endif
 ifeq ($(WINDOWS),1)
@@ -177,7 +176,7 @@ endif
 .PHONY: clean_mcu
 clean_mcu:
 ifeq ($(MCU),)
-	@echo "ERROR: Parameter MCU must be defined"
+	@echo "ERROR: Parameter MCU must be defined, or set DETECT=1 if one MCU is connected"
 	exit 1
 endif
 ifeq ($(WINDOWS),1)
