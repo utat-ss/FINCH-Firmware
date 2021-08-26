@@ -18,8 +18,12 @@ void Error_Handler(void) {
     if (g_log_def == NULL) {
         return;
     }
+
+    // Should use __func__ instead of __FUNCTION__ here because it is supported
+    // in standard ISO C
+    // https://stackoverflow.com/questions/52962812/how-to-silence-gcc-pedantic-wpedantic-warning-regarding-function
     error(g_log_def, "Generic error occurred, see %s() in %s",
-            __FUNCTION__, __FILE__);
+            __func__, __FILE__);
 }
 
 #ifdef  USE_FULL_ASSERT

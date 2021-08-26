@@ -236,7 +236,7 @@ void log_log_bytes(Log* log, LogLevel level, uint8_t* bytes, uint32_t count,
 
     // Add all other bytes with a ":" prefix to separate bytes
     len = strlen(msg);
-    for (int i = 1; i < count; i++) {
+    for (uint32_t i = 1; i < count; i++) {
         snprintf(&msg[len], sizeof(msg) - len, ":%.2X", bytes[i]);
         // Manually add 3 instead of calling strlen() every time through the
         // loop because we know 3 bytes are added (colon and 2 digits)
