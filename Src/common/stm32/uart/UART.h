@@ -76,6 +76,11 @@ https://community.st.com/s/article/FAQ-DMA-is-not-working-on-STM32H7-devices
 https://electronics.stackexchange.com/questions/389830/tim2-dma-configuration-for-stm32h7
 https://stackoverflow.com/questions/51323589/are-all-ram-sections-used-in-this-linkerscript-of-a-stm32h743-microcontroller-c
 https://electronics.stackexchange.com/questions/393868/stm32f4-dma-transfer-error-with-adc
+
+In the future, to retarget the printf() function, would need to implement the
+_write() and/or __io_putchar() functions
+To retarget the scanf() function, would need to implement the _read() and/or
+__io_getchar() functions
  */
 
 
