@@ -1,5 +1,5 @@
 /*
- * errors.h
+ * Errors.h
  */
 
 #ifndef COMMON_STM32_MCU_ERRORS_H_

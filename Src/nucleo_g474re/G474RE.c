@@ -1,5 +1,5 @@
 /*
- * g474re.c
+ * G474RE.c
  *
  *  Created on: Jul. 25, 2021
  *      Author: bruno

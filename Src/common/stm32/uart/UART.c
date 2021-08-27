@@ -1,5 +1,5 @@
 /*
- * uart.c
+ * UART.c
  *
  *  Created on: Oct 10, 2020
  *      Author: Bruno

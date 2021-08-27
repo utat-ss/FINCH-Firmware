@@ -1,5 +1,5 @@
 /*
- * uart_log.h
+ * UARTLog.h
  *
  *  Created on: Jul. 4, 2021
  *      Author: bruno

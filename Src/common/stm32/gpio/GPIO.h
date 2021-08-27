@@ -1,5 +1,5 @@
 /*
- * gpio.h
+ * GPIO.h
  *
  *  Created on: Jul. 8, 2020
  *      Author: brytni

@@ -1,5 +1,5 @@
 /*
- * h743zi2.c
+ * H743ZI2.c
  *
  *  Created on: Jul. 25, 2021
  *      Author: bruno

@@ -1,5 +1,5 @@
 /*
- * g474re_config.h
+ * G474REConfig.h
  *
  *  Created on: Jul. 27, 2021
  *      Author: bruno

@@ -1,5 +1,5 @@
 /*
- * g474re_test.c
+ * G474RETest.c
  *
  *  Created on: Jul. 27, 2020
  *      Author: bruno

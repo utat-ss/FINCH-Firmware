@@ -1,5 +1,5 @@
 /*
- * uart.h
+ * UART.h
  *
  *  Created on: Oct 10, 2020
  *      Author: Ketan

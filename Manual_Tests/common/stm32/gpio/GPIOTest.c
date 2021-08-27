@@ -1,5 +1,5 @@
 /*
- * gpio_test.c
+ * GPIOTest.c
  *
  *  Created on: Jul. 18, 2020
  *      Author: brytni

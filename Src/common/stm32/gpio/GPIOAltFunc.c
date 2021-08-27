@@ -1,5 +1,5 @@
 /*
- * gpio_alt_func.c
+ * GPIOAltFunc.c
  *
  *  Created on: Jul. 23, 2021
  *      Author: bruno

@@ -1,5 +1,5 @@
 /*
- * errors.c
+ * Errors.c
  */
 
 #include <common/stm32/mcu/Errors.h>

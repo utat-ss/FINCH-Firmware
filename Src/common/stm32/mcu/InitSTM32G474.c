@@ -1,5 +1,5 @@
 /*
- * init_stm32g474.c
+ * InitSTM32G474.c
  *
  *  Created on: Aug. 9, 2020
  *      Author: brytni

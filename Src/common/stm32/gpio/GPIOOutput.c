@@ -1,5 +1,5 @@
 /*
- * gpio_output.c
+ * GPIOOutput.c
  *
  *  Created on: Jul. 23, 2021
  *      Author: bruno

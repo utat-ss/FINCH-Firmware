@@ -1,5 +1,5 @@
 /*
- * mcu.h
+ * MCU.h
  *
  *  Created on: Jul. 24, 2021
  *      Author: bruno

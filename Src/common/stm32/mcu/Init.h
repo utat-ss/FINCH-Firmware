@@ -1,5 +1,5 @@
 /*
- * init.h
+ * Init.h
  *
  *  Created on: Aug. 9, 2020
  *      Author: brytni

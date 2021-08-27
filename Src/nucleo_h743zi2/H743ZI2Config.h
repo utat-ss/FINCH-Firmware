@@ -1,5 +1,5 @@
 /*
- * h743zi2_config.h
+ * H743ZI2Config.h
  *
  *  Created on: Jul. 27, 2021
  *      Author: bruno

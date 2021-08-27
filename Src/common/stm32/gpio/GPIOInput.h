@@ -1,5 +1,5 @@
 /*
- * gpio_input.h
+ * GPIOInput.h
  *
  *  Created on: Jul. 23, 2021
  *      Author: bruno

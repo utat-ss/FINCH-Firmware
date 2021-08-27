@@ -1,5 +1,5 @@
 /*
- * init_stm32h743.c
+ * InitSTM32H743.c
  *
  *  Created on: Aug. 9, 2020
  *      Author: brytni

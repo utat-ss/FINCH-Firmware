@@ -1,5 +1,5 @@
 /*
- * random.c
+ * Random.c
  *
  *  Created on: Aug. 10, 2021
  *      Author: bruno
