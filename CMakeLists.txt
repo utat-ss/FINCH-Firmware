@@ -128,9 +128,10 @@ endforeach()
 
 # Save common options for both the compiler and linker in variables so we don't
 # have to repeat them for both
-# To see settings used in an IDE project and their descriptions, under IDE
-# project properties, go to C/C++ Build > Settings > Tool Settings
-set(OPTIONS
+# To see the compiler and linker settings (and their descriptions) used in an
+# IDE project, under IDE project properties, go to C/C++ Build > Settings >
+# Tool Settings
+set(COMMON_OPTIONS
         # Reduced C runtime library
         --specs=nano.specs
         # Hardware implementation floating-point ABI
@@ -151,9 +152,9 @@ set(H7_OPTIONS
         -mfpu=fpv5-d16
 )
 
-# Apply compiler settings
-# Loop through all targets (both libraries and tests since these settings apply
-# to both)
+# Apply compiler and linker settings
+# Loop through all targets (both the library target and the test targets since
+# these settings apply to both)
 foreach(TARGET IN LISTS LIBRARIES_TARGET TEST_TARGETS)
         # Specify all header (.h) file directories
         target_include_directories(${TARGET} PRIVATE
@@ -172,7 +173,7 @@ foreach(TARGET IN LISTS LIBRARIES_TARGET TEST_TARGETS)
 
         # Add compiler options
         target_compile_options(${TARGET} PRIVATE
-                ${OPTIONS}
+                ${COMMON_OPTIONS}
 
                 # Maximum debug level (debugging information)
                 # https://stackoverflow.com/questions/10475040/gcc-g-vs-g3-gdb-flag-what-is-the-difference
@@ -196,56 +197,9 @@ foreach(TARGET IN LISTS LIBRARIES_TARGET TEST_TARGETS)
                 -fstack-usage
         )
 
-        # Add MCU series-specific settings
-        if (${MCU} MATCHES "^G4")
-                target_include_directories(${TARGET} PRIVATE
-                        Drivers/STM32G4/CMSIS
-                        Drivers/STM32G4/STM32G4xx_HAL_Driver/Inc
-                        Drivers/STM32G4/System
-                )
-
-                target_compile_definitions(${TARGET} PRIVATE
-                        -DSTM32G4
-                )
-                if (${MCU} MATCHES "^G474")
-                        target_compile_definitions(${TARGET} PRIVATE
-                                -DSTM32G474xx
-                        )
-                endif()
-
-                target_compile_options(${TARGET} PRIVATE
-                        ${G4_OPTIONS}
-                )
-        elseif (${MCU} MATCHES "^H7")
-                target_include_directories(${TARGET} PRIVATE
-                        Drivers/STM32H7/CMSIS
-                        Drivers/STM32H7/STM32H7xx_HAL_Driver/Inc
-                        Drivers/STM32H7/System
-                )
-
-                target_compile_definitions(${TARGET} PRIVATE
-                        -DSTM32H7
-                )
-                if (${MCU} MATCHES "^H743")
-                        target_compile_definitions(${TARGET} PRIVATE
-                                -DSTM32H743xx
-                        )
-                endif()
-
-                target_compile_options(${TARGET} PRIVATE
-                        ${H7_OPTIONS}
-                )
-        endif()
-endforeach()
-
-# Apply linker and post-build settings
-# Loop through test targets
-# These settings only apply to test targets (because they are linked and produce
-# a final binary)
-foreach(TARGET IN LISTS TEST_TARGETS)
         # Add linker options
         target_link_options(${TARGET} PRIVATE
-                ${OPTIONS}
+                ${COMMON_OPTIONS}
 
                 # Minimal implementation of system calls
                 --specs=nosys.specs
@@ -273,34 +227,68 @@ foreach(TARGET IN LISTS TEST_TARGETS)
         )
 
         # Add MCU series-specific settings
-        # Specify linker script
         if (${MCU} MATCHES "^G4")
+                target_include_directories(${TARGET} PRIVATE
+                        Drivers/STM32G4/CMSIS
+                        Drivers/STM32G4/STM32G4xx_HAL_Driver/Inc
+                        Drivers/STM32G4/System
+                )
+                target_compile_definitions(${TARGET} PRIVATE
+                        -DSTM32G4
+                )
+                target_compile_options(${TARGET} PRIVATE
+                        ${G4_OPTIONS}
+                )
                 target_link_options(${TARGET} PRIVATE
                         ${G4_OPTIONS}
                 )
-                if (${MCU} MATCHES "G474")
-                        target_link_options(${TARGET} PRIVATE
-                                -T${CMAKE_SOURCE_DIR}/Projects/STM32G474RETX/STM32G474RETX_FLASH.ld
-                        )
-                endif()
         elseif (${MCU} MATCHES "^H7")
+                target_include_directories(${TARGET} PRIVATE
+                        Drivers/STM32H7/CMSIS
+                        Drivers/STM32H7/STM32H7xx_HAL_Driver/Inc
+                        Drivers/STM32H7/System
+                )
+                target_compile_definitions(${TARGET} PRIVATE
+                        -DSTM32H7
+                )
+                target_compile_options(${TARGET} PRIVATE
+                        ${H7_OPTIONS}
+                )
                 target_link_options(${TARGET} PRIVATE
                         ${H7_OPTIONS}
                 )
-                if (${MCU} MATCHES "H743")
-                        target_link_options(${TARGET} PRIVATE
-                                -T${CMAKE_SOURCE_DIR}/Projects/STM32H743ZITX/STM32H743ZITX_FLASH.ld
-                        )
-                endif()
         endif()
 
+        # Add MCU model-specific settings
+        if (${MCU} MATCHES "^G474")
+                target_compile_definitions(${TARGET} PRIVATE
+                        -DSTM32G474xx
+                )
+                # Specify linker script
+                target_link_options(${TARGET} PRIVATE
+                        -T${CMAKE_SOURCE_DIR}/Projects/STM32G474RETX/STM32G474RETX_FLASH.ld
+                )
+        elseif (${MCU} MATCHES "^H743")
+                target_compile_definitions(${TARGET} PRIVATE
+                        -DSTM32H743xx
+                )
+                target_link_options(${TARGET} PRIVATE
+                        -T${CMAKE_SOURCE_DIR}/Projects/STM32H743ZITX/STM32H743ZITX_FLASH.ld
+                )
+        endif()
+endforeach()
+
+# Apply post-build settings
+# Loop through test targets only
+# These settings only apply to test targets because they produce a final binary
+foreach(TARGET IN LISTS TEST_TARGETS)
         # Print executable size
         add_custom_command(TARGET ${TARGET}
                 POST_BUILD
                 COMMAND arm-none-eabi-size ${TARGET}
         )
 
-        # Create hex file
+        # Create hex file and bin file for final binary
         add_custom_command(TARGET ${TARGET}
                 POST_BUILD
                 COMMAND arm-none-eabi-objcopy -O ihex ${TARGET} ${TARGET}.hex
