@@ -45,18 +45,20 @@ add_library(${LIBRARIES_TARGET} OBJECT)
 # https://cmake.org/cmake/help/v3.7/command/file.html
 # But we are going to do it anyway so we don't need to change the source file
 # list every time we add a new file
-# It's very fast to just delete the build folder and recreate it anyways when
-# adding a new file
+# When adding a new file, it's fast to just delete the build folder and recreate
+# it anyways
 
 # Recursively find all source (.c and .s) files under the Drivers/Common directory
 file(GLOB_RECURSE DRIVERS_COMMON_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/Common/*.c" "Drivers/Common/*.s")
-# Recursively find all source (.c and .s) files under the Src directory
-file(GLOB_RECURSE SRC_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Src/*.c" "Src/*.s")
+# Recursively find all source (.c) files under the Src/common directory
+file(GLOB_RECURSE SRC_COMMON_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Src/common/*.c")
 # Add Drivers/Common and Src files to libraries target
 target_sources(${LIBRARIES_TARGET} PRIVATE
         ${DRIVERS_COMMON_SOURCES}
-        ${SRC_SOURCES}
+        ${SRC_COMMON_SOURCES}
 )
+# Recursively find all test source (.c) files under the Manual_Tests/common directory
+file(GLOB_RECURSE TEST_COMMON_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Manual_Tests/common/*.c")
 
 # Add source files for the particular MCU series in use
 # The ^ matches a string at the beginning (checks what the string starts with)
@@ -64,24 +66,34 @@ target_sources(${LIBRARIES_TARGET} PRIVATE
 if (${MCU} MATCHES "^G4")
         # Recursively find all source (.c and .s) files under the Drivers/STM32G4 directory
         file(GLOB_RECURSE DRIVERS_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32G4/*.c" "Drivers/STM32G4/*.s")
+        # Recursively find all source (.c) files under the Src/... directories for G4 MCUs
+        file(GLOB_RECURSE SRC_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Src/nucleo_g474re/*.c")
         # Add G4 source files to libraries target
         target_sources(${LIBRARIES_TARGET} PRIVATE
                 ${DRIVERS_G4_SOURCES}
+                ${SRC_G4_SOURCES}
         )
+        # Recursively find all test source (.c) files under the Manual_Tests/... directories for G4 MCUs
+        file(GLOB_RECURSE TEST_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Manual_Tests/nucleo_g474re/*.c")
 elseif (${MCU} MATCHES "^H7")
         # Recursively find all source (.c and .s) files under the Drivers/STM32H7 directory
         file(GLOB_RECURSE DRIVERS_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32H7/*.c" "Drivers/STM32H7/*.s")
+        # Recursively find all source (.c) files under the Src/... directories for H7 MCUs
+        file(GLOB_RECURSE SRC_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Src/nucleo_h743zi2/*.c")
         # Add H7 source files to libraries target
         target_sources(${LIBRARIES_TARGET} PRIVATE
                 ${DRIVERS_H7_SOURCES}
+                ${SRC_H7_SOURCES}
         )
+        # Recursively find all test source (.c) files under the Manual_Tests/... directories for H7 MCUs
+        file(GLOB_RECURSE TEST_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Manual_Tests/nucleo_h743zi2/*.c")
 endif()
 
-# Recursively find all test source (.c) files under the Manual_Tests directory
-file(GLOB_RECURSE TEST_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Manual_Tests/*.c")
 
 # Loop through all test source files
-foreach(TEST_SOURCE IN LISTS TEST_SOURCES)
+# Note that only one of the TEST_*_SOURCES variables will have anything in it,
+# while the rest will be empty
+foreach(TEST_SOURCE IN LISTS TEST_COMMON_SOURCES TEST_G4_SOURCES TEST_H7_SOURCES)
         # Get the source file's parent directory path
         get_filename_component(TEST_DIR ${TEST_SOURCE} DIRECTORY)
         # Append the parent directory path to the list of test directories
@@ -99,7 +111,7 @@ foreach(TEST_DIR IN LISTS TEST_DIRS)
         # Don't just use the last directory in the path because that could lead
         # to naming conflicts
         string(REPLACE "/" "-" TEST_TARGET ${TEST_DIR})
-        # Append the target name to the list of test target names
+        # Append the target name to the list of all test target names
         list(APPEND TEST_TARGETS ${TEST_TARGET})
 
         # Recursively find all test source (.c) files under the test directory
