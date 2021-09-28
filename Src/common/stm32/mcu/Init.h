@@ -1,8 +1,8 @@
 /*
  * Init.h
  *
- *  Created on: Aug. 9, 2020
- *      Author: brytni
+ *  Created on: Jul. 24, 2021
+ *      Author: bruno
  */
 
 #ifndef COMMON_STM32_MCU_INIT_H_

@@ -1,3 +1,12 @@
+/*
+ * UARTRXTest.c
+ *
+ *  Created on: Sept. 28, 2021
+ *      Author: bruno
+ *
+ * Tests reading various types of input data from UART (sent from a laptop).
+ */
+
 #include <common/stm32/uart/Log.h>
 
 int main() {

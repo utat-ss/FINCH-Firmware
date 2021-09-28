@@ -6,7 +6,8 @@
  *
  *  GPIO testing functions
  *  Test will manually blink light on NUCLEO-H74/G474 devkit. When the blue
- *  button is pressed, the light (red for H7, green for G4) stops blinking
+ *  button is pressed, the light (red for H7, green for G4) stops blinking until
+ *  the button is released.
  */
 
 #include <common/stm32/gpio/gpio.h>

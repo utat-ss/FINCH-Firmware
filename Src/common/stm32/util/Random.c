@@ -4,8 +4,10 @@
  *  Created on: Aug. 10, 2021
  *      Author: bruno
  *
+ * Random number generation library
+ *
  * When random is initialized, use the RNG peripheral inside the MCU to generate
- * a truly random number. Use that number as the seed for the C random number
+ * a true random number. Use that number as the seed for the C random number
  * generator, then use the C random number generator to generate all numbers
  * going forward.
  *

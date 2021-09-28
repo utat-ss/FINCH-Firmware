@@ -3,12 +3,12 @@
  *
  *  Created on: Jul. 27, 2021
  *      Author: bruno
+ * 
+ * I/O and settings configuration information for the STM32G474RE dev kit.
  */
 
 #ifndef NUCLEO_G474RE_G474RECONFIG_H_
 #define NUCLEO_G474RE_G474RECONFIG_H_
-
-// I/O and settings configuration information for the STM32G474 dev kit
 
 // General
 #define G474RE_BOARD	MCU_BOARD_NUCLEO_G474RE

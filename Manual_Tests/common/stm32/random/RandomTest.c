@@ -1,3 +1,12 @@
+/*
+ * RandomTest.c
+ *
+ *  Created on: Sept. 28, 2021
+ *      Author: bruno
+ *
+ * Generates random numbers using functionality from our random library.
+ */
+
 #include <common/stm32/util/random.h>
 
 int main() {

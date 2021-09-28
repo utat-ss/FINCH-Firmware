@@ -3,6 +3,9 @@
  *
  *  Created on: Jul. 24, 2021
  *      Author: bruno
+ * 
+ * Generic MCU initialization/startup code that is not specific to any
+ * particular model.
  */
 
 #include <common/stm32/mcu/HAL.h>

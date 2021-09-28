@@ -3,6 +3,8 @@
  *
  *  Created on: Jul. 25, 2021
  *      Author: bruno
+ * 
+ * Code for the ST32G474RE dev kit.
  */
 
 #include <nucleo_g474re/G474RE.h>

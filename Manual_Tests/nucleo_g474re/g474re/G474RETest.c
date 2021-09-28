@@ -1,8 +1,11 @@
 /*
  * G474RETest.c
  *
- *  Created on: Jul. 27, 2020
+ *  Created on: Sept. 28, 2021
  *      Author: bruno
+ * 
+ * This program doesn't test anything yet, but should be updated to test
+ * functionality for the G474 dev kit.
  */
 
 #include <nucleo_g474re/g474re.h>

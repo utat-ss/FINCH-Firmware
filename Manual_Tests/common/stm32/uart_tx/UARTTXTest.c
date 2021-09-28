@@ -1,3 +1,12 @@
+/*
+ * UARTTXTest.c
+ *
+ *  Created on: Sept. 28, 2021
+ *      Author: bruno
+ *
+ * Tests UART output and logging library functionality.
+ */
+
 #include <common/stm32/uart/log.h>
 #include <string.h>
 

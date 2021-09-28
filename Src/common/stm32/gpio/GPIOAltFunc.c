@@ -3,6 +3,9 @@
  *
  *  Created on: Jul. 23, 2021
  *      Author: bruno
+ * 
+ * Alternate function GPIO pins, which are not used as standard GPIO, but are
+ * instead used for specific protocols (e.g. SPI, I2C, DCMI).
  */
 
 #include <common/stm32/gpio/GPIOAltFunc.h>

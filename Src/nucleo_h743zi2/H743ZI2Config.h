@@ -3,12 +3,12 @@
  *
  *  Created on: Jul. 27, 2021
  *      Author: bruno
+ * 
+ * I/O and settings configuration information for the STM32H743ZI2 dev kit.
  */
 
 #ifndef NUCLEO_H743ZI2_H743ZI2CONFIG_H_
 #define NUCLEO_H743ZI2_H743ZI2CONFIG_H_
-
-// I/O and settings configuration information for the STM32H743 dev kit
 
 // General
 #define H743ZI2_BOARD	MCU_BOARD_NUCLEO_H743ZI2

@@ -3,6 +3,9 @@
  *
  *  Created on: Jul. 23, 2021
  *      Author: bruno
+ * 
+ * A library for standard GPIO output pins, configured as either push-pull or
+ * open-drain.
  */
 
 #include <common/stm32/gpio/GPIOOutput.h>

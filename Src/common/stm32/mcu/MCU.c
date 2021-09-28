@@ -3,6 +3,10 @@
  *
  *  Created on: Jul. 24, 2021
  *      Author: bruno
+ * 
+ * General-purpose MCU initialization wrapper. Also provides functionality for
+ * programmatically determining properties of the MCU (e.g. device, revision,
+ * unique ID, board).
  */
 
 #include <common/stm32/mcu/Init.h>

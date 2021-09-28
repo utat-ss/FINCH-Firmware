@@ -1,3 +1,13 @@
+/*
+ * MCUInfoTest.c
+ *
+ *  Created on: Sept. 28, 2021
+ *      Author: bruno
+ *
+ * Displays information obtained about the MCU (from registers) and the board
+ * (from our mapping).
+ */
+
 #include <common/stm32/uart/log.h>
 
 int main() {

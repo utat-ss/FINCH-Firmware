@@ -1,10 +1,18 @@
 /*
  * Errors.c
+ *
+ *  Created on: Sept. 28, 2021
+ *      Author: bruno
+ * 
+ * Generic error handling for both HAL code and our code.
  */
 
 #include <common/stm32/mcu/Errors.h>
 #include <common/stm32/uart/Log.h>
 
+/**
+ * This function is often called in auto-generated code from the CubeMX tool.
+ */
 void Error_Handler(void) {
     // It is very useful to place a breakpoint at the beginning of this function
     // to catch all errors that call this function, especially when UART has not

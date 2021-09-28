@@ -3,6 +3,8 @@
  *
  *  Created on: Jul. 25, 2021
  *      Author: bruno
+ * 
+ * Code for the ST32H743ZI2 dev kit.
  */
 
 #include <nucleo_h743zi2/H743ZI2.h>

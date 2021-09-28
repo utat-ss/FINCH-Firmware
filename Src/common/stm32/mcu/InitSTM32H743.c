@@ -4,7 +4,7 @@
  *  Created on: Aug. 9, 2020
  *      Author: brytni
  *
- *  Copied over clock configuration
+ * MCU initialization code that is specific to the STM32H743 model.
  */
 
 #include <common/stm32/mcu/Errors.h>

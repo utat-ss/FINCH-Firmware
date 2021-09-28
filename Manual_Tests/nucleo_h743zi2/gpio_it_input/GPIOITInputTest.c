@@ -1,8 +1,11 @@
 /*
  * GPIOITInputTest.c
  *
- *  Created on: Aug. 6, 2020
+ *  Created on: Sept. 28, 2021
  *      Author: bruno
+ * 
+ * Tests receiving an interrupt from a GPIO input when the blue button is
+ * pressed.
  */
 
 #include <nucleo_h743zi2/h743zi2.h>

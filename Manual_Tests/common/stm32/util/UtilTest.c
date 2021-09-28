@@ -1,3 +1,12 @@
+/*
+ * UtilTest.c
+ *
+ *  Created on: Sept. 28, 2021
+ *      Author: bruno
+ *
+ * Tests miscellaneous utility functions (e.g. bit/byte manipulation).
+ */
+
 #include <common/stm32/uart/log.h>
 #include <common/stm32/util/util.h>
 

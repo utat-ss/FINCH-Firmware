@@ -3,17 +3,11 @@
  *
  *  Created on: Jul. 4, 2021
  *      Author: bruno
- */
-
-#ifndef COMMON_STM32_UART_UARTLOG_H_
-#define COMMON_STM32_UART_UARTLOG_H_
-
-#include <common/stm32/gpio/GPIO.h>
-
-/*
- * Normally these definitions would be separated into uart.h and log.h, but
- * since the UART and Log structs refer to each other, it was impossible for it
- * to work with both header files including each other in a circular dependency.
+ *
+ * Normally the definitions in this file would be separated into uart.h and
+ * log.h, but since the UART and Log structs refer to each other, it was
+ * impossible for it to work with both header files including each other in a
+ * circular dependency.
  *
  * Must have Log defined before UART because a Log contains a pointer to a UART,
  * but a UART contains a Log variable. If UART is defined before Log, it
@@ -21,6 +15,11 @@
  * See explanation:
  * https://stackoverflow.com/questions/12466055/field-has-incomplete-type-error
  */
+
+#ifndef COMMON_STM32_UART_UARTLOG_H_
+#define COMMON_STM32_UART_UARTLOG_H_
+
+#include <common/stm32/gpio/GPIO.h>
 
 // -----------------------------------------------------------------------------
 

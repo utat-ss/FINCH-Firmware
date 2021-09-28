@@ -3,6 +3,8 @@
  *
  *  Created on: Jul. 23, 2021
  *      Author: bruno
+ * 
+ * Used for standard GPIO input pins, read by polling (not interrupts).
  */
 
 #include <common/stm32/gpio/GPIOInput.h>

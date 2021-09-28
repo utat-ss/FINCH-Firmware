@@ -3,6 +3,12 @@
  *
  *  Created on: Aug. 8, 2021
  *      Author: bruno
+ * 
+ * Utility functions that are generic and/or don't belong in any other library:
+ * - Bit manipulation
+ * - Byte manipulation
+ * - Memory manipulation
+ * - String manipulation
  */
 
 #include <common/stm32/util/Util.h>
