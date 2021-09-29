@@ -68,16 +68,22 @@ ifeq ($(OS),Windows_NT)
 	WINDOWS = 1
 endif
 
-# Detect how many MCUs of each model are connected
+# If DETECT=1, detect how many MCUs of each model are connected
+# Setting DETECT=1 causes this to execute the `st-info --probe` command, which
+# resets all MCUs connected to the computer, causing each MCU to restart its
+# current program
 # Might need to make the grep strings "G4" and "H7" more specific in the future
-ifeq ($(WINDOWS),1)
-	G474_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'G4').length")
-	H743_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'H7').length")
-	MCU_COUNT = $(shell powershell $(G474_COUNT) + $(H743_COUNT))
-else
-	G474_COUNT = $(shell st-info --probe | grep -c G4)
-	H743_COUNT = $(shell st-info --probe | grep -c H7)
-	MCU_COUNT = $(shell expr $(G474_COUNT) + $(H743_COUNT))
+# (e.g. different strings for G431 and G474)
+ifeq ($(DETECT),1)
+	ifeq ($(WINDOWS),1)
+		G474_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'G4').length")
+		H743_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'H7').length")
+		MCU_COUNT = $(shell powershell $(G474_COUNT) + $(H743_COUNT))
+	else
+		G474_COUNT = $(shell st-info --probe | grep -c G4)
+		H743_COUNT = $(shell st-info --probe | grep -c H7)
+		MCU_COUNT = $(shell expr $(G474_COUNT) + $(H743_COUNT))
+	endif
 endif
 
 # Automatically detect the MCU model and set the MCU variable if there is only
@@ -142,7 +148,7 @@ endif
 # Based on https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/new-item?view=powershell-7.1 (Example 8)
 $(BUILD_DIR):
 ifeq ($(MCU),)
-	@echo "ERROR: Parameter MCU must be defined"
+	@echo "ERROR: Parameter MCU must be defined, or set DETECT=1 if one MCU is connected"
 	exit 1
 endif
 ifeq ($(WINDOWS),1)
@@ -170,7 +176,7 @@ endif
 .PHONY: clean_mcu
 clean_mcu:
 ifeq ($(MCU),)
-	@echo "ERROR: Parameter MCU must be defined"
+	@echo "ERROR: Parameter MCU must be defined, or set DETECT=1 if one MCU is connected"
 	exit 1
 endif
 ifeq ($(WINDOWS),1)

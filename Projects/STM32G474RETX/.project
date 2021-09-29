@@ -47,10 +47,5 @@
 			<type>2</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src</locationURI>
 		</link>
-		<link>
-			<name>Startup</name>
-			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Startup</locationURI>
-		</link>
 	</linkedResources>
 </projectDescription>
