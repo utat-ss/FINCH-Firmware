@@ -18,17 +18,19 @@ typedef struct {
     TIM_ClockConfigTypeDef clock_config;
 
     uint8_t interrupts_enabled;
-    uint8_t callback_enabled
+    uint8_t callback_enabled;
     volatile void (*callback_func)();
 } Timer;
 
-Timer timer_init(MCU* mcu, uint32_t clk_frequency, uint32_t target_frequency, uint8_t it_enabled);
-void timer_customize(Timer* timer,  TIM_TypeDef* register, uint8_t count_up, uint8_t autoreload,
-    uint8_t repetitions);
+Timer timer_setup(MCU* mcu, uint32_t clk_frequency, uint32_t prescaler,
+    uint32_t period, uint8_t it_enabled);
+void timer_customize(Timer* timer_struct, TIM_TypeDef* timer_reg, uint8_t count_up, 
+    uint8_t disable_autoreload, uint8_t repetitions);
 uint8_t timer_setup_callback();
-void timer_deinit(Timer timer_struct);
+HAL_StatusTypeDef timer_init(Timer* timer_struct);
+HAL_StatusTypeDef timer_deinit(Timer* timer_struct);
 
-HAL_StatusTypeDef timer_start();
-HAL_StatusTypeDef timer_stop();
+HAL_StatusTypeDef timer_start(Timer* timer_struct);
+HAL_StatusTypeDef timer_stop(Timer* timer_struct);
 
 #endif /* COMMON_STM32_TIMER_TIMER_H_ */
