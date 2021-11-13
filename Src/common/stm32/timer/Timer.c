@@ -39,7 +39,8 @@ Timer timer_setup(MCU* mcu, uint32_t clk_frequency, uint32_t prescaler,
         .RepetitionCounter = 0,
         .AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE
     };
-    timer_struct.handle = {.Instance = TIM5, .Init = base_timer};
+    TIM_HandleTypeDef blank_handle = {.Instance = TIM5, .Init = base_timer};
+    timer_struct.handle = blank_handle;
     timer_struct.interrupts_enabled = it_enabled;
     timer_struct.callback_enabled = 0;
     
@@ -63,13 +64,13 @@ void timer_customize(Timer* timer_struct, TIM_TypeDef* timer_reg, uint8_t count_
         timer_struct->handle.Instance = timer_reg;
     }
     if (count_up) {
-        timer_struct->Init.CounterMode = TIM_COUNTERMODE_UP;
+        timer_struct->handle.Init.CounterMode = TIM_COUNTERMODE_UP;
     }
     if (disable_autoreload) {
-        timer_struct->Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+        timer_struct->handle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
     }
-    if (repetitions != 0 {
-        timer_struct->Init.RepetitionCounter = repetitions;
+    if (repetitions != 0) {
+        timer_struct->handle.Init.RepetitionCounter = repetitions;
     }
 }
 
