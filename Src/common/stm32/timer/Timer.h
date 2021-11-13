@@ -26,11 +26,12 @@ Timer timer_setup(MCU* mcu, uint32_t clk_frequency, uint32_t prescaler,
     uint32_t period, uint8_t it_enabled);
 void timer_customize(Timer* timer_struct, TIM_TypeDef* timer_reg, uint8_t count_up, 
     uint8_t disable_autoreload, uint8_t repetitions);
-uint8_t timer_setup_callback();
+HAL_StatusTypeDef timer_setup_callback(Timer* timer_struct, void (*callback_func)());
 HAL_StatusTypeDef timer_init(Timer* timer_struct);
 HAL_StatusTypeDef timer_deinit(Timer* timer_struct);
 
 HAL_StatusTypeDef timer_start(Timer* timer_struct);
 HAL_StatusTypeDef timer_stop(Timer* timer_struct);
+void timer_init_clock_irq(Timer* timer_struct);
 
 #endif /* COMMON_STM32_TIMER_TIMER_H_ */
