@@ -5,12 +5,9 @@ Date created: 2021-10-19
 Last modified: 2021-10-19
 Author: Cameron Rodriguez
 
-Wrapper for the HAL timer (TIM) drivers. Timers to be implemeneted
-  * Basic timer with interrupt
-    * Autoreload toggle
-    * Update toggle (raises flag after number of loops completed)
-    * Countup toggle
-  * Timer with callback function
+Wrapper for the HAL timer (TIM) drivers. Configured with TIM5 peripheral enabled
+by default. Currently supported are base timers with confiigurations and
+interrupts, for general-purpose and low-power timers.
 
 Not currently supported
   * output compare (OC) - modify signal when counter == catch/capture register
