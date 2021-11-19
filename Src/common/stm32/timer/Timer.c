@@ -2,7 +2,7 @@
 Timer.c
 
 Date created: 2021-10-19
-Last modified: 2021-10-19
+Last modified: 2021-11-19
 Author: Cameron Rodriguez
 
 Wrapper for the HAL timer (TIM) drivers. Configured with TIM5 peripheral enabled
@@ -23,9 +23,8 @@ Still need to determine which timers will be enabled
 #include <common/stm32/timer/Timer.h>
 
 // Initializes the timer struct, and optionally enables interrupts.
-Timer timer_setup(MCU* mcu, uint32_t clk_frequency, uint32_t prescaler,
+void timer_setup(Timer* timer, MCU* mcu, uint32_t clk_frequency, uint32_t prescaler,
     uint32_t period, uint8_t it_enabled) {
-    Timer timer_struct;
 
     // Setup timer handle, default to TIM5
     TIM_Base_InitTypeDef base_timer = {
@@ -37,11 +36,10 @@ Timer timer_setup(MCU* mcu, uint32_t clk_frequency, uint32_t prescaler,
         .AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE
     };
     TIM_HandleTypeDef blank_handle = {.Instance = TIM5, .Init = base_timer};
-    timer_struct.handle = blank_handle;
-    timer_struct.interrupts_enabled = it_enabled;
-    timer_struct.callback_enabled = 0;
-    
-    return timer_struct;
+    timer->handle = blank_handle;
+	timer->mcu = mcu;
+    timer->interrupts_enabled = it_enabled;
+    timer->callback_enabled = 0;
 }
 
 /* Add additional customizations to the timer driver
@@ -78,7 +76,7 @@ HAL_StatusTypeDef timer_setup_callback(Timer* timer_struct, void (*callback_func
 
 // Initializes the timer, must be called before starting the timer
 HAL_StatusTypeDef timer_init(Timer* timer_struct) {
-	HAL_TIM_Base_MspInit(timer_struct->handle.Instance);
+	HAL_TIM_Base_MspInit(&(timer_struct->handle.Instance));
     timer_init_clock_irq(timer_struct);    
     return HAL_TIM_Base_Init(&(timer_struct->handle));
 }

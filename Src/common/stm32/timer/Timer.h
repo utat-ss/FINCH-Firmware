@@ -2,7 +2,7 @@
 Timer.h
 
 Date created: 2021-10-19
-Last modified: 2021-10-19
+Last modified: 2021-11-19
 Author: Cameron Rodriguez
 
 Header file for timer driver.
@@ -14,6 +14,7 @@ Header file for timer driver.
 #include <common/stm32/mcu/MCU.h>
 
 typedef struct {
+    MCU* mcu;
     TIM_HandleTypeDef handle; // Includes TIM_Base_InitTypeDef
     TIM_ClockConfigTypeDef clock_config;
 
@@ -22,7 +23,7 @@ typedef struct {
     volatile void (*callback_func)();
 } Timer;
 
-Timer timer_setup(MCU* mcu, uint32_t clk_frequency, uint32_t prescaler,
+void timer_setup(Timer* timer, MCU* mcu, uint32_t clk_frequency, uint32_t prescaler,
     uint32_t period, uint8_t it_enabled);
 void timer_customize(Timer* timer_struct, TIM_TypeDef* timer_reg, uint8_t count_up, 
     uint8_t disable_autoreload, uint8_t repetitions);
