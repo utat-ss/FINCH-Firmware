@@ -96,7 +96,7 @@
 #define HAL_PWR_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
 #define HAL_CORTEX_MODULE_ENABLED
-#define HAL_HSEM_MODULE_ENABLED
+/* #define HAL_HSEM_MODULE_ENABLED   */
 
 /* ########################## Oscillator Values adaptation ####################*/
 /**

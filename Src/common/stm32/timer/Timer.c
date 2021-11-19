@@ -52,117 +52,117 @@ uint8_t disable_autoreload: disable automatic reloading of timer once limit is
 uint8_t repetitions: number of timer loops to execute before update interrupt is
                      raised (default 0)
 */
-void timer_customize(Timer* timer_struct, TIM_TypeDef* timer_reg, uint8_t count_up, 
+void timer_customize(Timer* timer, TIM_TypeDef* timer_reg, uint8_t count_up, 
     uint8_t disable_autoreload, uint8_t repetitions) {
     
     if (timer_reg != NULL) {
-        timer_struct->handle.Instance = timer_reg;
+        timer->handle.Instance = timer_reg;
     }
     if (count_up) {
-        timer_struct->handle.Init.CounterMode = TIM_COUNTERMODE_UP;
+        timer->handle.Init.CounterMode = TIM_COUNTERMODE_UP;
     }
     if (disable_autoreload) {
-        timer_struct->handle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+        timer->handle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
     }
     if (repetitions != 0) {
-        timer_struct->handle.Init.RepetitionCounter = repetitions;
+        timer->handle.Init.RepetitionCounter = repetitions;
     }
 }
 
 // Registers a callback to trigger when the counter runs out
-HAL_StatusTypeDef timer_setup_callback(Timer* timer_struct, void (*callback_func)()) {
-    return HAL_TIM_RegisterCallback(&(timer_struct->handle), HAL_TIM_PERIOD_ELAPSED_CB_ID, callback_func);
+HAL_StatusTypeDef timer_setup_callback(Timer* timer, void (*callback_func)()) {
+    return HAL_TIM_RegisterCallback(&(timer->handle), HAL_TIM_PERIOD_ELAPSED_CB_ID, callback_func);
 }
 
 // Initializes the timer, must be called before starting the timer
-HAL_StatusTypeDef timer_init(Timer* timer_struct) {
-	HAL_TIM_Base_MspInit(&(timer_struct->handle.Instance));
-    timer_init_clock_irq(timer_struct);    
-    return HAL_TIM_Base_Init(&(timer_struct->handle));
+HAL_StatusTypeDef timer_init(Timer* timer) {
+	HAL_TIM_Base_MspInit(&(timer->handle));
+    timer_init_clock_irq(timer);    
+    return HAL_TIM_Base_Init(&(timer->handle));
 }
 
 // Deinitializes the timer after it has been stopped
-HAL_StatusTypeDef timer_deinit(Timer* timer_struct) {
-    return HAL_TIM_Base_DeInit(&(timer_struct->handle));
+HAL_StatusTypeDef timer_deinit(Timer* timer) {
+    return HAL_TIM_Base_DeInit(&(timer->handle));
 }
 
 // Starts the timer (in interrupt mode if specified during timer setup)
-HAL_StatusTypeDef timer_start(Timer* timer_struct) {    
-    if(timer_struct->interrupts_enabled) {
-        return HAL_TIM_Base_Start_IT(&(timer_struct->handle));
+HAL_StatusTypeDef timer_start(Timer* timer) {    
+    if(timer->interrupts_enabled) {
+        return HAL_TIM_Base_Start_IT(&(timer->handle));
     } else {
-        return HAL_TIM_Base_Start(&(timer_struct->handle));
+        return HAL_TIM_Base_Start(&(timer->handle));
     }
 }
 
 // Stops the timer (in interrupt mode if specified during timer setup)
-HAL_StatusTypeDef timer_stop(Timer* timer_struct) {
-    if(timer_struct->interrupts_enabled) {
-        return HAL_TIM_Base_Stop_IT(&(timer_struct->handle));
+HAL_StatusTypeDef timer_stop(Timer* timer) {
+    if(timer->interrupts_enabled) {
+        return HAL_TIM_Base_Stop_IT(&(timer->handle));
     } else {
-        return HAL_TIM_Base_Stop(&(timer_struct->handle));
+        return HAL_TIM_Base_Stop(&(timer->handle));
     }
 }
 
-void timer_init_clock_irq(Timer* timer_struct) {
-    if(timer_struct->handle.Instance==TIM2){
+void timer_init_clock_irq(Timer* timer) {
+    if(timer->handle.Instance==TIM2){
 		__HAL_RCC_TIM2_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM2_IRQn);
-	}else if(timer_struct->handle.Instance==TIM3){
+	}else if(timer->handle.Instance==TIM3){
 		__HAL_RCC_TIM3_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM3_IRQn);
-	}else if(timer_struct->handle.Instance==TIM4){
+	}else if(timer->handle.Instance==TIM4){
 		__HAL_RCC_TIM4_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM4_IRQn);
-	}else if(timer_struct->handle.Instance==TIM5){
+	}else if(timer->handle.Instance==TIM5){
 		__HAL_RCC_TIM5_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM5_IRQn);
-	}else if(timer_struct->handle.Instance==TIM6){
+	}else if(timer->handle.Instance==TIM6){
 		__HAL_RCC_TIM6_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
 	}
 
 	// MCU-specific timers
 #ifdef STM32G474xx
-	if (timer_struct->handle.Instance==TIM1){
+	if (timer->handle.Instance==TIM1){
 		__HAL_RCC_TIM1_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
-	}else if(timer_struct->handle.Instance==TIM7){
+	}else if(timer->handle.Instance==TIM7){
 		__HAL_RCC_TIM7_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM7_DAC_IRQn);
-	}else if(timer_struct->handle.Instance==TIM15){
+	}else if(timer->handle.Instance==TIM15){
 		__HAL_RCC_TIM15_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
-	}else if(timer_struct->handle.Instance==TIM16){
+	}else if(timer->handle.Instance==TIM16){
 		__HAL_RCC_TIM16_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
-	}else if(timer_struct->handle.Instance==TIM17){
+	}else if(timer->handle.Instance==TIM17){
 		__HAL_RCC_TIM17_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM1_TRG_COM_TIM17_IRQn);
-	}else if(timer_struct->handle.Instance==TIM20){
+	}else if(timer->handle.Instance==TIM20){
 		__HAL_RCC_TIM20_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM20_UP_IRQn);
 	}
 #elif defined(STM32H743xx)
-	if(timer_struct->handle.Instance==TIM1){
+	if(timer->handle.Instance==TIM1){
 		__HAL_RCC_TIM1_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM1_UP_IRQn);
-	}else if(timer_struct->handle.Instance==TIM7){
+	}else if(timer->handle.Instance==TIM7){
 		__HAL_RCC_TIM7_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM7_IRQn);
-	}else if(timer_struct->handle.Instance==TIM12){
+	}else if(timer->handle.Instance==TIM12){
 		__HAL_RCC_TIM12_CLK_ENABLE();
-	}else if(timer_struct->handle.Instance==TIM13){
+	}else if(timer->handle.Instance==TIM13){
 		__HAL_RCC_TIM13_CLK_ENABLE();
-	}else if(timer_struct->handle.Instance==TIM14){
+	}else if(timer->handle.Instance==TIM14){
 		__HAL_RCC_TIM14_CLK_ENABLE();
-	}else if(timer_struct->handle.Instance==TIM15){
+	}else if(timer->handle.Instance==TIM15){
 		__HAL_RCC_TIM15_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM15_IRQn);
-	}else if(timer_struct->handle.Instance==TIM16){
+	}else if(timer->handle.Instance==TIM16){
 		__HAL_RCC_TIM16_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM16_IRQn);
-	}else if(timer_struct->handle.Instance==TIM17){
+	}else if(timer->handle.Instance==TIM17){
 		__HAL_RCC_TIM17_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM17_IRQn);
 	}
