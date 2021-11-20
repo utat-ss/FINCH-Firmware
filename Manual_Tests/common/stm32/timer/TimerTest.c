@@ -16,11 +16,19 @@ Manual test for timer wrapper code. Uses callback to light up LED on timeout.
 // Used to toggle LED
 GPIOOutput g_test_led;
 Log g_log;
+Timer g_timer;
+
+// Passes interrupts from TIM5 to interrupt handler
+void TIM5_IRQHandler() {
+    HAL_TIM_IRQHandler(&(g_timer.handle));
+}
 
 // Timer callback function to toggle LED after timer runs out
-void toggle_led() {
+void toggle_led(TIM_HandleTypeDef *htim) {
     debug(&g_log, "Currently in callback");
-    gpio_toggle(&g_test_led);
+    if(htim->Instance == TIM5) {
+        gpio_toggle(&g_test_led);
+    }
 }
 
 // Main function for test function
@@ -60,21 +68,20 @@ int main() {
 
     // APB1 clock runs at 240 MHz for TIM5, scaling to 4 Hz
     info(&g_log, "Enabling timer");
-    Timer timer;
-    timer_setup(&timer, 7999, 7499, 1);
-    HAL_StatusTypeDef status = timer_init(&timer);
+    timer_setup(&g_timer, 7999, 7499, 1);
+    HAL_StatusTypeDef status = timer_init(&g_timer);
     if(status != HAL_OK) {
         error(&g_log, "Encountered HAL status %d while initializing timer", status);
         return -1;
     }
-    status = timer_setup_callback(&timer, toggle_led);
+    status = timer_setup_callback(&g_timer, toggle_led);
     if(status != HAL_OK) {
         error(&g_log, "Encountered HAL status %d during timer callback registration", status);
         return -1;
     }
 
     info(&g_log, "Starting timer");
-    status = timer_start(&timer);
+    status = timer_start(&g_timer);
     if(status != HAL_OK) {
         error(&g_log, "Encountered HAL status %d during timer startup", status);
         return -1;
