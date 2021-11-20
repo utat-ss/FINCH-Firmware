@@ -85,6 +85,15 @@ MCUBoard mcu_get_board() {
 
     if (uid.w0 == 0x3f0040 && uid.w1 == 0x31395114 && uid.w2 == 0x35393336) {
         return MCU_BOARD_NUCLEO_H743ZI2;
+    } else {
+        // If the UID is not matched, try to guess the board based on device ID
+        MCUDevID dev_id = mcu_get_dev_id();
+        if (dev_id == MCU_DEV_ID_STM32G471_473_474_483_484) {
+            return MCU_BOARD_NUCLEO_G474RE;
+        }
+        else if (dev_id == MCU_DEV_ID_STM32H742_743_753_750) {
+            return MCU_BOARD_NUCLEO_H743ZI2;
+        }
     }
 
     return MCU_BOARD_NONE;
