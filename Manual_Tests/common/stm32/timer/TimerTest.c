@@ -57,7 +57,27 @@ int main() {
         return -1;
     }
 
+    // APB1 clock runs at 240 MHz for TIM5, scaling to 4 Hz
     info(&log, "Enabling timer");
+    Timer timer;
+    timer_setup(&timer, &mcu, 7999, 7500, 1);
+    if(timer_init(&timer) != HAL_OK) {
+        error(&log, "Encountered HAL status %d while initializing timer");
+        return -1;
+    }
+    if(timer_setup_callback(&timer, toggle_led) != HAL_OK) {
+        error(&log, "Encountered HAL status %d during timer callback registration");
+        return -1;
+    }
+
+    info(&log, "Starting timer");
+    if(timer_start(&timer) != HAL_OK) {
+        error(&log, "Encountered HAL status %d during timer startup");
+        return -1;
+    }
+
+    while(1){
+    }
 
     return 0;
 }

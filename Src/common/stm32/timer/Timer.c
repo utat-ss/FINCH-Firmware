@@ -22,9 +22,9 @@ Still need to determine which timers will be enabled
 
 #include <common/stm32/timer/Timer.h>
 
-// Initializes the timer struct, and optionally enables interrupts.
-void timer_setup(Timer* timer, MCU* mcu, uint32_t clk_frequency, uint32_t prescaler,
-    uint32_t period, uint8_t it_enabled) {
+// Initializes the timer struct (with TIM5 by default), and optionally enables interrupts.
+void timer_setup(Timer* timer, MCU* mcu, uint32_t prescaler, uint32_t period,
+	uint8_t it_enabled) {
 
     // Setup timer handle, default to TIM5
     TIM_Base_InitTypeDef base_timer = {
@@ -62,7 +62,7 @@ void timer_customize(Timer* timer, TIM_TypeDef* timer_reg, uint8_t count_up,
         timer->handle.Init.CounterMode = TIM_COUNTERMODE_UP;
     }
     if (disable_autoreload) {
-        timer->handle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+        timer->handle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     }
     if (repetitions != 0) {
         timer->handle.Init.RepetitionCounter = repetitions;
