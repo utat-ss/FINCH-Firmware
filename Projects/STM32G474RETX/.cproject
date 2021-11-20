@@ -53,11 +53,6 @@
 									<listOptionValue builtIn="false" value="../../../Drivers/STM32G4/STM32G4xx_HAL_Driver/Inc"/>
 									<listOptionValue builtIn="false" value="../../../Drivers/STM32G4/System"/>
 									<listOptionValue builtIn="false" value="../../../Src"/>
-									<listOptionValue builtIn="false" value="../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy"/>
-									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32G4xx/Include"/>
-									<listOptionValue builtIn="false" value="../Core/Inc"/>
-									<listOptionValue builtIn="false" value="../Drivers/STM32G4xx_HAL_Driver/Inc"/>
 								</option>
 								<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.warnings.missing_include_dirs.1572203468" name="Warn if a user-supplied include directory does not exist (-Wmissing-include-dirs)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.warnings.missing_include_dirs" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.warnings.w_switch_default.717982490" name="Warn when a switch statement does not have a default case (-Wswitch-default)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.warnings.w_switch_default" useByScannerDiscovery="false" value="true" valueType="boolean"/>
