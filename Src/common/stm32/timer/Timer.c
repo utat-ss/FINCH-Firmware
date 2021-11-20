@@ -23,7 +23,7 @@ Still need to determine which timers will be enabled
 #include <common/stm32/timer/Timer.h>
 
 // Initializes the timer struct (with TIM5 by default), and optionally enables interrupts.
-void timer_setup(Timer* timer, MCU* mcu, uint32_t prescaler, uint32_t period,
+void timer_setup(Timer* timer, uint32_t prescaler, uint32_t period,
 	uint8_t it_enabled) {
 
     // Setup timer handle, default to TIM5
@@ -37,9 +37,7 @@ void timer_setup(Timer* timer, MCU* mcu, uint32_t prescaler, uint32_t period,
     };
     TIM_HandleTypeDef blank_handle = {.Instance = TIM5, .Init = base_timer};
     timer->handle = blank_handle;
-	timer->mcu = mcu;
     timer->interrupts_enabled = it_enabled;
-    timer->callback_enabled = 0;
 }
 
 /* Add additional customizations to the timer driver
@@ -89,6 +87,7 @@ HAL_StatusTypeDef timer_deinit(Timer* timer) {
 // Starts the timer (in interrupt mode if specified during timer setup)
 HAL_StatusTypeDef timer_start(Timer* timer) {    
     if(timer->interrupts_enabled) {
+		__HAL_TIM_CLEAR_FLAG(&(timer->handle), TIM_IT_UPDATE); // Gets set during initialization
         return HAL_TIM_Base_Start_IT(&(timer->handle));
     } else {
         return HAL_TIM_Base_Start(&(timer->handle));
@@ -104,6 +103,7 @@ HAL_StatusTypeDef timer_stop(Timer* timer) {
     }
 }
 
+// Enables the timer's clock and interrupt handler
 void timer_init_clock_irq(Timer* timer) {
     if(timer->handle.Instance==TIM2){
 		__HAL_RCC_TIM2_CLK_ENABLE();

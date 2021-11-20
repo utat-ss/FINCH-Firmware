@@ -14,16 +14,12 @@ Header file for timer driver.
 #include <common/stm32/mcu/MCU.h>
 
 typedef struct {
-    MCU* mcu;
     TIM_HandleTypeDef handle; // Includes TIM_Base_InitTypeDef
     TIM_ClockConfigTypeDef clock_config;
-
     uint8_t interrupts_enabled;
-    uint8_t callback_enabled;
-    volatile void (*callback_func)();
 } Timer;
 
-void timer_setup(Timer* timer, MCU* mcu, uint32_t prescaler,
+void timer_setup(Timer* timer, uint32_t prescaler,
     uint32_t period, uint8_t it_enabled);
 void timer_customize(Timer* timer, TIM_TypeDef* timer_reg, uint8_t count_up, 
     uint8_t disable_autoreload, uint8_t repetitions);

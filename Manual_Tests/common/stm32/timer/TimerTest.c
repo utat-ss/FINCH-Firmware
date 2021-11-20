@@ -15,9 +15,11 @@ Manual test for timer wrapper code. Uses callback to light up LED on timeout.
 
 // Used to toggle LED
 GPIOOutput g_test_led;
+Log g_log;
 
 // Timer callback function to toggle LED after timer runs out
 void toggle_led() {
+    debug(&g_log, "Currently in callback");
     gpio_toggle(&g_test_led);
 }
 
@@ -40,10 +42,9 @@ int main() {
     mcu_init(&mcu, board);
     UART uart;
     uart_init_for_board(&uart, &mcu);
-    Log log;
-    log_init(&log, &uart);
+    log_init(&g_log, &uart);
 
-    info(&log, "Enabling GPIO");
+    info(&g_log, "Enabling GPIO");
     if(mcu.board == MCU_BOARD_NUCLEO_H743ZI2) {
         gpio_output_init(&g_test_led, &mcu, H743ZI2_GREEN_LED_PORT,
                 H743ZI2_GREEN_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL,
@@ -53,26 +54,29 @@ int main() {
                 G474RE_GREEN_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL,
                 GPIO_PIN_RESET);
     } else {
-        error(&log, "Board not supported, ending test function");
+        error(&g_log, "Board not supported, ending test function");
         return -1;
     }
 
     // APB1 clock runs at 240 MHz for TIM5, scaling to 4 Hz
-    info(&log, "Enabling timer");
+    info(&g_log, "Enabling timer");
     Timer timer;
-    timer_setup(&timer, &mcu, 7999, 7500, 1);
-    if(timer_init(&timer) != HAL_OK) {
-        error(&log, "Encountered HAL status %d while initializing timer");
+    timer_setup(&timer, 7999, 7499, 1);
+    HAL_StatusTypeDef status = timer_init(&timer);
+    if(status != HAL_OK) {
+        error(&g_log, "Encountered HAL status %d while initializing timer", status);
         return -1;
     }
-    if(timer_setup_callback(&timer, toggle_led) != HAL_OK) {
-        error(&log, "Encountered HAL status %d during timer callback registration");
+    status = timer_setup_callback(&timer, toggle_led);
+    if(status != HAL_OK) {
+        error(&g_log, "Encountered HAL status %d during timer callback registration", status);
         return -1;
     }
 
-    info(&log, "Starting timer");
-    if(timer_start(&timer) != HAL_OK) {
-        error(&log, "Encountered HAL status %d during timer startup");
+    info(&g_log, "Starting timer");
+    status = timer_start(&timer);
+    if(status != HAL_OK) {
+        error(&g_log, "Encountered HAL status %d during timer startup", status);
         return -1;
     }
 
