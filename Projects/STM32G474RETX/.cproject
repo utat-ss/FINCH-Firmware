@@ -87,6 +87,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Drivers/Common"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Drivers/STM32G4"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Manual_Tests/common/stm32/gpio"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Src"/>
 					</sourceEntries>
 				</configuration>
