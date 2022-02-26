@@ -1,5 +1,5 @@
+import fileinput
 import os
-import xml.etree.ElementTree as ET
 
 project = os.path.join("Projects", "STM32H743ZITX", ".cproject")
 filesToTest = []
@@ -12,31 +12,16 @@ for root, dirs, files in os.walk(os.path.join("Manual_Tests", "common"), topdown
         filesToTest.append(os.path.join(root, name))
 
 
+for fileToTest in filesToTest:
+    serachStr = "<entry flags=\"VALUE_WORKSPACE_PATH\" kind=\"sourcePath\" name=\"Src\"/>"
+    addition = "<entry flags=\"VALUE_WORKSPACE_PATH\" kind=\"sourcePath\" name=\"" + fileToTest + "\"/>"
 
-serachStr = "<entry flags=\"VALUE_WORKSPACE_PATH\" kind=\"sourcePath\" name=\"Src\"/>"
+    # specific modifcation in the file using this method https://stackoverflow.com/a/33239613
+    for line in fileinput.FileInput(project,inplace=1):
+        if serachStr in line:
+            line=line.replace(line,serachStr + addition+'\n')
+        print(line, end='')
 
-import fileinput
-for line in fileinput.FileInput(project,inplace=1):
-    if serachStr in line:
-        line=line.replace(line,line)
-    print (line)
-
-
-# cprojectXML = ET.parse(project)
-# myroot = cprojectXML.getroot()
-
-# for x in myroot.iter('sourceEntries'):
-#     print(x)
-
-# print(next(myroot.iter('sourceEntries')))
-# print(myroot[0])
-# ET.SubElement(next(myroot.iter('sourceEntries')), 'testtag')
+    # at this point, .cproject is set up to compile the specified file
 
 
-
-
-
-# #ET.dump(myroot)
-# #tree = ET.ElementTree(myroot)
-# cprojectXML.write(project)
-# #tree.write(open('test.xml','w'), encoding='unicode')
