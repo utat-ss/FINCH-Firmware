@@ -10,9 +10,9 @@ project(Firmware
 )
 
 # Make sure MCU model parameter passed into CMake is valid
-if ((${MCU} MATCHES "G474") OR (${MCU} MATCHES "H743"))
+if ((${MCU} MATCHES "G474") OR (${MCU} MATCHES "H743") OR (${MCU} MATCHES "G431"))
 else()
-        message(FATAL_ERROR "Invalid MCU model: must be G474 or H743")
+        message(FATAL_ERROR "Invalid MCU model: must be G431, G474, or H743")
 endif()
 
 # Enable using C and Assembly source files
@@ -63,18 +63,30 @@ file(GLOB_RECURSE TEST_COMMON_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Manual_Tests
 # Add source files for the particular MCU series in use
 # The ^ matches a string at the beginning (checks what the string starts with)
 # https://cmake.org/cmake/help/v3.7/command/string.html#regex-specification
-if (${MCU} MATCHES "^G4")
+if (${MCU} MATCHES "^G474")
         # Recursively find all source (.c and .s) files under the Drivers/STM32G4 directory
         file(GLOB_RECURSE DRIVERS_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32G4/*.c" "Drivers/STM32G4/*.s")
-        # Recursively find all source (.c) files under the Src/... directories for G4 MCUs
-        file(GLOB_RECURSE SRC_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Src/nucleo_g474re/*.c")
-        # Add G4 source files to libraries target
+        # Recursively find all source (.c) files under the Src/... directories for G474 MCUs
+        file(GLOB_RECURSE SRC_G474_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Src/nucleo_g474re/*.c")
+        # Add G474 source files to libraries target
         target_sources(${LIBRARIES_TARGET} PRIVATE
                 ${DRIVERS_G4_SOURCES}
-                ${SRC_G4_SOURCES}
+                ${SRC_G474_SOURCES}
         )
-        # Recursively find all test source (.c) files under the Manual_Tests/... directories for G4 MCUs
-        file(GLOB_RECURSE TEST_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Manual_Tests/nucleo_g474re/*.c")
+        # Recursively find all test source (.c) files under the Manual_Tests/... directories for G474 MCUs
+        file(GLOB_RECURSE TEST_G474_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Manual_Tests/nucleo_g474re/*.c")
+elseif (${MCU} MATCHES "^G431")
+         # Recursively find all source (.c and .s) files under the Drivers/STM32G4 directory
+         file(GLOB_RECURSE DRIVERS_G4_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32G4/*.c" "Drivers/STM32G4/*.s")
+         # Recursively find all source (.c) files under the Src/... directories for G431 MCUs
+         file(GLOB_RECURSE SRC_G431_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Src/nucleo_g431rb/*.c")
+         # Add G431 source files to libraries target
+         target_sources(${LIBRARIES_TARGET} PRIVATE
+                 ${DRIVERS_G4_SOURCES}
+                 ${SRC_G431_SOURCES}
+         )
+         # Recursively find all test source (.c) files under the Manual_Tests/... directories for G431 MCUs
+         file(GLOB_RECURSE TEST_G431_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Manual_Tests/nucleo_g431rb/*.c")
 elseif (${MCU} MATCHES "^H7")
         # Recursively find all source (.c and .s) files under the Drivers/STM32H7 directory
         file(GLOB_RECURSE DRIVERS_H7_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "Drivers/STM32H7/*.c" "Drivers/STM32H7/*.s")
@@ -93,7 +105,7 @@ endif()
 # Loop through all test source files
 # Note that only one of the TEST_*_SOURCES variables will have anything in it,
 # while the rest will be empty
-foreach(TEST_SOURCE IN LISTS TEST_COMMON_SOURCES TEST_G4_SOURCES TEST_H7_SOURCES)
+foreach(TEST_SOURCE IN LISTS TEST_COMMON_SOURCES TEST_G431_SOURCES TEST_G474_SOURCES TEST_H7_SOURCES)
         # Get the source file's parent directory path
         get_filename_component(TEST_DIR ${TEST_SOURCE} DIRECTORY)
         # Append the parent directory path to the list of test directories
@@ -267,6 +279,14 @@ foreach(TARGET IN LISTS LIBRARIES_TARGET TEST_TARGETS)
                 # Specify linker script
                 target_link_options(${TARGET} PRIVATE
                         -T${CMAKE_SOURCE_DIR}/Projects/STM32G474RETX/STM32G474RETX_FLASH.ld
+                )
+        elseif (${MCU} MATCHES "^G431")
+                target_compile_definitions(${TARGET} PRIVATE
+                        -DSTM32G431xx
+                )
+                # Specify linker script
+                target_link_options(${TARGET} PRIVATE
+                        -T${CMAKE_SOURCE_DIR}/Projects/STM32G431RBTX/STM32G431RBTX_FLASH.ld
                 )
         elseif (${MCU} MATCHES "^H743")
                 target_compile_definitions(${TARGET} PRIVATE
