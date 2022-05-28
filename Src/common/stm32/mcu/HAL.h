@@ -3,6 +3,7 @@
  *
  *  Created on: Jul. 24, 2021
  *      Author: bruno
+ *  Last modified: May 28, 2022
  *
  * This header file is for convenience, providing a single header file you can
  * include in application code which will automatically determine the MCU series
@@ -19,7 +20,7 @@
 #endif
 
 // Check that one (and only one) MCU model is defined
-#if defined(STM32G474xx) + defined(STM32H743xx) != 1
+#if defined(STM32G431xx) + defined(STM32G474xx) + defined(STM32H743xx) != 1
 #error Must define one MCU model!
 #endif
 
@@ -29,7 +30,7 @@
 #if defined(STM32G4)
 // If there are multiple models for a series, should sum the defined(...)
 // checks, similar to above
-#if defined(STM32G474xx) != 1
+#if defined(STM32G474xx) + defined(STM32G431xx) != 1
 #error MCU model does not match G4 MCU series!
 #endif
 #endif
