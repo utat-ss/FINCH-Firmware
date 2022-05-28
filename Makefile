@@ -29,7 +29,8 @@
 # https://github.com/stlink-org/stlink/blob/develop/doc/man/st-flash.md
 
 # For some commands, must assign the MCU variable when calling Make to specify
-# the MCU model (currently can be "G474" or "H743")
+# the MCU model (currently can be "G431", "G474", or "H743")
+# e.g. make ... MCU=G431
 # e.g. make ... MCU=G474
 # e.g. make ... MCU=H743
 
@@ -72,17 +73,17 @@ endif
 # Setting DETECT=1 causes this to execute the `st-info --probe` command, which
 # resets all MCUs connected to the computer, causing each MCU to restart its
 # current program
-# Might need to make the grep strings "G4" and "H7" more specific in the future
-# (e.g. different strings for G431 and G474)
 ifeq ($(DETECT),1)
 	ifeq ($(WINDOWS),1)
-		G474_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'G4').length")
+		G431_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'G431').length")
+		G474_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'G474').length")
 		H743_COUNT = $(shell powershell "(st-info --probe | select-string -pattern 'H7').length")
-		MCU_COUNT = $(shell powershell $(G474_COUNT) + $(H743_COUNT))
+		MCU_COUNT = $(shell powershell $(G431_COUNT) + $(G474_COUNT) + $(H743_COUNT))
 	else
-		G474_COUNT = $(shell st-info --probe | grep -c G4)
+		G431_COUNT = $(shell st-info --probe | grep -c G431)
+		G474_COUNT = $(shell st-info --probe | grep -c G474)
 		H743_COUNT = $(shell st-info --probe | grep -c H7)
-		MCU_COUNT = $(shell expr $(G474_COUNT) + $(H743_COUNT))
+		MCU_COUNT = $(shell expr $(G431_COUNT) + $(G474_COUNT) + $(H743_COUNT))
 	endif
 endif
 
@@ -90,6 +91,9 @@ endif
 # one MCU connected
 # This only overwrites the MCU variable if it was not set manually
 ifeq ($(MCU_COUNT),1)
+	ifeq ($(G431_COUNT),1)
+		MCU = G431
+	endif
 	ifeq ($(G474_COUNT),1)
 		MCU = G474
 	endif
@@ -119,6 +123,7 @@ endif
 # make sure all programs still compile correctly
 .PHONY: all
 all:
+	make all_mcu MCU=G431
 	make all_mcu MCU=G474
 	make all_mcu MCU=H743
 
@@ -233,6 +238,7 @@ erase:
 # Print variable values for debugging
 .PHONY: variables
 variables:
+	@echo "G431_COUNT: $(G431_COUNT)"
 	@echo "G474_COUNT: $(G474_COUNT)"
 	@echo "H743_COUNT: $(H743_COUNT)"
 	@echo "MCU_COUNT: $(MCU_COUNT)"
