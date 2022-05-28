@@ -3,6 +3,7 @@
  *
  *  Created on: Jul. 24, 2021
  *      Author: bruno
+ *  Last modified: May 28, 2022
  */
 
 #ifndef COMMON_STM32_MCU_MCU_H_
@@ -30,6 +31,7 @@ typedef enum {
 typedef enum {
     // Unknown or unspecified
     MCU_MODEL_NONE,
+    MCU_MODEL_STM32G431,
     MCU_MODEL_STM32G474,
     MCU_MODEL_STM32H743,
 } MCUModel;
@@ -38,6 +40,8 @@ typedef enum {
 typedef enum {
     // Unknown or unspecified
     MCU_BOARD_NONE,
+    // G431 dev kit
+    MCU_BOARD_NUCLEO_G431RB,
     // G474 dev kit
     MCU_BOARD_NUCLEO_G474RE,
     // H743 dev kit

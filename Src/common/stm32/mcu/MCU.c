@@ -3,6 +3,7 @@
  *
  *  Created on: Jul. 24, 2021
  *      Author: bruno
+ *  Last modified: May 28, 2022
  * 
  * General-purpose MCU initialization wrapper. Also provides functionality for
  * programmatically determining properties of the MCU (e.g. device, revision,
@@ -88,10 +89,11 @@ MCUBoard mcu_get_board() {
     } else {
         // If the UID is not matched, try to guess the board based on device ID
         MCUDevID dev_id = mcu_get_dev_id();
-        if (dev_id == MCU_DEV_ID_STM32G471_473_474_483_484) {
+        if (dev_id == MCU_DEV_ID_STM32G431_441) {
+            return MCU_BOARD_NUCLEO_G431RB;
+        } else if (dev_id == MCU_DEV_ID_STM32G471_473_474_483_484) {
             return MCU_BOARD_NUCLEO_G474RE;
-        }
-        else if (dev_id == MCU_DEV_ID_STM32H742_743_753_750) {
+        } else if (dev_id == MCU_DEV_ID_STM32H742_743_753_750) {
             return MCU_BOARD_NUCLEO_H743ZI2;
         }
     }
@@ -100,7 +102,9 @@ MCUBoard mcu_get_board() {
 }
 
 MCUModel mcu_get_model_for_board(MCUBoard board) {
-    if (board == MCU_BOARD_NUCLEO_G474RE) {
+    if (board == MCU_BOARD_NUCLEO_G431RB) {
+        return MCU_MODEL_STM32G431;
+    } else if (board == MCU_BOARD_NUCLEO_G474RE) {
         return MCU_MODEL_STM32G474;
     } else if (board == MCU_BOARD_NUCLEO_H743ZI2) {
         return MCU_MODEL_STM32H743;
