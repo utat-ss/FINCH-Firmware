@@ -177,10 +177,12 @@ void uart_init_dma(UART* uart, USART_TypeDef* instance) {
         tx_dma_request = DMA_REQUEST_UART4_TX;
         rx_dma_request = DMA_REQUEST_UART4_RX;
     }
+#ifdef UART5
     if (instance == UART5) {
         tx_dma_request = DMA_REQUEST_UART5_TX;
         rx_dma_request = DMA_REQUEST_UART5_RX;
     }
+#endif
 #if defined(STM32H7)
     if (instance == USART6) {
         tx_dma_request = DMA_REQUEST_USART6_TX;
@@ -286,11 +288,15 @@ void uart_init_clk_and_nvic(UART* uart, USART_TypeDef* instance) {
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_UART4;
         PeriphClkInitStruct.Uart4ClockSelection = RCC_UART4CLKSOURCE_PCLK1;
     }
+
+#ifdef UART5
     else if (instance == UART5) {
         // UART peripheral 5
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_UART5;
         PeriphClkInitStruct.Uart5ClockSelection = RCC_UART5CLKSOURCE_PCLK1;
     }
+#endif
+
     else if (instance == LPUART1) {
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
         PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
@@ -347,10 +353,12 @@ void uart_init_clk_and_nvic(UART* uart, USART_TypeDef* instance) {
         __HAL_RCC_UART4_CLK_ENABLE();
         irq = UART4_IRQn;
     }
+#ifdef UART5
     if (instance == UART5) {
         __HAL_RCC_UART5_CLK_ENABLE();
         irq = UART5_IRQn;
     }
+#endif
 #if defined(STM32H7)
     if (instance == USART6) {
         __HAL_RCC_USART6_CLK_ENABLE();
@@ -455,9 +463,11 @@ void uart_set_globals(UART* uart) {
     if (uart->handle.Instance == UART4) {
         g_uart_uart4 = uart;
     }
+#ifdef UART5
     if (uart->handle.Instance == UART5) {
         g_uart_uart5 = uart;
     }
+#endif
 #if defined(STM32H7)
     if (uart->handle.Instance == USART6) {
         g_uart_usart6 = uart;

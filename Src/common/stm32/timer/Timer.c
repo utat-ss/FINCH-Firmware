@@ -2,11 +2,11 @@
 Timer.c
 
 Date created: 2021-10-19
-Last modified: 2021-11-19
+Last modified: 2022-05-29
 Author: Cameron Rodriguez
 
 Wrapper for the HAL timer (TIM) drivers. Configured with TIM5 peripheral enabled
-by default. Currently supported are base timers with configurations and
+by default (TIM4 for G431). Currently supported are base timers with configurations and
 interrupts, for general-purpose and low-power timers.
 
 Not currently supported
@@ -35,7 +35,11 @@ void timer_setup(Timer* timer, uint32_t prescaler, uint32_t period,
         .RepetitionCounter = 0,
         .AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE
     };
+	#ifdef STM32G431xx
+	TIM_HandleTypeDef blank_handle = {.Instance = TIM4, .Init = base_timer};
+	#else
     TIM_HandleTypeDef blank_handle = {.Instance = TIM5, .Init = base_timer};
+	#endif
     timer->handle = blank_handle;
     timer->interrupts_enabled = it_enabled;
 }
@@ -114,20 +118,22 @@ void timer_init_clock_irq(Timer* timer) {
 	}else if(timer->handle.Instance==TIM4){
 		__HAL_RCC_TIM4_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM4_IRQn);
-	}else if(timer->handle.Instance==TIM5){
-		__HAL_RCC_TIM5_CLK_ENABLE();
-		HAL_NVIC_EnableIRQ(TIM5_IRQn);
-	}else if(timer->handle.Instance==TIM6){
+	} else if(timer->handle.Instance==TIM6){
 		__HAL_RCC_TIM6_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
-	}
-
+	} 
+#ifdef TIM5
+	else if(timer->handle.Instance==TIM5){
+		__HAL_RCC_TIM5_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM5_IRQn);
+	} 
+#endif
 	// MCU-specific timers
 #ifdef STM32G474xx
 	if (timer->handle.Instance==TIM1){
 		__HAL_RCC_TIM1_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
-	}else if(timer->handle.Instance==TIM7){
+	} else if(timer->handle.Instance==TIM7){
 		__HAL_RCC_TIM7_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM7_DAC_IRQn);
 	}else if(timer->handle.Instance==TIM15){
@@ -147,7 +153,7 @@ void timer_init_clock_irq(Timer* timer) {
 	if(timer->handle.Instance==TIM1){
 		__HAL_RCC_TIM1_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM1_UP_IRQn);
-	}else if(timer->handle.Instance==TIM7){
+	} else if(timer->handle.Instance==TIM7){
 		__HAL_RCC_TIM7_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM7_IRQn);
 	}else if(timer->handle.Instance==TIM12){
