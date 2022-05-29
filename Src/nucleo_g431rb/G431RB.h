@@ -4,7 +4,7 @@ G431RB.h
 Date Created: May 28, 2022
 Last Modified: May 29, 2022
 
-Author: EricLeus
+Author: Eric Leus
 */
 
 #ifndef NUCLEO_G431RB_G431RB_H_

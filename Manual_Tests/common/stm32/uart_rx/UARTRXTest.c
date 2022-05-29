@@ -3,6 +3,7 @@
  *
  *  Created on: Sept. 28, 2021
  *      Author: bruno
+ *  Last modified: May 29, 2022
  *
  * Tests reading various types of input data from UART (sent from a laptop).
  */
@@ -15,10 +16,11 @@ int main() {
     // If the UID is not matched, try to guess the board based on the device ID
     if (board == MCU_BOARD_NONE) {
         MCUDevID dev_id = mcu_get_dev_id();
-        if (dev_id == MCU_DEV_ID_STM32G471_473_474_483_484) {
+        if (dev_id == MCU_DEV_ID_STM32G431_441) {
+            board = MCU_BOARD_NUCLEO_G431RB;
+        } else if (dev_id == MCU_DEV_ID_STM32G471_473_474_483_484) {
             board = MCU_BOARD_NUCLEO_G474RE;
-        }
-        else if (dev_id == MCU_DEV_ID_STM32H742_743_753_750) {
+        } else if (dev_id == MCU_DEV_ID_STM32H742_743_753_750) {
             board = MCU_BOARD_NUCLEO_H743ZI2;
         }
     }

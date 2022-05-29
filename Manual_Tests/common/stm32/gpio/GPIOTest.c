@@ -3,14 +3,16 @@
  *
  *  Created on: Jul. 18, 2020
  *      Author: brytni
+ *  Last modified: May 29, 2022
  *
  *  GPIO testing functions
- *  Test will manually blink light on NUCLEO-H74/G474 devkit. When the blue
+ *  Test will manually blink light on NUCLEO-H74/G474/G431 devkit. When the blue
  *  button is pressed, the light (red for H7, green for G4) stops blinking until
  *  the button is released.
  */
 
 #include <common/stm32/gpio/gpio.h>
+#include <nucleo_g431rb/G431RBConfig.h>
 #include <nucleo_g474re/G474REConfig.h>
 #include <nucleo_h743zi2/H743ZI2Config.h>
 
@@ -20,10 +22,11 @@ int main() {
     // If the UID is not matched, try to guess the board based on the device ID
     if (board == MCU_BOARD_NONE) {
         MCUDevID dev_id = mcu_get_dev_id();
-        if (dev_id == MCU_DEV_ID_STM32G471_473_474_483_484) {
+        if (dev_id == MCU_DEV_ID_STM32G431_441) {
+            board = MCU_BOARD_NUCLEO_G431RB;
+        } else if (dev_id == MCU_DEV_ID_STM32G471_473_474_483_484) {
             board = MCU_BOARD_NUCLEO_G474RE;
-        }
-        else if (dev_id == MCU_DEV_ID_STM32H742_743_753_750) {
+        } else if (dev_id == MCU_DEV_ID_STM32H742_743_753_750) {
             board = MCU_BOARD_NUCLEO_H743ZI2;
         }
     }
@@ -34,14 +37,19 @@ int main() {
     // Create GPIO instances
     GPIOInput blue_button;
     GPIOOutput led;
-    if (board == MCU_BOARD_NUCLEO_G474RE) {
+    if(board == MCU_BOARD_NUCLEO_G431RB) {
+        gpio_input_init(&blue_button, &mcu, G431RB_BLUE_BUTTON_PORT,
+                G431RB_BLUE_BUTTON_PIN, GPIO_NOPULL);
+        gpio_output_init(&led, &mcu, G431RB_GREEN_LED_PORT,
+                G431RB_GREEN_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL,
+                GPIO_PIN_RESET);
+    } else if (board == MCU_BOARD_NUCLEO_G474RE) {
         gpio_input_init(&blue_button, &mcu, G474RE_BLUE_BUTTON_PORT,
                 G474RE_BLUE_BUTTON_PIN, GPIO_NOPULL);
         gpio_output_init(&led, &mcu, G474RE_GREEN_LED_PORT,
                 G474RE_GREEN_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL,
                 GPIO_PIN_RESET);
-    }
-    else if (board == MCU_BOARD_NUCLEO_H743ZI2) {
+    } else if (board == MCU_BOARD_NUCLEO_H743ZI2) {
         gpio_input_init(&blue_button, &mcu, H743ZI2_BLUE_BUTTON_PORT,
                 H743ZI2_BLUE_BUTTON_PIN, GPIO_NOPULL);
         gpio_output_init(&led, &mcu, H743ZI2_RED_LED_PORT,

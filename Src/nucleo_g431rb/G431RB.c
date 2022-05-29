@@ -6,7 +6,7 @@ Last Modified: May 29, 2022
 
 Code for the STM32G431RB dev kit.
 
-Author: EricLeus
+Author: Eric Leus
 */
 
 #include <nucleo_g431rb/G431RB.h>
