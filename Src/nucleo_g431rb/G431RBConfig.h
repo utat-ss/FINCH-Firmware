@@ -1,8 +1,10 @@
 /*
+G431RBConfig.h
+
 Date Created: May 28, 2022
 Last Modified: May 28, 2022
 
-I/O and settings configuration information for STM32G431RB dev kit 
+I/O and settings configuration information for STM32G431RB dev kit. 
 
 Author: EricLeus
 */
