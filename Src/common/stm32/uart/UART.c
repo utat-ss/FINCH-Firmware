@@ -3,6 +3,7 @@
  *
  *  Created on: Oct 10, 2020
  *      Author: Bruno
+ *  Last modified: May 29, 2022
  * 
  * Library for interfacing with UART, normally used for sending logging messages
  * to a laptop for debugging (TX) and receiving input from a laptop for
@@ -90,6 +91,7 @@ __io_getchar() functions
 #include <common/stm32/uart/Log.h>
 #include <common/stm32/uart/uart.h>
 #include <common/stm32/util/Util.h>
+#include <nucleo_g431rb/G431RBConfig.h>
 #include <nucleo_g474re/G474REConfig.h>
 #include <nucleo_h743zi2/H743ZI2Config.h>
 #include <stdio.h>
@@ -539,10 +541,14 @@ void uart_init(UART* uart, MCU* mcu,
  * Manual_Tests/common that are supposed to work on all boards.
  */
 void uart_init_for_board(UART* uart, MCU* mcu) {
-    if (mcu->board == MCU_BOARD_NUCLEO_G474RE) {
+    if (mcu->board == MCU_BOARD_NUCLEO_G431RB) {
         // 115,200 baud should work for LPUART1 with a higher frequency clock
         // than a 32.768kHz LSE
         // If this doesn't work, try 9,600 baud
+        uart_init(uart, mcu, G431RB_UART_INST, UART_DEF_BAUD, G431RB_UART_AF,
+                G431RB_UART_TX_PORT, G431RB_UART_TX_PIN,
+                G431RB_UART_RX_PORT, G431RB_UART_RX_PIN);
+    } else if (mcu->board == MCU_BOARD_NUCLEO_G474RE) {
         uart_init(uart, mcu, G474RE_UART_INST, UART_DEF_BAUD, G474RE_UART_AF,
                 G474RE_UART_TX_PORT, G474RE_UART_TX_PIN,
                 G474RE_UART_RX_PORT, G474RE_UART_RX_PIN);
