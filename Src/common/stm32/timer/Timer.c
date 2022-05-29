@@ -129,7 +129,7 @@ void timer_init_clock_irq(Timer* timer) {
 	} 
 #endif
 	// MCU-specific timers
-#ifdef STM32G474xx
+#ifdef STM32G474xx 
 	if (timer->handle.Instance==TIM1){
 		__HAL_RCC_TIM1_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
@@ -148,6 +148,23 @@ void timer_init_clock_irq(Timer* timer) {
 	}else if(timer->handle.Instance==TIM20){
 		__HAL_RCC_TIM20_CLK_ENABLE();
 		HAL_NVIC_EnableIRQ(TIM20_UP_IRQn);
+	}
+#elif defined(STM32G431xx)
+	if (timer->handle.Instance==TIM1){
+		__HAL_RCC_TIM1_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
+	} else if(timer->handle.Instance==TIM7){
+		__HAL_RCC_TIM7_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM7_DAC_IRQn);
+	}else if(timer->handle.Instance==TIM15){
+		__HAL_RCC_TIM15_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
+	}else if(timer->handle.Instance==TIM16){
+		__HAL_RCC_TIM16_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
+	}else if(timer->handle.Instance==TIM17){
+		__HAL_RCC_TIM17_CLK_ENABLE();
+		HAL_NVIC_EnableIRQ(TIM1_TRG_COM_TIM17_IRQn);
 	}
 #elif defined(STM32H743xx)
 	if(timer->handle.Instance==TIM1){
