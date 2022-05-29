@@ -6,7 +6,7 @@ Last modified: 2021-11-19
 Author: Cameron Rodriguez
 
 Wrapper for the HAL timer (TIM) drivers. Configured with TIM5 peripheral enabled
-by default. Currently supported are base timers with confiigurations and
+by default. Currently supported are base timers with configurations and
 interrupts, for general-purpose and low-power timers.
 
 Not currently supported
