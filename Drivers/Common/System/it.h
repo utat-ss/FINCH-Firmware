@@ -27,7 +27,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <common/stm32/mcu/Errors.h>
+#include <common/stm32/mcu/HAL.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

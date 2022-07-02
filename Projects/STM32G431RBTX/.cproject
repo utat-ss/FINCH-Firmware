@@ -50,7 +50,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32G431RBTX/Src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32G431RBTX/Drivers/STM32G4/STM32G4xx_HAL_Driver/Inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32G431RBTX/Drivers/STM32G4/STM32G4xx_HAL_Driver/Inc/Legacy}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32G431RBTX/Drivers/Common/System}&quot;"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.69410742" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
