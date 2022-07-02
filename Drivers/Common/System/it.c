@@ -1,7 +1,7 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    stm32g4xx_it.c
+  * @file    it.c (formerly stm32g4xx_it.c and stm32h7xx_it.c)
   * @brief   Interrupt Service Routines.
   ******************************************************************************
   * @attention
