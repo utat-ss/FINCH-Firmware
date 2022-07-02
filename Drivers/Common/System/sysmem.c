@@ -10,13 +10,12 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
- * All rights reserved.</center></h2>
+ * Copyright (c) 2022 STMicroelectronics.
+ * All rights reserved.
  *
- * This software component is licensed by ST under BSD 3-Clause license,
- * the "License"; You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at:
- *                        opensource.org/licenses/BSD-3-Clause
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
  *
  ******************************************************************************
  */
@@ -53,16 +52,6 @@ static uint8_t *__sbrk_heap_end = NULL;
  */
 void *_sbrk(ptrdiff_t incr)
 {
-  // UTAT EDIT - BEGINNING
-  // This function is called by malloc()
-  // It seems that malloc() is called for the first time printf-style formatting
-  // with a floating-point number occurs in the program
-  // This happens with logging functions such as info(), which call vsnprintf()
-  // In the future, could implement some method here to enable/disable producing
-  // an error when this function is called
-  // UTAT EDIT - END
-
-
   extern uint8_t _end; /* Symbol defined in the linker script */
   extern uint8_t _estack; /* Symbol defined in the linker script */
   extern uint32_t _Min_Stack_Size; /* Symbol defined in the linker script */
@@ -70,7 +59,7 @@ void *_sbrk(ptrdiff_t incr)
   const uint8_t *max_heap = (uint8_t *)stack_limit;
   uint8_t *prev_heap_end;
 
-  /* Initalize heap end at first call */
+  /* Initialize heap end at first call */
   if (NULL == __sbrk_heap_end)
   {
     __sbrk_heap_end = &_end;
