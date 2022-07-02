@@ -44,11 +44,13 @@
 									<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.includepaths.1565834877" name="Include paths (-I)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.includepaths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../../Drivers/Common/CMSIS"/>
-									<listOptionValue builtIn="false" value="../../../Drivers/STM32G4/CMSIS"/>
-									<listOptionValue builtIn="false" value="../../../Drivers/STM32G4/STM32G4xx_HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="../../../Drivers/STM32G4/System"/>
-									<listOptionValue builtIn="false" value="../../../Src"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32G431RBTX/Drivers/Common/CMSIS}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32G431RBTX/Drivers/STM32G4/CMSIS}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32G431RBTX/Drivers/STM32G4/System}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32G431RBTX/Src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32G431RBTX/Drivers/STM32G4/STM32G4xx_HAL_Driver/Inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32G431RBTX/Drivers/STM32G4/STM32G4xx_HAL_Driver/Inc/Legacy}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32G431RBTX/Drivers/Common/System}&quot;"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.69410742" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
@@ -77,6 +79,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Drivers/Common"/>
 						<entry excluding="System/startup_stm32g474retx.s" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Drivers/STM32G4"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Manual_Tests/common/stm32/util"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Src"/>
 					</sourceEntries>
 				</configuration>
