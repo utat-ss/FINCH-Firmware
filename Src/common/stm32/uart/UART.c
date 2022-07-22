@@ -89,7 +89,7 @@ __io_getchar() functions
 
 #include <common/stm32/mcu/Errors.h>
 #include <common/stm32/uart/Log.h>
-#include <common/stm32/uart/uart.h>
+#include <common/stm32/uart/UART.h>
 #include <common/stm32/util/Util.h>
 #include <nucleo_g431rb/G431RBConfig.h>
 #include <nucleo_g474re/G474REConfig.h>

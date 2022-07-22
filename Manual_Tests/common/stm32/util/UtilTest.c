@@ -8,8 +8,8 @@
  * Tests miscellaneous utility functions (e.g. bit/byte manipulation).
  */
 
-#include <common/stm32/uart/log.h>
-#include <common/stm32/util/util.h>
+#include <common/stm32/uart/Log.h>
+#include <common/stm32/util/Util.h>
 
 int main() {
     // Try to automatically detect board based on MCU UID

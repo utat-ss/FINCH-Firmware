@@ -16,7 +16,7 @@
  */
 
 #include <common/stm32/gpio/GPIOITInput.h>
-#include <common/stm32/mcu/errors.h>
+#include <common/stm32/mcu/Errors.h>
 #include <common/stm32/util/Util.h>
 
 // This should set all callbacks by default to NULL
